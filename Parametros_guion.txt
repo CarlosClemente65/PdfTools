@@ -2,7 +2,7 @@ Para la ejecucion del programa, se pasa como parametros la clave 'ds123456' y un
 parametros necesarios para incluir el codigo QR
 
 Ejecucion:
-	* FacturaQR ds123456 guion.txt
+	* PdfTools ds123456 guion.txt
 	
 Gestion de errores:
 	Si se produce algun error por algun parametro que falte o no sea correcto, se genera el fichero "errores.txt" con el detalle

@@ -4,7 +4,7 @@ using System.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 
-namespace FacturaQR
+namespace PdfTools
 {
     public class Program
     {

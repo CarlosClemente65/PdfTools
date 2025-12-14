@@ -8,7 +8,7 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 
-namespace FacturaQR
+namespace PdfTools
 {
     public static class Utilidades
     {

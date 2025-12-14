@@ -1,4 +1,4 @@
-<h1 align="center"> FacturaQR </h1>
+<h1 align="center"> PdfTools </h1>
 <br>
 
 <h2> Inserta un codigo QR a una factura en PDF con los datos para Veri*Fatu. </h2>
@@ -28,7 +28,7 @@ Tambien puede usarse como visualizador de ficheros PDF.
 
 ### Uso:
 ```
-FacturaQR.exe ds123456 guion.txt
+PdfTools.exe ds123456 guion.txt
 ```
 <br>
 

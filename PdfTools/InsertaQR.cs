@@ -5,7 +5,7 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using QRCoder;
 
-namespace FacturaQR
+namespace PdfTools
 {
     public static class InsertaQR
     {

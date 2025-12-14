@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // La información general de un ensamblado se controla mediante el siguiente 
 // conjunto de atributos. Cambie estos valores de atributo para modificar la información
 // asociada a un ensamblado.
-[assembly: AssemblyTitle("Inserta QR VeriFactu en un PDF de una factura")]
-[assembly: AssemblyDescription("Inserta QR VeriFactu en un PDF de una factura")]
+[assembly: AssemblyTitle("Herramientas para gestion de PDFs")]
+[assembly: AssemblyDescription("Herramientas para gestion de PDFs")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Diagram Software")]
-[assembly: AssemblyProduct("FacturaQR")]
+[assembly: AssemblyProduct("PdfTools")]
 [assembly: AssemblyCopyright("©  10-2025 Diagram Software Europa S.L.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Número de compilación
 //      Revisión
 //
-[assembly: AssemblyVersion("2.1.0.0")]
-[assembly: AssemblyFileVersion("2.1.0.0")]
+[assembly: AssemblyVersion("3.0.0.0")]
+[assembly: AssemblyFileVersion("3.0.0.0")]

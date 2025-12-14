@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace FacturaQR
+namespace PdfTools
 {
     public static class Configuracion
     {
@@ -88,6 +88,7 @@ namespace FacturaQR
             if(args.Length < 2)
             {
                 resultado.AppendLine("Parámetros insuficientes.");
+                return resultado;
             }
             if(args[0] != "ds123456")
             {

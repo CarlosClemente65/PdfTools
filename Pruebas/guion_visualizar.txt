@@ -1,5 +1,5 @@
-pdfentrada=c:\Programacion\c#\FacturaQR\Pruebas\25_00001.pdf
+pdfentrada=c:\Programacion\c#\PdfTools\Pruebas\25_00001.pdf
 
 accionpdf=visualizar
-ficherosalida=c:\Programacion\c#\FacturaQR\Pruebas\fin.txt
+ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\fin.txt
 cerrarvisor

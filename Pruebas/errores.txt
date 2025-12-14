@@ -1,1 +1,1 @@
-Error al insertar el QR: No se puede dejar vacío el nombre de la ruta de acceso.
+Se ha producido un error al procesar el fichero. Mensaje: No se puede encontrar una parte de la ruta de acceso 'c:\Programacion\c#\PdfTools\Pruebas\fin_cerrar.txt'.
