@@ -3,6 +3,10 @@ using System.IO;
 using System.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using PdfTools.Datos;
+using Acciones = PdfTools.Datos.ConfiguracionAcciones;
+using Parametros = PdfTools.Datos.ConfiguracionGeneral;
+using DatosQR = PdfTools.Datos.ConfiguracionQR;
 
 namespace PdfTools
 {
@@ -25,10 +29,10 @@ namespace PdfTools
             try
             {
                 // Cargar configuración
-                resultado = Configuracion.CargarParametros(args);
+                resultado = Utilidades.CargarParametros(args);
 
                 // Si se ha solicitado cerrar el visor, se cierra antes de iniciar el proceso
-                if(Configuracion.CerrarVisor)
+                if(Acciones.CerrarVisor)
                 {
                     Utilidades.CerrarVisor();
                 }
@@ -37,21 +41,21 @@ namespace PdfTools
                 if(resultado.Length == 0)
                 {
                     // Valida parametros obligatorios en caso de que haya que añadir el QR
-                    if(Configuracion.InsertarQR == true)
+                    if(DatosQR.InsertarQR == true)
                     {
-                        resultado = Configuracion.ValidarParametros(resultado);
+                        resultado = Parametros.ValidarParametros(resultado);
 
                         // Insertar QR si no hay errores de configuración
                         if(resultado.Length == 0)
                         {
                             // Si no se ha pasado el fichero de salida, se asigna un valor por defecto
-                            if(string.IsNullOrEmpty(Configuracion.PdfSalida))
+                            if(string.IsNullOrEmpty(Parametros.PdfSalida))
                             {
-                                Configuracion.PdfSalida = Path.Combine(Configuracion.RutaFicheros, Path.GetFileNameWithoutExtension(Configuracion.PdfEntrada) + "_salida.pdf");
+                                Parametros.PdfSalida = Path.Combine(Parametros.RutaFicheros, Path.GetFileNameWithoutExtension(Parametros.PdfEntrada) + "_salida.pdf");
                             }
 
                             // Carga el documento con el PDF de entrada
-                            documento = Utilidades.Generardocumento(Configuracion.PdfEntrada);
+                            documento = Utilidades.Generardocumento(Parametros.PdfEntrada);
 
                             // Establece la pagina 1 para insertar el QR y las imagenes
                             pagina = documento.Pages[0];
@@ -65,50 +69,50 @@ namespace PdfTools
                             if(resultado.Length == 0)
                             {
                                 // Guarda el PDF modificado en la ruta de salida
-                                documento.Save(Configuracion.PdfSalida);
+                                documento.Save(Parametros.PdfSalida);
                             }
                         }
                     }
                     else
                     {
                         // Si no hay que insertar el QR se revisa si hay que añadir la marca de agua
-                        if(!string.IsNullOrEmpty(Configuracion.MarcaAgua))
+                        if(!string.IsNullOrEmpty(Parametros.MarcaAgua))
                         {
                             // Carga en el documento el PDF de entrada
-                            documento = Utilidades.Generardocumento(Configuracion.PdfEntrada);
+                            documento = Utilidades.Generardocumento(Parametros.PdfEntrada);
 
                             // Establece la pagina 1 para insertar el QR y las imagenes
                             pagina = documento.Pages[0];
 
-                            // añade el recuadro a la pagina
+                            // Añade el recuadro a la pagina
                             gfx = XGraphics.FromPdfPage(pagina);
 
                             // Inserta la marca de agua en el PDF
-                            Utilidades.InsertaMarcaAgua(pagina, gfx, Configuracion.MarcaAgua);
+                            Utilidades.InsertaMarcaAgua(pagina, gfx, Parametros.MarcaAgua);
 
                             // Asigna el nombre del fichero de salida si no se ha pasado
-                            if(string.IsNullOrEmpty(Configuracion.PdfSalida))
+                            if(string.IsNullOrEmpty(Parametros.PdfSalida))
                             {
-                                Configuracion.PdfSalida = Path.Combine(Configuracion.RutaFicheros, Path.GetFileNameWithoutExtension(Configuracion.PdfEntrada) + "_salida.pdf");
+                                Parametros.PdfSalida = Path.Combine(Parametros.RutaFicheros, Path.GetFileNameWithoutExtension(Parametros.PdfEntrada) + "_salida.pdf");
                             }
 
                             // Guarda el PDF modificado en la ruta de salida
-                            documento.Save(Configuracion.PdfSalida);
+                            documento.Save(Parametros.PdfSalida);
                         }
                     }
 
                     // Revisa si hay que ejecutar acciones adicionales
-                    if(Configuracion.EjecutarAcciones)
+                    if(Acciones.EjecutarAcciones)
                     {
                         // Ejecuta las acciones adicionales que se hayan solicitado
                         Utilidades.GestionarAcciones();
                     }
 
                     // Si se ha especificado un fichero de salida, se genera el fichero de control
-                    if(Configuracion.FicheroSalida != null)
+                    if(Parametros.FicheroSalida != null)
                     {
                         // Genera el fichero de control de salida una vez termine la ejecucion
-                        File.WriteAllText(Configuracion.FicheroSalida, "OK");
+                        File.WriteAllText(Parametros.FicheroSalida, "OK");
                     }
                 }
             }
@@ -126,7 +130,7 @@ namespace PdfTools
             // Guardar resultados en errores.txt si hay errores
             if(resultado.Length > 0)
             {
-                File.WriteAllText(Path.Combine(Configuracion.RutaFicheros, "errores.txt"), resultado.ToString());
+                File.WriteAllText(Path.Combine(Parametros.RutaFicheros, "errores.txt"), resultado.ToString());
             }
         }
     }

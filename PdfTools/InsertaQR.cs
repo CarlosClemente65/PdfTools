@@ -4,6 +4,10 @@ using System.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using QRCoder;
+using Acciones = PdfTools.Datos.ConfiguracionAcciones;
+using Parametros = PdfTools.Datos.ConfiguracionGeneral;
+using DatosQR = PdfTools.Datos.ConfiguracionQR;
+
 
 namespace PdfTools
 {
@@ -13,18 +17,18 @@ namespace PdfTools
         {
             
             // Configuracion de las propiedades del QR
-            string textoQr = Configuracion.UrlEnvio ?? string.Empty;
-            string textoArriba = Configuracion.TextoArriba;
-            string textoAbajo = Configuracion.TextoAbajo;
+            string textoQr = DatosQR.UrlEnvio ?? string.Empty;
+            string textoArriba = DatosQR.TextoArriba;
+            string textoAbajo = DatosQR.TextoAbajo;
 
             // Convierte las posiciones X e Y, y el tamaño del QR a unidades de punto (1/72 pulgadas)
-            double posX = XUnit.FromMillimeter(Configuracion.PosX).Point;
-            double posY = XUnit.FromMillimeter(Configuracion.PosY).Point;
-            double ancho = XUnit.FromMillimeter(Configuracion.Ancho).Point;
-            double alto = XUnit.FromMillimeter(Configuracion.Alto).Point;
+            double posX = XUnit.FromMillimeter(DatosQR.PosX).Point;
+            double posY = XUnit.FromMillimeter(DatosQR.PosY).Point;
+            double ancho = XUnit.FromMillimeter(DatosQR.Ancho).Point;
+            double alto = XUnit.FromMillimeter(DatosQR.Alto).Point;
 
             // Convierte el color hexadecimal para usarlo en el QR
-            Color colorQR = ColorTranslator.FromHtml(Configuracion.ColorQR);
+            Color colorQR = ColorTranslator.FromHtml(DatosQR.ColorQR);
 
             try
             {
@@ -40,9 +44,9 @@ namespace PdfTools
 
 
                 // Primero se inserta la marca de agua (si tiene contenido) para que quede debajo del todo
-                if(!string.IsNullOrEmpty(Configuracion.MarcaAgua))
+                if(!string.IsNullOrEmpty(Parametros.MarcaAgua))
                 {
-                    pagina = Utilidades.InsertaMarcaAgua(pagina, gfx, Configuracion.MarcaAgua);
+                    pagina = Utilidades.InsertaMarcaAgua(pagina, gfx, Parametros.MarcaAgua);
                 }
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos
@@ -88,10 +92,10 @@ namespace PdfTools
             XImage qrGenerado;
 
             // Carga o genera el código QR
-            if(Configuracion.UsarQrExterno == true)
+            if(DatosQR.UsarQrExterno == true)
             {
                 // Si se pasa un fichero externo, se carga la imagen en el objeto QR
-                qrGenerado = XImage.FromFile(Configuracion.NombreFicheroQR);
+                qrGenerado = XImage.FromFile(DatosQR.NombreFicheroQR);
             }
             else
             {

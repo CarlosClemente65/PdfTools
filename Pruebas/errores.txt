@@ -1,1 +1,1 @@
-Se ha producido un error al procesar el fichero. Mensaje: No se puede encontrar una parte de la ruta de acceso 'c:\Programacion\c#\PdfTools\Pruebas\fin_cerrar.txt'.
+Se ha producido un error al procesar el fichero. Mensaje: No se pudo encontrar el archivo 'D:\Programacion\C#\PdfTools\Pruebas\guion_generarQR.txt'.

@@ -54,7 +54,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuracion.cs" />
+    <Compile Include="Datos\ConfiguracionAcciones.cs" />
+    <Compile Include="Datos\ConfiguracionGeneral.cs" />
+    <Compile Include="Datos\ConfiguracionQR.cs" />
     <Compile Include="InsertaQR.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -2,11 +2,17 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
+using Parametros = PdfTools.Datos.ConfiguracionGeneral;
+using Acciones = PdfTools.Datos.ConfiguracionAcciones;
+using DatosQR = PdfTools.Datos.ConfiguracionQR;
+
+
 
 namespace PdfTools
 {
@@ -17,11 +23,67 @@ namespace PdfTools
         static string rutaSumatra = Path.Combine(rutaBase, "SumatraPDF.exe");
         static string cacheSumatra = Path.Combine(rutaBase, "sumatrapdfcache");
 
+        // Carga los parámetros desde el archivo de guion
+        public static StringBuilder CargarParametros(string[] args)
+        {
+            StringBuilder resultado = new StringBuilder();
+
+            // Validar los parámetros de entrada
+            if(args.Length < 2)
+            {
+                resultado.AppendLine("Parámetros insuficientes.");
+                return resultado;
+            }
+            if(args[0] != "ds123456")
+            {
+                resultado.AppendLine("Clave de inicio incorrecta.");
+                return resultado;
+            }
+
+            // Asignar el archivo de guion
+            string guion = args[1];
+
+            if(!File.Exists(guion))
+            {
+                resultado.AppendLine("El archivo de guion no existe.");
+            }
+
+
+            // Leer el archivo de guion y asignar los parámetros
+            foreach(string linea in File.ReadAllLines(guion))
+            {
+                // Salta las lineas vacias
+                if(string.IsNullOrWhiteSpace(linea))
+                {
+                    continue;
+                }
+
+                // Separa las lineas del guion en clave y valor
+                string[] partes = linea
+                    .Split(new char[] { '=' }, 2)
+                    .Select(p => p.Trim())
+                    .ToArray();
+
+                // Chequea que tenga dos partes (clave y valor) antes de asignar los parametros
+                if(partes.Length == 2)
+                {
+                    Parametros.AsignaParametros(partes[0], partes[1]);
+                }
+                else if(string.Equals(partes[0], "cerrarvisor", StringComparison.OrdinalIgnoreCase))
+                {
+                    // El parametro 'cerrarvisor' no tiene dos partes y se trata de forma independiente
+                    Acciones.CerrarVisor = true;
+                }
+            }
+
+            return resultado;
+        }
+
 
         // Establece la ruta para insertar el QR en funcion del entorno y si aplica Verifactu
         public static string ObtenerUrl(bool produccion, bool verifactu)
         {
-            string urlBase = produccion ? Configuracion.UrlProduccionBase : Configuracion.UrlPruebasBase;
+            string urlBase = produccion ? DatosQR.UrlProduccionBase : DatosQR.UrlPruebasBase;
 
             if(verifactu)
             {
@@ -60,26 +122,26 @@ namespace PdfTools
         public static void GenerarURL()
         {
             // Genera la URL con los parámetros del QR UTF-8
-            StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(Configuracion.UrlEnvio).Append("?");
-            urlBuilder.Append("nif=").Append(Uri.EscapeUriString(Configuracion.NifEmisor)).Append("&");
-            urlBuilder.Append("numserie=").Append(Uri.EscapeUriString(Configuracion.NumeroFactura)).Append("&");
-            urlBuilder.Append("fecha=").Append(Configuracion.FechaFactura.ToString("dd-MM-yyyy")).Append("&");
-            urlBuilder.Append("importe=").Append(Configuracion.TotalFactura.ToString("F2").Replace(',', '.')); // Asegurar que el decimal es punto
+            StringBuilder urlCompleta = new StringBuilder();
+            urlCompleta.Append(DatosQR.UrlEnvio).Append("?");
+            urlCompleta.Append("nif=").Append(Uri.EscapeUriString(DatosQR.NifEmisor)).Append("&");
+            urlCompleta.Append("numserie=").Append(Uri.EscapeUriString(DatosQR.NumeroFactura)).Append("&");
+            urlCompleta.Append("fecha=").Append(DatosQR.FechaFactura.ToString("dd-MM-yyyy")).Append("&");
+            urlCompleta.Append("importe=").Append(DatosQR.TotalFactura.ToString("F2").Replace(',', '.')); // Asegurar que el decimal es punto
 
             // Construir la URL completa
-            Configuracion.UrlEnvio = urlBuilder.ToString();
+            DatosQR.UrlEnvio = urlCompleta.ToString();
         }
 
         // Gestiona las acciones de abrir, imprimir o visualizar el PDF con SumatraPDF
         public static void GestionarAcciones()
         {
-            var accionPDF = Configuracion.AccionPDF;
+            var accionPDF = Acciones.AccionPDF;
 
             // Si no se ha indicado el PDF de salida, se usa el de entrada
-            var ficheroPDF = string.IsNullOrWhiteSpace(Configuracion.PdfSalida)
-                ? Configuracion.PdfEntrada
-                : Configuracion.PdfSalida;
+            var ficheroPDF = string.IsNullOrWhiteSpace(Parametros.PdfSalida)
+                ? Parametros.PdfEntrada
+                : Parametros.PdfSalida;
             try
             {
                 // Borrado de la carpeta de cache antes de la ejecucion
@@ -106,22 +168,22 @@ namespace PdfTools
                 switch(accionPDF)
                 {
                     // Configura el proceso para lanzar la impresion silenciosa en la impresora predeterminada
-                    case Configuracion.AccionesPDF.Imprimir:
+                    case Acciones.AccionesPDF.Imprimir:
                         psi.Arguments = $"-print-to-default -silent \"{ficheroPDF}\""; // Imprime el PDF en la impresora predeterminada
                         psi.CreateNoWindow = true; // No crea ninguna ventana
                         psi.WindowStyle = ProcessWindowStyle.Hidden; // El proceso esta oculto
                         psi.UseShellExecute = false; // Ejecuta el proceso directamente sin usar la shell de windows
                         break;
 
-                    case Configuracion.AccionesPDF.Abrir:
-                    case Configuracion.AccionesPDF.Visualizar:
+                    case Acciones.AccionesPDF.Abrir:
+                    case Acciones.AccionesPDF.Visualizar:
                         psi.Arguments = $"{ficheroPDF}"; // Fichero PDF para abrir o visualizar
                         psi.CreateNoWindow = false; // Se crea la ventana del proceso
                         psi.WindowStyle = ProcessWindowStyle.Normal; // Estilo de la ventana del proceso
                         psi.UseShellExecute = true; // Usa el shell de Windows para abrir SumatraPDF normalmente (ventana visible)
 
                         // En la accion de visualizar no se espera a cerrar el visor
-                        if(accionPDF == Configuracion.AccionesPDF.Visualizar)
+                        if(accionPDF == Acciones.AccionesPDF.Visualizar)
                         {
                             espera = false;
                         }
