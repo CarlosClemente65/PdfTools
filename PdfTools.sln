@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36408.4 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11304.174 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacturaQR", "FacturaQR\FacturaQR.csproj", "{A67FA47C-4CE5-4CAF-992E-133780B870FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfTools", "PdfTools\PdfTools.csproj", "{A67FA47C-4CE5-4CAF-992E-133780B870FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,11 +1,11 @@
-pdfentrada=C:\Programacion\c#\FacturaQR\Pruebas\25_00001.pdf
-pdfsalida=C:\Programacion\c#\FacturaQR\Pruebas\25_00001_SAL.pdf
-ficheroqr=C:\Programacion\c#\FacturaQR\Pruebas\25_00001.bmp
+pdfentrada=d:\Programacion\c#\PdfTools\Pruebas\25_00001.pdf
+pdfsalida=d:\Programacion\c#\PdfTools\Pruebas\25_00001_SAL.pdf
+ficheroqr=d:\Programacion\c#\PdfTools\Pruebas\25_00001.bmp
 posicionx=170
 posiciony=5
 ancho=30
 marcaagua=
 verifactu=si
 accionpdf=abrir
-ficherosalidas=C:\Programacion\c#\FacturaQR\Pruebas\salida.txt
+ficherosalidas=d:\Programacion\c#\PdfTools\Pruebas\salida.txt
 cerrarvisor

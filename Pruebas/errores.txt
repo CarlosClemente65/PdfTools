@@ -1,1 +1,1 @@
-Error al insertar el QR: No se puede dejar vacío el nombre de la ruta de acceso.
+Se ha producido un error al procesar el fichero. Mensaje: No se pudo encontrar el archivo 'D:\Programacion\C#\PdfTools\Pruebas\guion_generarQR.txt'.

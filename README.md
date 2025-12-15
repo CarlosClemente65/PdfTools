@@ -1,7 +1,7 @@
-<h1 align="center"> FacturaQR </h1>
+<h1 align="center"> PdfTools </h1>
 <br>
 
-<h2> Inserta un codigo QR a una factura en PDF con los datos para Veri*Fatu. </h2>
+<h2> Herramientas para gestion de PDFs. </h2>
 <br>
 <h4> @ Carlos Clemente (Diagram Software Europa S.L.) - 10/2025 </h4>
 
@@ -23,12 +23,13 @@ Tambien puede usarse como visualizador de ficheros PDF.
 * v1.7.0.0 Incorporada la opcion para cerrar los procesos abiertos del visor SumatraPDF
 * v1.8.0.0 Incorporada la posibilidad de añadir la marca de agua a cualquier PDF que se pase
 * v2.0.0.0 Modificado el proceso de cerrar el visor para pasarlo de forma independiente
+* v3.0.0.0 Modificado nombre de la aplicacion 
 <br><br>
 
 
 ### Uso:
 ```
-FacturaQR.exe ds123456 guion.txt
+PdfTools.exe ds123456 guion.txt
 ```
 <br>
 

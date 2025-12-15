@@ -1,2 +1,2 @@
 cerrarvisor
-ficherosalida=c:\Programacion\c#\FacturaQR\Pruebas\fin_cerrar.txt
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\fin_cerrar.txt

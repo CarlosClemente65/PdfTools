@@ -1,5 +1,5 @@
-pdfentrada=C:\Programacion\c#\FacturaQR\Pruebas\Factura.pdf
-pdfsalida=C:\Programacion\c#\FacturaQR\Pruebas\Factura_salida.pdf
+pdfentrada=d:\Programacion\c#\PdfTools\Pruebas\Factura.pdf
+pdfsalida=d:\Programacion\c#\PdfTools\Pruebas\Factura_salida.pdf
 entorno=pruebas
 verifactu=si
 nifemisor=05196375P
@@ -11,5 +11,5 @@ posiciony=5
 ancho=25
 color=#000000
 accionpdf=abrir
-ficherosalida=C:\Programacion\c#\FacturaQR\Pruebas\salida.txt
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\salida.txt
 cerrarvisor
