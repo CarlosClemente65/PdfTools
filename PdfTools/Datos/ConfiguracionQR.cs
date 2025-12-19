@@ -46,5 +46,25 @@ namespace PdfTools.Datos
         public static double Alto { get; set; } = 30;
         public static string ColorQR { get; set; } = "#000000"; // Por defecto negro
 
+
+        /* Idioma de respuesta de la AEAT a QR con VeriFctu
+            gl: gallego
+            ca: catalán
+            eu: euskera
+            es: castellano
+            va: valenciano
+            en: inglés
+        */
+        public enum IdiomasQR
+        {
+            gl,
+            ca,
+            eu,
+            es,
+            va,
+            en
+        }
+
+        public static IdiomasQR IdiomaQR { get; set; } = IdiomasQR.es;
     }
 }

@@ -13,7 +13,7 @@ namespace PdfTools.Datos
     public class ConfiguracionGeneral
     {
         // Rutas de los ficheros
-        public static string PdfEntrada { get;  set; }
+        public static string PdfEntrada { get; set; }
         public static string PdfSalida { get; set; }
         public static string RutaFicheros { get; set; } = Directory.GetCurrentDirectory();
         public static string FicheroSalida { get; set; } // Fichero de control para gestionar cuando termina el programa.
@@ -174,6 +174,21 @@ namespace PdfTools.Datos
                     if(File.Exists(FicheroSalida))
                     {
                         File.Delete(FicheroSalida);
+                    }
+                    break;
+
+                case "idioma":
+                    // Codigo de idioma en la respuesta de la AEAT al cotejo del QR
+                    DatosQR.IdiomasQR idiomaQR;
+                    bool esValido = Enum.TryParse(
+                        valor,
+                        ignoreCase: true,
+                        out idiomaQR
+                        );
+
+                    if(esValido && Enum.IsDefined(typeof(DatosQR.IdiomasQR), idiomaQR))
+                    {
+                        DatosQR.IdiomaQR = idiomaQR;
                     }
                     break;
             }

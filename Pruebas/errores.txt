@@ -1,1 +1,2 @@
-Se ha producido un error al procesar el fichero. Mensaje: No se pudo encontrar el archivo 'D:\Programacion\C#\PdfTools\Pruebas\guion_generarQR.txt'.
+El PDF de entrada no existe.
+Se ha producido un error al procesar el fichero. Mensaje: No se puede encontrar una parte de la ruta de acceso 'd:\Programacion\c#\PdfTools\Pruebas\salida.txt'.
