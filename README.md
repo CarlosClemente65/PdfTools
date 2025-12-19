@@ -93,4 +93,5 @@ PdfTools.exe ds123456 guion.txt
 	- SumatraPDF.exe
 * El fichero 'Configuracion_visor.txt' es una copia modificada con los parametros del visor, 
   Para usarla debe renombrarse como "SumatraPDF-settings.txt" y ubicarla en la misma ruta que el visor SumatraPDF.
+  
 
