@@ -23,6 +23,7 @@ Tambien puede usarse como visualizador de ficheros PDF.
 * v1.7.0.0 Incorporada la opcion para cerrar los procesos abiertos del visor SumatraPDF
 * v1.8.0.0 Incorporada la posibilidad de añadir la marca de agua a cualquier PDF que se pase
 * v2.0.0.0 Modificado el proceso de cerrar el visor para pasarlo de forma independiente
+* v2.0.1.0 Añadido parametro para indicar el idioma de respuesta de la AEAT en el QR de las facturas
 <br><br>
 
 
@@ -33,24 +34,25 @@ PdfTools.exe ds123456 guion.txt
 <br>
 
 #### Parametros guion
-* pdfentrada=Nombre del pdf con la fatura; obligatorio
-* pdfsalida=Nombre del pdf con el QR; opcional
-* ficheroqr=Nombre del fichero con la imagen del QR; opcional (si no se pasa es obligatorio los campos nifemisor y datos factura)
-* entorno='pruebas' para forzar el envio a la web de pruebas; opcional
-* verifactu=SI/NO para indicar si son facturas verificables; opcional
-* url=direccion url para la validacion; opcional
-* nifemisor=NIF del emisor de la factura para incluir en el QR; opcional
-* numerofactura=Numero de de factura para incluir en el QR; obligatorio si nifemisor <> ""
-* fechafactura=Fecha de la factura para incluir en el QR; obligatorio si nifemisor <> ""
-* totalfactura=Importe total de la factura para incluir en el QR; obligatorio si nifemisor <> ""
-* posicionx=posicion en milimetros desde el margen izquierdo; opcional 
-* posiciony=posicion en milimetros desde el margen superior; opcional
-* ancho=ancho del QR en milimetros (el alto sera el mismo); opcional
-* color=Color del QR en formato hexadecimal; opcional
-* marcaagua=Texto para insertar una marca de agua en el documento; opcional
-* accionpdf=[imprimir | abrir | visualizar]; Acciones adicionales a realizar con el PDF; opcional
-* cerrarvisor ;Permite dar la orden de cerrar el visor; opcional
-* ficherosalida=nombre del fichero para controlar la finalizacion del proceso
+* pdfentrada=Nombre del pdf con la fatura (obligatorio)
+* pdfsalida=Nombre del pdf con el QR (opcional)
+* ficheroqr=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
+* entorno='pruebas' para forzar el envio a la web de pruebas (opcional)
+* verifactu=SI/NO para indicar si son facturas verificables (opcional)
+* url=direccion url para la validacion (opcional)
+* nifemisor=NIF del emisor de la factura para incluir en el QR (opcional)
+* numerofactura=Numero de de factura para incluir en el QR (obligatorio si nifemisor <> "")
+* fechafactura=Fecha de la factura para incluir en el QR (obligatorio si nifemisor <> "")
+* totalfactura=Importe total de la factura para incluir en el QR (obligatorio si nifemisor <> "")
+* posicionx=posicion en milimetros desde el margen izquierdo (opcional)
+* posiciony=posicion en milimetros desde el margen superior (opcional)
+* ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
+* color=Color del QR en formato hexadecimal (opcional)
+* marcaagua=Texto para insertar una marca de agua en el documento (opcional)
+* accionpdf=[imprimir | abrir | visualizar]; Acciones adicionales a realizar con el PDF (opcional)
+* cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
+* ficherosalida=nombre del fichero para controlar la finalizacion del proceso (opcional)
+* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
 
 <br>
 
@@ -76,6 +78,13 @@ PdfTools.exe ds123456 guion.txt
 * El parametro cerrarvisor' permite cerrar todos los procesos abiertos del visor SumatraPDF; se puede pasar como un parametro adicional ademas del resto
 * Si se incluye el parametro 'ficherosalida' la aplicacion genera un fichero que puede usarse para controlar si la aplicacion ha terminado o no. 
   Con el parametro 'visualizar' la aplicacion no se detiene aunque no se cierre el visor, por lo que se generara (si se ha indicado) el fichero de salida
+* El parametro 'idioma' puede tener los siguientes valores:
+	- gl: gallego
+	- ca: catalán
+	- eu: euskera
+	- es: castellano
+	- va: valenciano
+	- en: inglés
 * En la ruta de ejecucion deben estar los siguientes ficheros:
 	- PdfSharp.dll
 	- QRCoder.dll

@@ -124,10 +124,11 @@ namespace PdfTools
             // Genera la URL con los parámetros del QR UTF-8
             StringBuilder urlCompleta = new StringBuilder();
             urlCompleta.Append(DatosQR.UrlEnvio).Append("?");
-            urlCompleta.Append("nif=").Append(Uri.EscapeUriString(DatosQR.NifEmisor)).Append("&");
-            urlCompleta.Append("numserie=").Append(Uri.EscapeUriString(DatosQR.NumeroFactura)).Append("&");
-            urlCompleta.Append("fecha=").Append(DatosQR.FechaFactura.ToString("dd-MM-yyyy")).Append("&");
-            urlCompleta.Append("importe=").Append(DatosQR.TotalFactura.ToString("F2").Replace(',', '.')); // Asegurar que el decimal es punto
+            urlCompleta.Append("nif=").Append(Uri.EscapeUriString(DatosQR.NifEmisor));
+            urlCompleta.Append("&").Append("numserie=").Append(Uri.EscapeUriString(DatosQR.NumeroFactura));
+            urlCompleta.Append("&").Append("fecha=").Append(DatosQR.FechaFactura.ToString("dd-MM-yyyy"));
+            urlCompleta.Append("&").Append("importe=").Append(DatosQR.TotalFactura.ToString("F2").Replace(',', '.')); // Asegurar que el decimal es punto
+            urlCompleta.Append("&").Append("idioma=").Append(DatosQR.IdiomaQR.ToString());
 
             // Construir la URL completa
             DatosQR.UrlEnvio = urlCompleta.ToString();
