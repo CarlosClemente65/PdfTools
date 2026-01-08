@@ -84,7 +84,7 @@ namespace PdfTools
                     else
                     {
                         // Si no hay que insertar el QR se revisa si hay que añadir la marca de agua
-                        if(!string.IsNullOrEmpty(Parametros.MarcaAgua))
+                        if(!string.IsNullOrEmpty(DatosQR.MarcaAgua))
                         {
                             // Carga en el documento el PDF de entrada
                             documento = Utilidades.Generardocumento(Parametros.PdfEntrada);
@@ -96,7 +96,7 @@ namespace PdfTools
                             gfx = XGraphics.FromPdfPage(pagina);
 
                             // Inserta la marca de agua en el PDF
-                            Utilidades.InsertaMarcaAgua(pagina, gfx, Parametros.MarcaAgua);
+                            Utilidades.InsertaMarcaAgua(pagina, gfx, DatosQR.MarcaAgua);
 
                             // Asigna el nombre del fichero de salida si no se ha pasado
                             if(string.IsNullOrEmpty(Parametros.PdfSalida))

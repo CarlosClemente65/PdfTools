@@ -140,7 +140,7 @@ namespace PdfTools.Logica
 
                 case "marcaagua":
                     // Asigna la marca de agua, reemplazando \n por saltos de línea
-                    Parametros.MarcaAgua = valor.Replace("\\n", "\n");
+                    DatosQR.MarcaAgua = valor.Replace("\\n", "\n");
                     break;
 
                 case "accionpdf":
@@ -173,6 +173,21 @@ namespace PdfTools.Logica
                     if(File.Exists(Parametros.FicheroSalida))
                     {
                         File.Delete(Parametros.FicheroSalida);
+                    }
+                    break;
+
+                case "idioma":
+                    // Codigo de idioma en la respuesta de la AEAT al cotejo del QR
+                    Enums.IdiomasQR idiomaQR;
+                    bool esValido = Enum.TryParse(
+                        valor,
+                        ignoreCase: true,
+                        out idiomaQR
+                        );
+
+                    if(esValido && Enum.IsDefined(typeof(Enums.IdiomasQR), idiomaQR))
+                    {
+                        DatosQR.DatosUrl.IdiomaQR = idiomaQR;
                     }
                     break;
             }

@@ -8,51 +8,72 @@ namespace PdfTools.Datos
 {
     public class ConfiguracionQR
     {
-        // Datos de control para generar el QR
         public bool? UsarQrExterno = false; // Indica si se usa un fichero de QR externo
+
         public bool? InsertarQR = false; // Control para incluir o no el QR en el PDF
+        public string MarcaAgua { get; set; } // Texto de la marca de agua en caso de que se use
+        public string NombreFicheroQR { get; set; } // Fichero de imagen del QR externo
+
+
+        // Propiedades privadas para instancias internas
+        private DatosFactura _datosFactura;
+        private DatosAdicionales _datosAdicionales;
+        private DatosUrl _datosUrl;
+        private Posicion _posicion;
 
         // Datos para generar el QR
-        public string NombreFicheroQR { get; set; }
+        // Datos de la factura para generar el QR
+        public DatosFactura DatosFactura
+        {
+            get
+            {
+                if (_datosFactura == null)
+                {
+                    _datosFactura = new DatosFactura();
+                }
+                return _datosFactura;
+            }
+        }
 
+        // Datos adicionales para el QR
+        public DatosAdicionales DatosAdicionales
+        {
+            get
+            {
+                if (_datosAdicionales == null)
+                {
+                    _datosAdicionales = new DatosAdicionales();
+                }
+                return _datosAdicionales;
+            }
+        }
 
-        public Posicion Posicion = null;
+        // Datos de la URL para generar el QR
+        public DatosUrl DatosUrl
+        {
+            get
+            {
+                if (_datosUrl == null)
+                {
+                    _datosUrl = new DatosUrl();
+                }
+                return _datosUrl;
+            }
+        }
 
-        public DatosFactura DatosFactura;
+        // Posición del QR en el PDF
+        public Posicion Posicion
+        {
+            get
+            {
+                if (_posicion == null)
+                {
+                    _posicion = new Posicion();
+                }
+                return _posicion;
+            }
+        }
 
-        public DatosAdicionales DatosAdicionales = null;
-
-        public DatosUrl DatosUrl;
-
-
-    }
-
-    public class Posicion
-    {
-        // Posición tamaño y color del QR
-        public double PosX { get; set; } = 10;
-        public double PosY { get; set; } = 10;
-        public double Ancho { get; set; } = 30;
-        public double Alto { get; set; } = 30;
-        public string ColorQR { get; set; } = "#000000"; // Por defecto negro
-    }
-
-    public class DatosFactura
-    {
-        // Datos de la factura que se insertarán en el QR
-        public string NifEmisor { get; set; }
-        public string NumeroFactura { get; set; }
-        public DateTime FechaFactura { get; set; }
-        public decimal TotalFactura { get; set; }
-
-    }
-
-    public class DatosAdicionales
-    {
-        // Texto adiconal a insertar en el QR
-        public string TextoAbajo { get; set; } = "";
-
-        public string TextoArriba { get; set; } = "QR Tributario";
     }
 
     public class DatosUrl
@@ -65,24 +86,34 @@ namespace PdfTools.Datos
         public bool EntornoProduccion { get; set; } = true; // Defecto entorno producción
         public bool VeriFactu { get; set; } = false; // Defecto sistema no VeriFactu
 
-        public static IdiomasQR IdiomaQR { get; set; } = IdiomasQR.es;
+        public Enums.IdiomasQR IdiomaQR { get; set; } = Enums.IdiomasQR.es;
     }
 
-    /* Idioma de respuesta de la AEAT a QR con VeriFctu
-            gl: gallego
-            ca: catalán
-            eu: euskera
-            es: castellano
-            va: valenciano
-            en: inglés
-        */
-    public enum IdiomasQR
+    public class Posicion
     {
-        gl,
-        ca,
-        eu,
-        es,
-        va,
-        en
+        // Posición, tamaño y color del QR
+        public double PosX { get; set; } = 10; // Posicion desde la izquierda
+        public double PosY { get; set; } = 10; // Posición desde la parte superior
+        public double Ancho { get; set; } = 30; // Ancho en mm
+        public double Alto { get; set; } = 30; // Alto en mm
+        public string ColorQR { get; set; } = "#000000"; // Color del QR en formato hexadecimal (defeto negro)
+    }
+
+    public class DatosFactura
+    {
+        // Datos de la factura que se insertarán en el QR
+        public string NifEmisor { get; set; } // Nif del emisor de la factura
+        public string NumeroFactura { get; set; } // Numero de la factura
+        public DateTime FechaFactura { get; set; } // Fecha de la factura
+        public decimal TotalFactura { get; set; } // Importe total de la factura
+
+    }
+
+    public class DatosAdicionales
+    {
+        // Texto adiconal a insertar en el QR
+        public string TextoAbajo { get; set; } = "";
+
+        public string TextoArriba { get; set; } = "QR Tributario";
     }
 }

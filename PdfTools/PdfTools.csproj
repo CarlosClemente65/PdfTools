@@ -60,6 +60,7 @@
     <Compile Include="Datos\ConfiguracionAcciones.cs" />
     <Compile Include="Datos\ConfiguracionGeneral.cs" />
     <Compile Include="Datos\ConfiguracionQR.cs" />
+    <Compile Include="Datos\Enums.cs" />
     <Compile Include="Datos\Instancias.cs" />
     <Compile Include="InsertaQR.cs" />
     <Compile Include="Logica\GestionParametros.cs" />

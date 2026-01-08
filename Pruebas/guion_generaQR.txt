@@ -13,4 +13,4 @@ color=#000000
 accionpdf=abrir
 ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\salida.txt
 cerrarvisor
-idioma=ca
+idioma=gl

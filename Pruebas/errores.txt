@@ -1,2 +1,1 @@
-El PDF de entrada no existe.
-Se ha producido un error al procesar el fichero. Mensaje: No se puede encontrar una parte de la ruta de acceso 'd:\Programacion\c#\PdfTools\Pruebas\salida.txt'.
+Se ha producido un error al procesar el fichero. Mensaje: No se puede encontrar una parte de la ruta de acceso 'd:\Programacion\c#\PdfTools\Pruebas\fin_cerrar.txt'.

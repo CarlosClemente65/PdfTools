@@ -135,6 +135,7 @@ namespace PdfTools
             urlCompleta.Append("numserie=").Append(Uri.EscapeUriString(DatosQR.DatosFactura.NumeroFactura)).Append("&");
             urlCompleta.Append("fecha=").Append(DatosQR.DatosFactura.FechaFactura.ToString("dd-MM-yyyy")).Append("&");
             urlCompleta.Append("importe=").Append(DatosQR.DatosFactura.TotalFactura.ToString("F2").Replace(',', '.')); // Asegurar que el decimal es punto
+            urlCompleta.Append("&idioma=").Append(DatosQR.DatosUrl.IdiomaQR.ToString());
 
             // Construir la URL completa
             DatosQR.DatosUrl.UrlEnvio = urlCompleta.ToString();

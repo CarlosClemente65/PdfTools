@@ -51,9 +51,9 @@ namespace PdfTools
 
 
                 // Primero se inserta la marca de agua (si tiene contenido) para que quede debajo del todo
-                if(!string.IsNullOrEmpty(Parametros.MarcaAgua))
+                if(!string.IsNullOrEmpty(DatosQR.MarcaAgua))
                 {
-                    pagina = Utilidades.InsertaMarcaAgua(pagina, gfx, Parametros.MarcaAgua);
+                    pagina = Utilidades.InsertaMarcaAgua(pagina, gfx, DatosQR.MarcaAgua);
                 }
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos
