@@ -4,9 +4,6 @@ using System.Text;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfTools.Datos;
-using Acciones = PdfTools.Datos.ConfiguracionAcciones;
-using Parametros = PdfTools.Datos.ConfiguracionGeneral;
-using DatosQR = PdfTools.Datos.ConfiguracionQR;
 
 namespace PdfTools
 {
@@ -14,6 +11,9 @@ namespace PdfTools
     {
         static void Main(string[] args)
         {
+            // Crea las instancias de las clases para poder acceder a las propiedades de las clases
+            Instancias.Inicializar();
+
             // Objeto para almacenar el resutlado de las operaciones
             StringBuilder resultado = new StringBuilder();
 
@@ -25,6 +25,13 @@ namespace PdfTools
 
             // Objeto que representa un recuadro donde se incluira el QR y los textos
             XGraphics gfx = null;
+
+            var DatosQR = Datos.Instancias.ConfiguracionQR;
+            var Acciones = Datos.Instancias.Acciones;
+            var Parametros = Datos.Instancias.ConfiguracionGeneral;
+
+            var gestor = new Logica.GestionParametros();
+
 
             try
             {
@@ -43,7 +50,7 @@ namespace PdfTools
                     // Valida parametros obligatorios en caso de que haya que añadir el QR
                     if(DatosQR.InsertarQR == true)
                     {
-                        resultado = Parametros.ValidarParametros(resultado);
+                        resultado = gestor.ValidarParametros(resultado);
 
                         // Insertar QR si no hay errores de configuración
                         if(resultado.Length == 0)
@@ -64,7 +71,8 @@ namespace PdfTools
                             gfx = XGraphics.FromPdfPage(pagina);
 
                             // Proceso para insertar el QR en el documento
-                            resultado = InsertaQR.InsertarQR(pagina, gfx, resultado);
+                            var procesoPDF = new InsertaQR();
+                            resultado = procesoPDF.InsertarQR(pagina, gfx, resultado);
 
                             if(resultado.Length == 0)
                             {
@@ -102,7 +110,7 @@ namespace PdfTools
                     }
 
                     // Revisa si hay que ejecutar acciones adicionales
-                    if(Acciones.EjecutarAcciones)
+                    if(Instancias.Acciones.EjecutarAcciones)
                     {
                         // Ejecuta las acciones adicionales que se hayan solicitado
                         Utilidades.GestionarAcciones();

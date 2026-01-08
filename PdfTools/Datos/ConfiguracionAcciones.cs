@@ -9,16 +9,21 @@ namespace PdfTools.Datos
     public class ConfiguracionAcciones
     {
         // Controla si hay que realizar alguna accion con el PDF
-        public static bool EjecutarAcciones { get; set; } = false;
+        public bool EjecutarAcciones { get; set; }
 
 
         // Acción a realizar con el PDF
-        public static AccionesPDF AccionPDF { get; set; }
+        public AccionesPDF AccionPDF { get; set; }
         
 
         // Control para cerrar el visor
-        public static bool CerrarVisor { get; set; } = false;
+        public bool CerrarVisor { get; set; }
 
+        public ConfiguracionAcciones()
+        {
+            EjecutarAcciones = false;
+            CerrarVisor = false;
+        }
 
         // Lista de acciones adicionales a realizar con el PDF
         public enum AccionesPDF
