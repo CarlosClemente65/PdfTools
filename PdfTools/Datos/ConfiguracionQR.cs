@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PdfTools.Datos
 {
     public class ConfiguracionQR
     {
-        public bool? UsarQrExterno = false; // Indica si se usa un fichero de QR externo
+        public bool UsarQrExterno = false; // Indica si se usa un fichero de QR externo
 
-        public bool? InsertarQR = false; // Control para incluir o no el QR en el PDF
+        public bool InsertarQR = false; // Control para incluir o no el QR en el PDF
         public string MarcaAgua { get; set; } // Texto de la marca de agua en caso de que se use
         public string NombreFicheroQR { get; set; } // Fichero de imagen del QR externo
 

@@ -23,7 +23,7 @@ namespace PdfTools
             DatosQR = Datos.Instancias.ConfiguracionQR;
         }
 
-        public StringBuilder InsertarQR(PdfPage pagina, XGraphics gfx, StringBuilder resultado)
+        public void InsertarQR(PdfPage pagina, XGraphics gfx)
         {
             // Configuracion de las propiedades del QR
             string textoQr = DatosQR.DatosUrl.UrlEnvio ?? string.Empty;
@@ -81,16 +81,14 @@ namespace PdfTools
             // Captura de error si no esta diponible el programa de impresion
             catch(InvalidOperationException ex)
             {
-                resultado.AppendLine(ex.Message);
+                //resultado.AppendLine(ex.Message);
             }
 
             // Captura el error generico al insertar el QR
             catch(Exception ex)
             {
-                resultado.AppendLine($"Error al insertar el QR: {ex.Message}");
+                //resultado.AppendLine($"Error al insertar el QR: {ex.Message}");
             }
-
-            return resultado;
         }
 
         private XImage GenerarQR(string textoQr)

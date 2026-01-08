@@ -9,6 +9,7 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using PdfTools.Datos;
+using PdfTools.Logica;
 
 
 
@@ -28,20 +29,19 @@ namespace PdfTools
         public static Datos.ConfiguracionAcciones Acciones => Datos.Instancias.Acciones;
 
         // Carga los parámetros desde el archivo de guion
-        public static StringBuilder CargarParametros(string[] args)
+        public static void CargarParametros(string[] args)
         {
-            StringBuilder resultado = new StringBuilder();
-
-            // Validar los parámetros de entrada
+            // Validar los parámetros de entrada (si fallan se registran en el log y no se continua)
             if(args.Length < 2)
             {
-                resultado.AppendLine("Parámetros insuficientes.");
-                return resultado;
+                Logger.Agregar("Parámetros insuficientes.");
+                return;
             }
+
             if(args[0] != "ds123456")
             {
-                resultado.AppendLine("Clave de inicio incorrecta.");
-                return resultado;
+                Logger.Agregar("Clave de inicio incorrecta.");
+                return;
             }
 
             // Asignar el archivo de guion
@@ -49,9 +49,9 @@ namespace PdfTools
 
             if(!File.Exists(guion))
             {
-                resultado.AppendLine("El archivo de guion no existe.");
+                Logger.Agregar("El archivo de guion no existe.");
+                return;
             }
-
 
             // Instancia para asignar los parametros
             Logica.GestionParametros gestor = new Logica.GestionParametros();
@@ -82,8 +82,6 @@ namespace PdfTools
                     Acciones.CerrarVisor = true;
                 }
             }
-
-            return resultado;
         }
 
 
