@@ -8,9 +8,7 @@ using System.Text.RegularExpressions;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
-using Parametros = PdfTools.Datos.ConfiguracionGeneral;
-using Acciones = PdfTools.Datos.ConfiguracionAcciones;
-using DatosQR = PdfTools.Datos.ConfiguracionQR;
+using PdfTools.Datos;
 
 
 
@@ -22,6 +20,12 @@ namespace PdfTools
         static string rutaBase = AppDomain.CurrentDomain.BaseDirectory;
         static string rutaSumatra = Path.Combine(rutaBase, "SumatraPDF.exe");
         static string cacheSumatra = Path.Combine(rutaBase, "sumatrapdfcache");
+
+
+        // Propiedades para acceder a las instancias de las clases de datos
+        public static Datos.ConfiguracionQR DatosQR => Datos.Instancias.ConfiguracionQR;
+        public static Datos.ConfiguracionGeneral Parametros => Datos.Instancias.ConfiguracionGeneral;
+        public static Datos.ConfiguracionAcciones Acciones => Datos.Instancias.Acciones;
 
         // Carga los parámetros desde el archivo de guion
         public static StringBuilder CargarParametros(string[] args)
@@ -49,6 +53,9 @@ namespace PdfTools
             }
 
 
+            // Instancia para asignar los parametros
+            Logica.GestionParametros gestor = new Logica.GestionParametros();
+
             // Leer el archivo de guion y asignar los parámetros
             foreach(string linea in File.ReadAllLines(guion))
             {
@@ -67,7 +74,7 @@ namespace PdfTools
                 // Chequea que tenga dos partes (clave y valor) antes de asignar los parametros
                 if(partes.Length == 2)
                 {
-                    Parametros.AsignaParametros(partes[0], partes[1]);
+                    gestor.AsignaParametros(partes[0], partes[1]);
                 }
                 else if(string.Equals(partes[0], "cerrarvisor", StringComparison.OrdinalIgnoreCase))
                 {
@@ -83,7 +90,7 @@ namespace PdfTools
         // Establece la ruta para insertar el QR en funcion del entorno y si aplica Verifactu
         public static string ObtenerUrl(bool produccion, bool verifactu)
         {
-            string urlBase = produccion ? DatosQR.UrlProduccionBase : DatosQR.UrlPruebasBase;
+            string urlBase = produccion ? DatosQR.DatosUrl.UrlProduccionBase : DatosQR.DatosUrl.UrlPruebasBase;
 
             if(verifactu)
             {
@@ -123,15 +130,14 @@ namespace PdfTools
         {
             // Genera la URL con los parámetros del QR UTF-8
             StringBuilder urlCompleta = new StringBuilder();
-            urlCompleta.Append(DatosQR.UrlEnvio).Append("?");
-            urlCompleta.Append("nif=").Append(Uri.EscapeUriString(DatosQR.NifEmisor));
-            urlCompleta.Append("&").Append("numserie=").Append(Uri.EscapeUriString(DatosQR.NumeroFactura));
-            urlCompleta.Append("&").Append("fecha=").Append(DatosQR.FechaFactura.ToString("dd-MM-yyyy"));
-            urlCompleta.Append("&").Append("importe=").Append(DatosQR.TotalFactura.ToString("F2").Replace(',', '.')); // Asegurar que el decimal es punto
-            urlCompleta.Append("&").Append("idioma=").Append(DatosQR.IdiomaQR.ToString());
+            urlCompleta.Append(DatosQR.DatosUrl.UrlEnvio).Append("?");
+            urlCompleta.Append("nif=").Append(Uri.EscapeUriString(DatosQR.DatosFactura.NifEmisor)).Append("&");
+            urlCompleta.Append("numserie=").Append(Uri.EscapeUriString(DatosQR.DatosFactura.NumeroFactura)).Append("&");
+            urlCompleta.Append("fecha=").Append(DatosQR.DatosFactura.FechaFactura.ToString("dd-MM-yyyy")).Append("&");
+            urlCompleta.Append("importe=").Append(DatosQR.DatosFactura.TotalFactura.ToString("F2").Replace(',', '.')); // Asegurar que el decimal es punto
 
             // Construir la URL completa
-            DatosQR.UrlEnvio = urlCompleta.ToString();
+            DatosQR.DatosUrl.UrlEnvio = urlCompleta.ToString();
         }
 
         // Gestiona las acciones de abrir, imprimir o visualizar el PDF con SumatraPDF
@@ -169,22 +175,22 @@ namespace PdfTools
                 switch(accionPDF)
                 {
                     // Configura el proceso para lanzar la impresion silenciosa en la impresora predeterminada
-                    case Acciones.AccionesPDF.Imprimir:
+                    case ConfiguracionAcciones.AccionesPDF.Imprimir:
                         psi.Arguments = $"-print-to-default -silent \"{ficheroPDF}\""; // Imprime el PDF en la impresora predeterminada
                         psi.CreateNoWindow = true; // No crea ninguna ventana
                         psi.WindowStyle = ProcessWindowStyle.Hidden; // El proceso esta oculto
                         psi.UseShellExecute = false; // Ejecuta el proceso directamente sin usar la shell de windows
                         break;
 
-                    case Acciones.AccionesPDF.Abrir:
-                    case Acciones.AccionesPDF.Visualizar:
+                    case ConfiguracionAcciones.AccionesPDF.Abrir:
+                    case ConfiguracionAcciones.AccionesPDF.Visualizar:
                         psi.Arguments = $"{ficheroPDF}"; // Fichero PDF para abrir o visualizar
                         psi.CreateNoWindow = false; // Se crea la ventana del proceso
                         psi.WindowStyle = ProcessWindowStyle.Normal; // Estilo de la ventana del proceso
                         psi.UseShellExecute = true; // Usa el shell de Windows para abrir SumatraPDF normalmente (ventana visible)
 
                         // En la accion de visualizar no se espera a cerrar el visor
-                        if(accionPDF == Acciones.AccionesPDF.Visualizar)
+                        if(accionPDF == ConfiguracionAcciones.AccionesPDF.Visualizar)
                         {
                             espera = false;
                         }
