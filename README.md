@@ -38,9 +38,12 @@ PdfTools.exe ds123456 guion.txt
 #### Parametros guion
 * pdfentrada=Nombre del pdf con la fatura (obligatorio)
 * pdfsalida=Nombre del pdf con el QR (opcional)
-* ficheroqr=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
+* carpetaentrada=Nombre de la carpeta para procesar por lotes los PDFs que haya dentro
+* carpetasalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes
+* ficherosalida=nombre del fichero para controlar la finalizacion del proceso (opcional)
 * entorno='pruebas' para forzar el envio a la web de pruebas (opcional)
 * verifactu=SI/NO para indicar si son facturas verificables (opcional)
+* ficheroqr=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
 * url=direccion url para la validacion (opcional)
 * nifemisor=NIF del emisor de la factura para incluir en el QR (opcional)
 * numerofactura=Numero de de factura para incluir en el QR (obligatorio si nifemisor <> "")
@@ -51,10 +54,9 @@ PdfTools.exe ds123456 guion.txt
 * ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
 * color=Color del QR en formato hexadecimal (opcional)
 * marcaagua=Texto para insertar una marca de agua en el documento (opcional)
+* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
 * accionpdf=[imprimir | abrir | visualizar]; Acciones adicionales a realizar con el PDF (opcional)
 * cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
-* ficherosalida=nombre del fichero para controlar la finalizacion del proceso (opcional)
-* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
 
 <br>
 

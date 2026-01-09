@@ -25,5 +25,23 @@ namespace PdfTools.Datos
             va,
             en
         }
+
+        // Control para saber el tipo de parametro del guion
+        public enum tiposParametros
+        {
+            QR,
+            General,
+            Accion,
+            Desconocido
+        }
+
+        // Lista de acciones adicionales a realizar con el PDF
+        public enum AccionesPDF
+        {
+            Ninguna,
+            Imprimir,
+            Abrir,
+            Visualizar
+        }
     }
 }

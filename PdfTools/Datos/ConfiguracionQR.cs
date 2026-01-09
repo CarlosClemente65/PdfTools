@@ -12,9 +12,9 @@ namespace PdfTools.Datos
 
 
         // Propiedades privadas para instancias internas
+        private DatosUrl _datosUrl;
         private DatosFactura _datosFactura;
         private DatosAdicionales _datosAdicionales;
-        private DatosUrl _datosUrl;
         private Posicion _posicion;
 
         // Datos para generar el QR
@@ -85,16 +85,6 @@ namespace PdfTools.Datos
         public Enums.IdiomasQR IdiomaQR { get; set; } = Enums.IdiomasQR.es;
     }
 
-    public class Posicion
-    {
-        // Posición, tamaño y color del QR
-        public double PosX { get; set; } = 10; // Posicion desde la izquierda
-        public double PosY { get; set; } = 10; // Posición desde la parte superior
-        public double Ancho { get; set; } = 30; // Ancho en mm
-        public double Alto { get; set; } = 30; // Alto en mm
-        public string ColorQR { get; set; } = "#000000"; // Color del QR en formato hexadecimal (defeto negro)
-    }
-
     public class DatosFactura
     {
         // Datos de la factura que se insertarán en el QR
@@ -105,9 +95,19 @@ namespace PdfTools.Datos
 
     }
 
+    public class Posicion
+    {
+        // Posición, tamaño y color del QR
+        public double PosX { get; set; } = 10; // Posicion desde la izquierda
+        public double PosY { get; set; } = 10; // Posición desde la parte superior
+        public double Ancho { get; set; } = 30; // Ancho en mm
+        public double Alto { get; set; } = 30; // Alto en mm
+        public string ColorQR { get; set; } = "#000000"; // Color del QR en formato hexadecimal (defeto negro)
+    }
+
     public class DatosAdicionales
     {
-        // Texto adiconal a insertar en el QR
+        // Texto adicional a insertar en el QR
         public string TextoAbajo { get; set; } = "";
 
         public string TextoArriba { get; set; } = "QR Tributario";

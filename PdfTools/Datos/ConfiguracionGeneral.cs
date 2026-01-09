@@ -16,8 +16,6 @@ namespace PdfTools.Datos
         public bool ProcesarCarpeta { get; set; } // Indica si se procesa una carpeta completa
         public string[] ListaArchivos { get; set; } // Lista de archivos para procesar si se pasa una carpeta
 
-        public List<ConfiguracionQR> ConfiguracionesQR { get; set; } = new List<ConfiguracionQR>(); // Lista de configuraciones de QR para procesar> ListaPDF
-
         public ConfiguracionGeneral()
         {
             RutaFicheros = Directory.GetCurrentDirectory();

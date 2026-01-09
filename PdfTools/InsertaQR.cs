@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Drawing;
 using System.Text;
+using System.Xml.Linq;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfTools.Datos;
+using PdfTools.Logica;
 using QRCoder;
 
 
@@ -11,31 +13,31 @@ namespace PdfTools
 {
     public class InsertaQR
     {
-        public ConfiguracionAcciones Acciones { get; private set; }
-        public ConfiguracionGeneral Parametros { get; private set; }
-        public ConfiguracionQR DatosQR { get; private set; }
-
-        public InsertaQR()
+        public PdfDocument InsertarQR(string pdfEntrada, ConfiguracionQR datosQR)
         {
-            // Asigna las referencias a las instancias
-            Acciones = Datos.Instancias.Acciones;
-            Parametros = Datos.Instancias.ConfiguracionGeneral;
-            DatosQR = Datos.Instancias.ConfiguracionQR;
-        }
+            // Objeto con el documento para insertar las imagenes
+            PdfDocument documento = new PdfDocument();
 
-        public void InsertarQR(PdfPage pagina, XGraphics gfx)
-        {
+            // Carga el documento con el PDF de entrada
+            documento = Utilidades.Generardocumento(pdfEntrada);
+
+            // Establece la pagina 1 para insertar el QR y las imagenes
+            PdfPage pagina = documento.Pages[0];
+
+            // Añade el recuadro a la pagina
+            XGraphics gfx = XGraphics.FromPdfPage(pagina);
+
             // Configuracion de las propiedades del QR
-            string textoQr = DatosQR.DatosUrl.UrlEnvio ?? string.Empty;
+            string textoQr = datosQR.DatosUrl.UrlEnvio ?? string.Empty;
 
             // Convierte las posiciones X e Y, y el tamaño del QR a unidades de punto (1/72 pulgadas)
-            double posX = XUnit.FromMillimeter(DatosQR.Posicion.PosX).Point;
-            double posY = XUnit.FromMillimeter(DatosQR.Posicion.PosY).Point;
-            double ancho = XUnit.FromMillimeter(DatosQR.Posicion.Ancho).Point;
-            double alto = XUnit.FromMillimeter(DatosQR.Posicion.Alto).Point;
+            double posX = XUnit.FromMillimeter(datosQR.Posicion.PosX).Point;
+            double posY = XUnit.FromMillimeter(datosQR.Posicion.PosY).Point;
+            double ancho = XUnit.FromMillimeter(datosQR.Posicion.Ancho).Point;
+            double alto = XUnit.FromMillimeter(datosQR.Posicion.Alto).Point;
 
             // Convierte el color hexadecimal para usarlo en el QR
-            Color colorQR = ColorTranslator.FromHtml(DatosQR.Posicion.ColorQR);
+            Color colorQR = ColorTranslator.FromHtml(datosQR.Posicion.ColorQR);
 
             try
             {
@@ -51,9 +53,9 @@ namespace PdfTools
 
 
                 // Primero se inserta la marca de agua (si tiene contenido) para que quede debajo del todo
-                if(!string.IsNullOrEmpty(DatosQR.MarcaAgua))
+                if(!string.IsNullOrEmpty(datosQR.MarcaAgua))
                 {
-                    pagina = Utilidades.InsertaMarcaAgua(pagina, gfx, DatosQR.MarcaAgua);
+                    pagina = Utilidades.InsertaMarcaAgua(pagina, gfx, datosQR.MarcaAgua);
                 }
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos
@@ -65,30 +67,31 @@ namespace PdfTools
                 XBrush brocha = new XSolidBrush(XColor.FromArgb(colorQR.A, colorQR.R, colorQR.G, colorQR.B));
 
                 // Primero se inserta el texto arriba del QR
-                gfx.DrawString(DatosQR.DatosAdicionales.TextoArriba, font, brocha, new XRect(posX, posY - altoFuente, ancho, altoFuente), XStringFormats.Center);
+                gfx.DrawString(datosQR.DatosAdicionales.TextoArriba, font, brocha, new XRect(posX, posY - altoFuente, ancho, altoFuente), XStringFormats.Center);
 
                 // Despues se inserta el QR
                 gfx.DrawImage(qrImage, posX, posY, ancho, alto);
 
                 // Por ultimo se inserta el texto debajo del QR y centrado
-                gfx.DrawString(DatosQR.DatosAdicionales.TextoAbajo, font, brocha, new XRect(posX, posY + alto, ancho, altoFuente), XStringFormats.Center);
+                gfx.DrawString(datosQR.DatosAdicionales.TextoAbajo, font, brocha, new XRect(posX, posY + alto, ancho, altoFuente), XStringFormats.Center);
 
                 // Libera la imagen del QR
                 qrImage.Dispose();
-
             }
 
             // Captura de error si no esta diponible el programa de impresion
             catch(InvalidOperationException ex)
             {
-                //resultado.AppendLine(ex.Message);
+                Logger.Agregar(ex.Message);
             }
 
             // Captura el error generico al insertar el QR
             catch(Exception ex)
             {
-                //resultado.AppendLine($"Error al insertar el QR: {ex.Message}");
+                Logger.Agregar($"Error al insertar el QR: {ex.Message}");
             }
+
+            return documento;
         }
 
         private XImage GenerarQR(string textoQr)

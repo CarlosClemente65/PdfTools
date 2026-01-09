@@ -13,7 +13,7 @@ namespace PdfTools.Datos
 
 
         // Acción a realizar con el PDF
-        public AccionesPDF AccionPDF { get; set; }
+        public Enums.AccionesPDF AccionPDF { get; set; }
         
 
         // Control para cerrar el visor
@@ -23,15 +23,6 @@ namespace PdfTools.Datos
         {
             EjecutarAcciones = false;
             CerrarVisor = false;
-        }
-
-        // Lista de acciones adicionales a realizar con el PDF
-        public enum AccionesPDF
-        {
-            Ninguna,
-            Imprimir,
-            Abrir,
-            Visualizar
         }
     }
 }

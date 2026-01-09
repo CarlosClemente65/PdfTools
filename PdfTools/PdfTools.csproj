@@ -61,10 +61,11 @@
     <Compile Include="Datos\ConfiguracionGeneral.cs" />
     <Compile Include="Datos\ConfiguracionQR.cs" />
     <Compile Include="Datos\Enums.cs" />
-    <Compile Include="Datos\Instancias.cs" />
     <Compile Include="InsertaQR.cs" />
     <Compile Include="Logica\GestionParametros.cs" />
     <Compile Include="Logica\Logger.cs" />
+    <Compile Include="Metodos\GestionAcciones.cs" />
+    <Compile Include="Metodos\InsertarMarcaAgua.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilidades.cs" />
