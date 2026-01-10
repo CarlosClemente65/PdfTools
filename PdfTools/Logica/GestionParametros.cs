@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using PdfTools.Datos;
 
 namespace PdfTools.Logica
@@ -28,7 +27,8 @@ namespace PdfTools.Logica
                     break;
 
                 case Enums.tiposParametros.Desconocido:
-                    Logger.Agregar($"El parametro {clave} es desconocido");
+                    // No implementado, pero puede servir para controlar que los parametros pasados sean correctos
+                    // Logger.Agregar($"El parametro {clave} es desconocido");
                     break;
             }
         }
@@ -36,7 +36,7 @@ namespace PdfTools.Logica
         // Asignacion de parametros del QR
         public ConfiguracionQR AsignaParametrosQR(string clave, string valor, ConfiguracionQR datosQR)
         {
-            switch(clave.ToLower())
+            switch(clave)
             {
                 case "entorno":
                     // Define el entorno de pruebas o producción
@@ -157,7 +157,7 @@ namespace PdfTools.Logica
 
         public ConfiguracionGeneral AsignaParametrosGenerales(string clave, string valor, ConfiguracionGeneral parametros)
         {
-            switch(clave.ToLower())
+            switch(clave)
             {
                 case "pdfentrada":
                     parametros.PdfEntrada = Path.GetFullPath(valor.Trim('"'));
@@ -166,9 +166,6 @@ namespace PdfTools.Logica
                     if(File.Exists(parametros.PdfEntrada))
                     {
                         parametros.RutaFicheros = Path.GetDirectoryName(parametros.PdfEntrada);
-
-                        // Asigna el nombre del fichero de salida por defecto
-                        parametros.PdfSalida = Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada) + "_salida.pdf");
                     }
                     break;
 
@@ -214,23 +211,23 @@ namespace PdfTools.Logica
         public ConfiguracionAcciones AsignaParametrosAcciones(string clave, string valor, ConfiguracionAcciones acciones)
         {
             // Define distintas acciones a realizar con el visor SumatraPDF que permite imprimir, abrir o visualizar el PDF
-            switch(clave.ToLower())
+            switch(clave)
             {
                 case "accionpdf":
                     switch(valor.ToLower())
                     {
                         case "imprimir":
-                            acciones.AccionPDF = ConfiguracionAcciones.AccionesPDF.Imprimir;
+                            acciones.AccionPDF = Enums.AccionesPDF.Imprimir;
                             acciones.EjecutarAcciones = true;
                             break;
 
                         case "abrir":
-                            acciones.AccionPDF = ConfiguracionAcciones.AccionesPDF.Abrir;
+                            acciones.AccionPDF = Enums.AccionesPDF.Abrir;
                             acciones.EjecutarAcciones = true;
                             break;
 
                         case "visualizar":
-                            acciones.AccionPDF = ConfiguracionAcciones.AccionesPDF.Visualizar;
+                            acciones.AccionPDF = Enums.AccionesPDF.Visualizar;
                             acciones.EjecutarAcciones = true;
                             break;
 

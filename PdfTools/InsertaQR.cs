@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Drawing;
-using System.Text;
-using System.Xml.Linq;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfTools.Datos;
 using PdfTools.Logica;
+using PdfTools.Metodos;
 using QRCoder;
 
 
@@ -13,13 +12,10 @@ namespace PdfTools
 {
     public class InsertaQR
     {
-        public PdfDocument InsertarQR(string pdfEntrada, ConfiguracionQR datosQR)
+        ConfiguracionQR DatosQR = null;
+        public PdfDocument InsertarQR(PdfDocument documento, ConfiguracionQR datosQR)
         {
-            // Objeto con el documento para insertar las imagenes
-            PdfDocument documento = new PdfDocument();
-
-            // Carga el documento con el PDF de entrada
-            documento = Utilidades.Generardocumento(pdfEntrada);
+            DatosQR = datosQR;
 
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
@@ -51,11 +47,13 @@ namespace PdfTools
                     posX -= desbordaDerecha + 10;
                 }
 
-
                 // Primero se inserta la marca de agua (si tiene contenido) para que quede debajo del todo
-                if(!string.IsNullOrEmpty(datosQR.MarcaAgua))
+                string textoMarcaAgua = datosQR.MarcaAgua;
+
+                GestionContenido gestorProceso = new GestionContenido();
+                if(!string.IsNullOrEmpty(textoMarcaAgua))
                 {
-                    pagina = Utilidades.InsertaMarcaAgua(pagina, gfx, datosQR.MarcaAgua);
+                    pagina = gestorProceso.InsertaMarcaAgua(pagina, textoMarcaAgua);
                 }
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos
@@ -123,8 +121,6 @@ namespace PdfTools
 
             return qrGenerado;
         }
-
-        
     }
 }
 

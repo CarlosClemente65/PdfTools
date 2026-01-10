@@ -1,26 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PdfTools.Datos;
 
 namespace PdfTools.Metodos
 {
     public class GestionAcciones
     {
-        // Ruta del ejecutable SumatraPDF 
-        public string rutaBase = AppDomain.CurrentDomain.BaseDirectory;
-        public string rutaSumatra = Path.Combine(rutaBase, "SumatraPDF.exe");
-        public string cacheSumatra = Path.Combine(rutaBase, "sumatrapdfcache");
-
-
         // Gestiona las acciones de abrir, imprimir o visualizar el PDF con SumatraPDF
-        public void ProcesarAccion(ConfiguracionGeneral parametros, ConfiguracionAcciones acciones)
+        public void ProcesarAccion(ConfiguracionGeneral parametros, Enums.AccionesPDF accion)
         {
-            var accionPDF = acciones.AccionPDF;
+            // Ruta del ejecutable SumatraPDF 
+            string rutaSumatra = Utilidades.rutaSumatra;
+            string cacheSumatra = Utilidades.cacheSumatra;
 
             // Si no se ha indicado el PDF de salida, se usa el de entrada
             var ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
@@ -29,17 +21,16 @@ namespace PdfTools.Metodos
             try
             {
                 // Borrado de la carpeta de cache antes de la ejecucion
-                if(Directory.Exists(cacheSumatra))
+                if(Directory.Exists(Utilidades.cacheSumatra))
                 {
-                    Directory.Delete(cacheSumatra, true);
+                    Directory.Delete(Utilidades.cacheSumatra, true);
                 }
 
                 // Controla si esta disponible el programa para evitar excepciones
-                if(!File.Exists(rutaSumatra))
+                if(!File.Exists(Utilidades.rutaSumatra))
                 {
                     throw new InvalidOperationException("No se pudo lanzar la impresion del PDF.");
                 }
-
 
                 // Crea un proceso para ejecutar el programa SumatraPDF
                 var psi = new ProcessStartInfo();
@@ -49,7 +40,7 @@ namespace PdfTools.Metodos
                 bool espera = true; // Indica si hay que esperar al cierre del visor
 
                 //Configura los parametros segun si se va a imprimir, abrir o visualizar el PDF
-                switch(accionPDF)
+                switch(accion)
                 {
                     // Configura el proceso para lanzar la impresion silenciosa en la impresora predeterminada
                     case Enums.AccionesPDF.Imprimir:
@@ -67,7 +58,7 @@ namespace PdfTools.Metodos
                         psi.UseShellExecute = true; // Usa el shell de Windows para abrir SumatraPDF normalmente (ventana visible)
 
                         // En la accion de visualizar no se espera a cerrar el visor
-                        if(accionPDF == Enums.AccionesPDF.Visualizar)
+                        if(accion == Enums.AccionesPDF.Visualizar)
                         {
                             espera = false;
                         }

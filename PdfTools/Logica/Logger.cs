@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.IO;
-using PdfTools.Datos;
 
 namespace PdfTools.Logica
 {
@@ -14,7 +9,7 @@ namespace PdfTools.Logica
 
         public static void Agregar(string mensaje)
         {
-            _log.AppendLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {mensaje}");
+            _log.AppendLine($"Error: {mensaje}");
         }
 
         public static bool TieneErrores()
@@ -22,14 +17,14 @@ namespace PdfTools.Logica
             return _log.Length > 0;
         }
 
-        public static void Guardar()
+        public static void Guardar(string rutaFichero)
         {
             if(!TieneErrores())
             {
                 _log.AppendLine("OK");
             }
 
-            File.WriteAllText(Instancias.ConfiguracionGeneral.FicheroSalida, _log.ToString());
+            File.WriteAllText(rutaFichero, _log.ToString());
         }
 
         public static void Limpiar()
