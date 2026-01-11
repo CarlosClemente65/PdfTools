@@ -31,5 +31,10 @@ namespace PdfTools.Logica
         {
             _log.Clear();
         }
+
+        public static StringBuilder Contenido()
+        {
+            return _log; 
+        }
     }
 }

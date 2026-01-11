@@ -54,6 +54,7 @@ namespace PdfTools
         }
 
 
+
         // Establece la ruta para insertar el QR en funcion del entorno y si aplica Verifactu
         public static string ObtenerUrl(ConfiguracionQR datosQR)
         {

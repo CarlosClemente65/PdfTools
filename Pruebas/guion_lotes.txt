@@ -1,0 +1,2 @@
+carpetaentrada=D:\Programacion\C#\PdfTools\Pruebas\FacturasLote
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\salida.txt
