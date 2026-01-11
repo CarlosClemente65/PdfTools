@@ -1,0 +1,12 @@
+entorno=pruebas
+verifactu=si
+nifemisor=05196375P
+numerofactura=25/000001
+fechafactura=01.12.2025
+totalfactura=150,22
+posicionx=170
+posiciony=5
+ancho=25
+color=#000000
+idioma=gl
+marcaagua=ESTO ES UNA PRUEBA DE MARCA DE AGUA\nY ESTO VA EN UNA SEGUNDA LINEA

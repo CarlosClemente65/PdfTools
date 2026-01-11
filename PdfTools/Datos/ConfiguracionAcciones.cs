@@ -1,32 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PdfTools.Datos
+﻿namespace PdfTools.Datos
 {
+    // Clase para control de las acciones a realizar
     public class ConfiguracionAcciones
     {
         // Controla si hay que realizar alguna accion con el PDF
-        public static bool EjecutarAcciones { get; set; } = false;
+        public bool EjecutarAcciones { get; set; }
 
 
         // Acción a realizar con el PDF
-        public static AccionesPDF AccionPDF { get; set; }
+        public Enums.AccionesPDF AccionPDF { get; set; }
         
 
         // Control para cerrar el visor
-        public static bool CerrarVisor { get; set; } = false;
+        public bool CerrarVisor { get; set; }
 
-
-        // Lista de acciones adicionales a realizar con el PDF
-        public enum AccionesPDF
+        public ConfiguracionAcciones()
         {
-            Ninguna,
-            Imprimir,
-            Abrir,
-            Visualizar
+            EjecutarAcciones = false;
+            CerrarVisor = false;
         }
     }
 }

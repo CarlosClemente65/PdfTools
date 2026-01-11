@@ -1,0 +1,41 @@
+﻿namespace PdfTools.Datos
+{
+    public class Enums
+    {
+        /* Idioma de respuesta de la AEAT a QR con VeriFctu
+            gl: gallego
+            ca: catalán
+            eu: euskera
+            es: castellano
+            va: valenciano
+            en: inglés
+        */
+        public enum IdiomasQR
+        {
+            gl,
+            ca,
+            eu,
+            es,
+            va,
+            en
+        }
+
+        // Control para saber el tipo de parametro del guion
+        public enum tiposParametros
+        {
+            QR,
+            General,
+            Accion,
+            Desconocido
+        }
+
+        // Lista de acciones adicionales a realizar con el PDF
+        public enum AccionesPDF
+        {
+            Ninguna,
+            Imprimir,
+            Abrir,
+            Visualizar
+        }
+    }
+}

@@ -1,5 +1,5 @@
 pdfentrada=d:\Programacion\c#\PdfTools\Pruebas\25_00001.pdf
 
-accionpdf=visualizar
+accionpdf=abrir
 ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\fin.txt
 cerrarvisor

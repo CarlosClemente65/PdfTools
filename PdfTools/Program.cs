@@ -1,12 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
 using PdfTools.Datos;
-using Acciones = PdfTools.Datos.ConfiguracionAcciones;
-using Parametros = PdfTools.Datos.ConfiguracionGeneral;
-using DatosQR = PdfTools.Datos.ConfiguracionQR;
+using PdfTools.Logica;
+using PdfTools.Metodos;
 
 namespace PdfTools
 {
@@ -14,22 +12,47 @@ namespace PdfTools
     {
         static void Main(string[] args)
         {
-            // Objeto para almacenar el resutlado de las operaciones
-            StringBuilder resultado = new StringBuilder();
+            // Crea las instancias de las clases para poder acceder a las propiedades de las clases
+            var Parametros = new Datos.ConfiguracionGeneral();
+            var DatosQR = new Datos.ConfiguracionQR();
+            var Acciones = new Datos.ConfiguracionAcciones();
+            var gestor = new GestionParametros();
 
-            // Objeto con el documento para insertar las imagenes
-            PdfDocument documento = new PdfDocument();
-
-            // Objeto con la pagina del PDF para añadir las imagenes (QR y marca de agua)
-            PdfPage pagina = new PdfPage();
-
-            // Objeto que representa un recuadro donde se incluira el QR y los textos
-            XGraphics gfx = null;
+            // Inicializa el log de resultados
+            Logger.Limpiar();
 
             try
             {
+                // Validar los parámetros de entrada (si fallan se registran en el log y no se continua)
+                if(args.Length < 2)
+                {
+                    Logger.Agregar("Parámetros insuficientes.");
+                    return;
+                }
+
+                if(args[0] != "ds123456")
+                {
+                    Logger.Agregar("Clave de inicio incorrecta.");
+                    return;
+                }
+
+                string guion = args[1];
+                // Control si no existe el archivo del guion
+                if(!File.Exists(guion))
+                {
+                    Logger.Agregar("El archivo de guion no existe.");
+                    return;
+                }
+
                 // Cargar configuración
-                resultado = Utilidades.CargarParametros(args);
+                Utilidades.CargarParametros(Parametros, DatosQR, Acciones, guion);
+
+                // Si se ha generado algun error, no continua
+                if(Logger.TieneContenido())
+                {
+                    Logger.Guardar(Parametros.FicheroSalida);
+                    return;
+                }
 
                 // Si se ha solicitado cerrar el visor, se cierra antes de iniciar el proceso
                 if(Acciones.CerrarVisor)
@@ -37,100 +60,92 @@ namespace PdfTools
                     Utilidades.CerrarVisor();
                 }
 
-                // Si no hay errores, se continua con el proceso
-                if(resultado.Length == 0)
+                // Instancia para gestionar el contenido del PDF
+                GestionContenido gestorContenido = new GestionContenido();
+
+                // Proceso por lotes en caso de haber pasado una carpeta
+                if(Parametros.ProcesarCarpeta)
                 {
-                    // Valida parametros obligatorios en caso de que haya que añadir el QR
-                    if(DatosQR.InsertarQR == true)
-                    {
-                        resultado = Parametros.ValidarParametros(resultado);
+                    StringBuilder resultadoLote = new StringBuilder();
 
-                        // Insertar QR si no hay errores de configuración
-                        if(resultado.Length == 0)
+                    GestionLotes gestorLotes = new GestionLotes();
+
+                    // Asigna la carpeta de salida a la misma de entrada si no se ha pasado
+                    Parametros.CarpetaSalida = string.IsNullOrWhiteSpace(Parametros.CarpetaSalida) ?
+                        Parametros.CarpetaEntrada : Parametros.CarpetaSalida;
+
+                    // Lista con los documentos a procesar
+                    List<DocumentoLoteQR> ficherosLote = new List<DocumentoLoteQR>();
+                    ficherosLote = gestorLotes.CargarFicheros(Parametros.CarpetaEntrada);
+
+                    // Procesar cada fichero
+                    foreach(var fichero in ficherosLote)
+                    {
+                        // Controla si se han pasado todos los datos necesarios antes de procesarlo
+                        if(fichero.EsValido)
                         {
-                            // Si no se ha pasado el fichero de salida, se asigna un valor por defecto
-                            if(string.IsNullOrEmpty(Parametros.PdfSalida))
-                            {
-                                Parametros.PdfSalida = Path.Combine(Parametros.RutaFicheros, Path.GetFileNameWithoutExtension(Parametros.PdfEntrada) + "_salida.pdf");
-                            }
-
-                            // Carga el documento con el PDF de entrada
-                            documento = Utilidades.Generardocumento(Parametros.PdfEntrada);
-
-                            // Establece la pagina 1 para insertar el QR y las imagenes
-                            pagina = documento.Pages[0];
-
-                            // Añade el recuadro a la pagina
-                            gfx = XGraphics.FromPdfPage(pagina);
-
-                            // Proceso para insertar el QR en el documento
-                            resultado = InsertaQR.InsertarQR(pagina, gfx, resultado);
-
-                            if(resultado.Length == 0)
-                            {
-                                // Guarda el PDF modificado en la ruta de salida
-                                documento.Save(Parametros.PdfSalida);
-                            }
+                           resultadoLote = gestorLotes.ProcesarFicheroLote(Parametros, fichero, resultadoLote);
                         }
-                    }
-                    else
-                    {
-                        // Si no hay que insertar el QR se revisa si hay que añadir la marca de agua
-                        if(!string.IsNullOrEmpty(Parametros.MarcaAgua))
+                        else
                         {
-                            // Carga en el documento el PDF de entrada
-                            documento = Utilidades.Generardocumento(Parametros.PdfEntrada);
-
-                            // Establece la pagina 1 para insertar el QR y las imagenes
-                            pagina = documento.Pages[0];
-
-                            // Añade el recuadro a la pagina
-                            gfx = XGraphics.FromPdfPage(pagina);
-
-                            // Inserta la marca de agua en el PDF
-                            Utilidades.InsertaMarcaAgua(pagina, gfx, Parametros.MarcaAgua);
-
-                            // Asigna el nombre del fichero de salida si no se ha pasado
-                            if(string.IsNullOrEmpty(Parametros.PdfSalida))
-                            {
-                                Parametros.PdfSalida = Path.Combine(Parametros.RutaFicheros, Path.GetFileNameWithoutExtension(Parametros.PdfEntrada) + "_salida.pdf");
-                            }
-
-                            // Guarda el PDF modificado en la ruta de salida
-                            documento.Save(Parametros.PdfSalida);
+                            // Graba el logger cuando no se ha pasado el guion del fichero
+                            resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: No se han pasado parametros del fichero ");
                         }
+
+                        // Una vez procesao el fichero se limpia el logger para procesar el siguiente fichero
+                        Logger.Limpiar();
                     }
 
-                    // Revisa si hay que ejecutar acciones adicionales
-                    if(Acciones.EjecutarAcciones)
-                    {
-                        // Ejecuta las acciones adicionales que se hayan solicitado
-                        Utilidades.GestionarAcciones();
-                    }
+                    // Una vez procesados los ficheros se añaden los mensajes del procesado al looger
+                    Logger.Agregar(resultadoLote);
+                }
 
-                    // Si se ha especificado un fichero de salida, se genera el fichero de control
-                    if(Parametros.FicheroSalida != null)
+                // Si no se procesa la carpeta, se chequea si hay que insertar el QR a un PDF individual
+                else if(DatosQR.InsertarQR)
+                {
+                    // Valida parametros obligatorios
+                    gestor.ValidarParametros(Parametros, DatosQR);
+
+                    // Insertar QR si no hay errores de configuración
+                    if(!Logger.TieneContenido())
                     {
-                        // Genera el fichero de control de salida una vez termine la ejecucion
-                        File.WriteAllText(Parametros.FicheroSalida, "OK");
+                        // Proceso para insertar el QR en el documento
+                        var procesoPDF = new InsertaQR();
+
+                        gestorContenido.AgregarQR(Parametros, DatosQR);
                     }
+                }
+                else
+                {
+                    // Si no hay que insertar el QR se revisa si hay que añadir la marca de agua
+                    string textoMarcaAgua = DatosQR.MarcaAgua;
+                    gestorContenido.AgregarMarcaAgua(Parametros, textoMarcaAgua);
+                }
+
+                // Revisa si hay que ejecutar acciones adicionales
+                if(Acciones.EjecutarAcciones)
+                {
+                    var gestorAcciones = new GestionAcciones();
+                    // Ejecuta las acciones adicionales que se hayan solicitado
+                    Enums.AccionesPDF accion = Acciones.AccionPDF;
+                    gestorAcciones.ProcesarAccion(Parametros, accion);
                 }
             }
 
             catch(InvalidOperationException ex)
             {
-                resultado.AppendLine(ex.Message);
+                Logger.Agregar(ex.Message);
             }
 
             catch(Exception ex)
             {
-                resultado.AppendLine($"Se ha producido un error al procesar el fichero. Mensaje: {ex.Message}");
+                Logger.Agregar($"Se ha producido un error al procesar el fichero. Mensaje: {ex.Message}");
             }
 
-            // Guardar resultados en errores.txt si hay errores
-            if(resultado.Length > 0)
+            finally
             {
-                File.WriteAllText(Path.Combine(Parametros.RutaFicheros, "errores.txt"), resultado.ToString());
+                // Al finalizar, genera el fichero del log con el resultado
+                Logger.Guardar(Parametros.FicheroSalida);
             }
         }
     }

@@ -7,5 +7,5 @@ ancho=30
 marcaagua=
 verifactu=si
 accionpdf=abrir
-ficherosalidas=d:\Programacion\c#\PdfTools\Pruebas\salida.txt
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\salida.txt
 cerrarvisor

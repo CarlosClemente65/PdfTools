@@ -25,6 +25,7 @@ Tambien puede usarse como visualizador de ficheros PDF.
 * v2.0.0.0 Modificado el proceso de cerrar el visor para pasarlo de forma independiente
 * v3.0.0.0 Modificado nombre de la aplicacion 
 * v3.1.0.0 Añadido parametro para indicar el idioma de respuesta de la AEAT en el QR de las facturas
+* v4.0.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
 
 <br><br>
 
@@ -36,25 +37,30 @@ PdfTools.exe ds123456 guion.txt
 <br>
 
 #### Parametros guion
-* pdfentrada=Nombre del pdf con la fatura (obligatorio)
-* pdfsalida=Nombre del pdf con el QR (opcional)
-* ficheroqr=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
-* entorno='pruebas' para forzar el envio a la web de pruebas (opcional)
-* verifactu=SI/NO para indicar si son facturas verificables (opcional)
-* url=direccion url para la validacion (opcional)
-* nifemisor=NIF del emisor de la factura para incluir en el QR (opcional)
-* numerofactura=Numero de de factura para incluir en el QR (obligatorio si nifemisor <> "")
-* fechafactura=Fecha de la factura para incluir en el QR (obligatorio si nifemisor <> "")
-* totalfactura=Importe total de la factura para incluir en el QR (obligatorio si nifemisor <> "")
-* posicionx=posicion en milimetros desde el margen izquierdo (opcional)
-* posiciony=posicion en milimetros desde el margen superior (opcional)
-* ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
-* color=Color del QR en formato hexadecimal (opcional)
-* marcaagua=Texto para insertar una marca de agua en el documento (opcional)
-* accionpdf=[imprimir | abrir | visualizar]; Acciones adicionales a realizar con el PDF (opcional)
-* cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
-* ficherosalida=nombre del fichero para controlar la finalizacion del proceso (opcional)
-* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
+- Parametros generales:
+	* pdfentrada=Nombre del pdf con la fatura (obligatorio)
+	* pdfsalida=Nombre del pdf con el QR (opcional)
+	* ficherosalida=nombre del fichero para controlar la finalizacion del proceso (opcional)
+	* carpetaentrada=Nombre de la carpeta para procesar por lotes los PDFs que haya dentro
+	* carpetasalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes
+	* accionpdf=[imprimir | abrir | visualizar]; Acciones adicionales a realizar con el PDF (opcional)
+	* cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
+
+- Parametros QR:
+	* entorno='pruebas' para forzar el envio a la web de pruebas (opcional)
+	* verifactu=SI/NO para indicar si son facturas verificables (opcional)
+	* ficheroqr=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
+	* url=direccion url para la validacion (opcional)
+	* nifemisor=NIF del emisor de la factura para incluir en el QR (opcional)
+	* numerofactura=Numero de de factura para incluir en el QR (obligatorio si nifemisor <> "")
+	* fechafactura=Fecha de la factura para incluir en el QR (obligatorio si nifemisor <> "")
+	* totalfactura=Importe total de la factura para incluir en el QR (obligatorio si nifemisor <> "")
+	* posicionx=posicion en milimetros desde el margen izquierdo (opcional)
+	* posiciony=posicion en milimetros desde el margen superior (opcional)
+	* ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
+	* color=Color del QR en formato hexadecimal (opcional)
+	* marcaagua=Texto para insertar una marca de agua en el documento (opcional)
+	* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
 
 <br>
 
@@ -69,7 +75,6 @@ PdfTools.exe ds123456 guion.txt
 * Si no se pasa el NIF del emisor no se añadira el QR; si se pasa es obligatorio pasar los demas parametros de la factura.
 * Las posiciones X e Y del QR estan puestas por defecto a 10 mm de los margenes
 * El ancho del QR tiene un defecto de 30 mm; no tiene limitacion pero deberia estar entre 25 y 40 mm (alto y ancho)
-* Controla que no se desborde el QR por el margen derecho (posicion X mas ancho superior al ancho de la pagina)
 * El color del QR por defecto es negro (#000000)
 * El texto de la marca de agua admite saltos de linea añadiendo '\n' en la posicion donde insertarlo
 * Si se produce algun error por algun parametro que falte o no sea correcto, se genera el fichero "errores.txt" con el detalle
@@ -87,6 +92,11 @@ PdfTools.exe ds123456 guion.txt
 	- es: castellano
 	- va: valenciano
 	- en: inglés
+* En el caso de procesado de una carpeta se debe tener en cuenta lo siguiente:
+	- El parametro 'carpetaentrada' es obligatorio, y si no se pasa 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada
+	- En la carpeta de entrada, ademas del PDF debe haber un fichero.txt con los parametros para generar el QR
+	- Si se incluye un fichero de imagen con el mismo nombre que el PDF, se insertara; en ese caso solo son necesarios los parametros de posicion
+	- Si no se pasa un nombre del fichero de salida, se pondra el mismo que el de entrada con el sufijo '_salida'
 * En la ruta de ejecucion deben estar los siguientes ficheros:
 	- PdfSharp.dll
 	- QRCoder.dll
@@ -94,4 +104,4 @@ PdfTools.exe ds123456 guion.txt
 * El fichero 'Configuracion_visor.txt' es una copia modificada con los parametros del visor, 
   Para usarla debe renombrarse como "SumatraPDF-settings.txt" y ubicarla en la misma ruta que el visor SumatraPDF.
   
-
+  
