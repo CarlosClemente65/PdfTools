@@ -1,2 +1,3 @@
 carpetaentrada=D:\Programacion\C#\PdfTools\Pruebas\FacturasLote
-ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\salida.txt
+carpetasalida=D:\Programacion\C#\PdfTools\Pruebas\FacturasLote_salida
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\FacturasLote\salida.txt

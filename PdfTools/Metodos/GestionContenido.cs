@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using PdfSharp.Pdf.IO;
+using PdfTools.Datos;
 using PdfTools.Logica;
 
 namespace PdfTools.Metodos
@@ -134,6 +137,28 @@ namespace PdfTools.Metodos
             catch(Exception ex)
             {
                 Logger.Agregar($"{textoError} \n{ex.Message}");
+            }
+        }
+
+        public void AgregarQR(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        {
+            // Proceso para insertar el QR en el documento
+            var procesoPDF = new InsertaQR();
+
+            // Genera el documento PDF para luego poder insertar las imagenes
+            PdfDocument documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
+
+            // Se utiliza el mismo documento para añadir el QR
+            documento = procesoPDF.InsertarQR(documento, datosQR);
+
+            if(!Logger.TieneErrores())
+            {
+                // Si no se ha pasado el fichero de salida se asigna un nombre por defecto
+                var ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
+                    ? Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada) + "_salida.pdf")
+                    : parametros.PdfSalida;
+
+                documento.Save(ficheroPDF);
             }
         }
     }

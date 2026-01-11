@@ -12,6 +12,12 @@ namespace PdfTools.Logica
             _log.AppendLine($"Error: {mensaje}");
         }
 
+        public static void Agregar(StringBuilder mensaje)
+        {
+            // Sobrecarga para grabar el resultado en el procesado por lotes
+            _log.Append(mensaje);
+        }
+
         public static bool TieneErrores()
         {
             return _log.Length > 0;
