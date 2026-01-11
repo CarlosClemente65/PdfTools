@@ -12,10 +12,12 @@ namespace PdfTools
 {
     public class InsertaQR
     {
-        ConfiguracionQR DatosQR = null;
+        private ConfiguracionQR _datosQR = null;
+
+        // Proceso para insertar el codigo QR en el documento PDF
         public PdfDocument InsertarQR(PdfDocument documento, ConfiguracionQR datosQR)
         {
-            DatosQR = datosQR;
+            _datosQR = datosQR; // Se asigna al objeto de clase porque se utiliza en otro metodo de la clase
 
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
@@ -53,7 +55,7 @@ namespace PdfTools
                 GestionContenido gestorProceso = new GestionContenido();
                 if(!string.IsNullOrEmpty(textoMarcaAgua))
                 {
-                    pagina = gestorProceso.InsertaMarcaAgua(pagina, textoMarcaAgua);
+                    pagina = gestorProceso.InsertaMarcaAgua(pagina, gfx, textoMarcaAgua);
                 }
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos
@@ -92,16 +94,17 @@ namespace PdfTools
             return documento;
         }
 
+        // Metodo para generar la imagen del QR
         private XImage GenerarQR(string textoQr)
         {
             // Objeto para almacenar el código QR generado
             XImage qrGenerado;
 
             // Carga o genera el código QR
-            if(DatosQR.UsarQrExterno == true)
+            if(_datosQR.UsarQrExterno == true)
             {
                 // Si se pasa un fichero externo, se carga la imagen en el objeto QR
-                qrGenerado = XImage.FromFile(DatosQR.NombreFicheroQR);
+                qrGenerado = XImage.FromFile(_datosQR.NombreFicheroQR);
             }
             else
             {

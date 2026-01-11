@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using PdfSharp.Pdf;
-using PdfSharp.Pdf.IO;
 using PdfTools.Datos;
 using PdfTools.Logica;
 using PdfTools.Metodos;
@@ -15,7 +13,6 @@ namespace PdfTools
         static void Main(string[] args)
         {
             // Crea las instancias de las clases para poder acceder a las propiedades de las clases
-
             var Parametros = new Datos.ConfiguracionGeneral();
             var DatosQR = new Datos.ConfiguracionQR();
             var Acciones = new Datos.ConfiguracionAcciones();
@@ -51,7 +48,7 @@ namespace PdfTools
                 Utilidades.CargarParametros(Parametros, DatosQR, Acciones, guion);
 
                 // Si se ha generado algun error, no continua
-                if(Logger.TieneErrores())
+                if(Logger.TieneContenido())
                 {
                     Logger.Guardar(Parametros.FicheroSalida);
                     return;
@@ -63,7 +60,7 @@ namespace PdfTools
                     Utilidades.CerrarVisor();
                 }
 
-                // Instancia para gestionar el ocntenido del PDF
+                // Instancia para gestionar el contenido del PDF
                 GestionContenido gestorContenido = new GestionContenido();
 
                 // Proceso por lotes en caso de haber pasado una carpeta
@@ -71,7 +68,7 @@ namespace PdfTools
                 {
                     StringBuilder resultadoLote = new StringBuilder();
 
-                    GestionLotes gestionLotes = new GestionLotes();
+                    GestionLotes gestorLotes = new GestionLotes();
 
                     // Asigna la carpeta de salida a la misma de entrada si no se ha pasado
                     Parametros.CarpetaSalida = string.IsNullOrWhiteSpace(Parametros.CarpetaSalida) ?
@@ -79,47 +76,15 @@ namespace PdfTools
 
                     // Lista con los documentos a procesar
                     List<DocumentoLoteQR> ficherosLote = new List<DocumentoLoteQR>();
-                    ficherosLote = gestionLotes.CargarFicheros(Parametros.CarpetaEntrada);
+                    ficherosLote = gestorLotes.CargarFicheros(Parametros.CarpetaEntrada);
 
+                    // Procesar cada fichero
                     foreach(var fichero in ficherosLote)
                     {
+                        // Controla si se han pasado todos los datos necesarios antes de procesarlo
                         if(fichero.EsValido)
                         {
-                            var datosQRFichero = new ConfiguracionQR();
-                            var parametrosFichero = new ConfiguracionGeneral();
-                            var guionFichero = fichero.RutaGuion;
-                            var accionesFichero = new ConfiguracionAcciones();
-
-                            // Cargar configuración
-                            datosQRFichero = Utilidades.CargarParametros(parametrosFichero, datosQRFichero, accionesFichero, guionFichero);
-
-                            // Asigna los valores segun los datos leidos del guion
-                            parametrosFichero.PdfEntrada = fichero.RutaPdf;
-                            parametrosFichero.RutaFicheros = Parametros.CarpetaSalida;
-
-                            // Controla si se ha pasado un fichero con la imagen
-                            if(!string.IsNullOrEmpty(fichero.RutaImagenQR))
-                            {
-                                datosQRFichero.UsarQrExterno = true;
-                                datosQRFichero.NombreFicheroQR = fichero.RutaImagenQR;
-                            }
-
-                            // Valida los parametros
-                            gestor.ValidarParametros(parametrosFichero, datosQRFichero);
-
-                            // Añadir el QR al PDF
-                            gestorContenido.AgregarQR(parametrosFichero, datosQRFichero);
-
-                            // Gestion mensaje para controlar el resultado
-                            if(Logger.TieneErrores())
-                            {
-                                resultadoLote.AppendLine($"- Fichero: {fichero.NombreBase}.pdf: {Logger.Contenido()}");
-                            }
-                            else
-                            {
-                                resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: QR añadido correctamente");
-                            }
-
+                           resultadoLote = gestorLotes.ProcesarFicheroLote(Parametros, fichero, resultadoLote);
                         }
                         else
                         {
@@ -131,16 +96,18 @@ namespace PdfTools
                         Logger.Limpiar();
                     }
 
+                    // Una vez procesados los ficheros se añaden los mensajes del procesado al looger
                     Logger.Agregar(resultadoLote);
                 }
 
-                // Valida parametros obligatorios en caso de que haya que añadir el QR
+                // Si no se procesa la carpeta, se chequea si hay que insertar el QR a un PDF individual
                 else if(DatosQR.InsertarQR)
                 {
+                    // Valida parametros obligatorios
                     gestor.ValidarParametros(Parametros, DatosQR);
 
                     // Insertar QR si no hay errores de configuración
-                    if(!Logger.TieneErrores())
+                    if(!Logger.TieneContenido())
                     {
                         // Proceso para insertar el QR en el documento
                         var procesoPDF = new InsertaQR();
@@ -152,23 +119,7 @@ namespace PdfTools
                 {
                     // Si no hay que insertar el QR se revisa si hay que añadir la marca de agua
                     string textoMarcaAgua = DatosQR.MarcaAgua;
-
-                    if(!string.IsNullOrEmpty(textoMarcaAgua))
-                    {
-                        GestionContenido gestorProceso = new GestionContenido();
-
-                        // Carga en el documento el PDF de entrada
-                        PdfDocument documento = PdfReader.Open(Parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
-
-                        // Utiliza el mismo documento abierto para añadirle la marca de agua
-                        documento = gestorProceso.InsertaMarcaAgua(documento, textoMarcaAgua);
-
-                        // Guarda el PDF modificado en la ruta de salida
-                        Parametros.PdfSalida = string.IsNullOrWhiteSpace(Parametros.PdfSalida)
-                                ? Path.Combine(Parametros.RutaFicheros, Path.GetFileNameWithoutExtension(Parametros.PdfEntrada) + "_salida.pdf")
-                                : Parametros.PdfSalida;
-                        documento.Save(Parametros.PdfSalida);
-                    }
+                    gestorContenido.AgregarMarcaAgua(Parametros, textoMarcaAgua);
                 }
 
                 // Revisa si hay que ejecutar acciones adicionales
@@ -197,6 +148,5 @@ namespace PdfTools
                 Logger.Guardar(Parametros.FicheroSalida);
             }
         }
-
     }
 }

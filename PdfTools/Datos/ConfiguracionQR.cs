@@ -2,6 +2,7 @@
 
 namespace PdfTools.Datos
 {
+    // Configuracion de los datos para generar el QR
     public class ConfiguracionQR
     {
         public bool UsarQrExterno = false; // Indica si se usa un fichero de QR externo

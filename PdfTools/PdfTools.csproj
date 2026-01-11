@@ -61,12 +61,12 @@
     <Compile Include="Datos\ConfiguracionGeneral.cs" />
     <Compile Include="Datos\ConfiguracionQR.cs" />
     <Compile Include="Datos\Enums.cs" />
-    <Compile Include="InsertaQR.cs" />
+    <Compile Include="Logica\InsertaQR.cs" />
     <Compile Include="Logica\GestionParametros.cs" />
     <Compile Include="Logica\Logger.cs" />
-    <Compile Include="Metodos\GestionAcciones.cs" />
-    <Compile Include="Metodos\GestionContenido.cs" />
-    <Compile Include="Metodos\GestionLotes.cs" />
+    <Compile Include="Logica\GestionAcciones.cs" />
+    <Compile Include="Logica\GestionContenido.cs" />
+    <Compile Include="Logica\GestionLotes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilidades.cs" />

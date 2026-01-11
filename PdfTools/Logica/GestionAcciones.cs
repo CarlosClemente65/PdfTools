@@ -70,7 +70,6 @@ namespace PdfTools.Metodos
                 // Inicia el proceso configurado
                 using(var proceso = Process.Start(psi))
                 {
-
                     if(espera)
                     {
                         proceso.WaitForExit();

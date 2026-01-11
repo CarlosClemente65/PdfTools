@@ -5,9 +5,10 @@ using PdfTools.Datos;
 
 namespace PdfTools.Logica
 {
+    // Clase para gestionar los parametros del guion
     public class GestionParametros
     {
-        // Asigna los parámetros según la clave y valor proporcionados
+        // Los parametros se asignan segun el tipo que sean (QR, general o acciones)
         public void AsignaParametros(string clave, string valor, ConfiguracionGeneral parametros, ConfiguracionQR configQR, ConfiguracionAcciones acciones)
         {
             Enums.tiposParametros tipoParametro = DetectaTipoParametro(clave);
@@ -155,6 +156,7 @@ namespace PdfTools.Logica
             return datosQR;
         }
 
+        // Asignacion de parametros generales
         public ConfiguracionGeneral AsignaParametrosGenerales(string clave, string valor, ConfiguracionGeneral parametros)
         {
             switch(clave)
@@ -208,6 +210,7 @@ namespace PdfTools.Logica
 
         }
 
+        // Asignacion de parametros de acciones
         public ConfiguracionAcciones AsignaParametrosAcciones(string clave, string valor, ConfiguracionAcciones acciones)
         {
             // Define distintas acciones a realizar con el visor SumatraPDF que permite imprimir, abrir o visualizar el PDF
@@ -238,6 +241,8 @@ namespace PdfTools.Logica
             return acciones;
         }
 
+
+        // Metodo para validacion de parametros obligatorios
         public void ValidarParametros(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
         {
             // Valida si existe la carpeta de entrada en caso de procesar una carpeta
@@ -296,7 +301,7 @@ namespace PdfTools.Logica
                 }
 
                 // Solo se generan la URL si no hay errores en los datos
-                if(!Logger.TieneErrores())
+                if(!Logger.TieneContenido())
                 {
                     Utilidades.GenerarURL(datosQR);
                 }
@@ -312,6 +317,7 @@ namespace PdfTools.Logica
             }
         }
 
+        // Metodo auxiliar para validar propiedades obligatorias y registrar error (sobrecarga del anterior)
         private void ValidarPropiedad(string valor, string nombrePropiedad)
         {
             if(string.IsNullOrEmpty(valor))

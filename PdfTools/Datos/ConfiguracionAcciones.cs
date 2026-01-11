@@ -1,5 +1,6 @@
 ﻿namespace PdfTools.Datos
 {
+    // Clase para control de las acciones a realizar
     public class ConfiguracionAcciones
     {
         // Controla si hay que realizar alguna accion con el PDF

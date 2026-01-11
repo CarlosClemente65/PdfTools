@@ -1,14 +1,14 @@
 - Fichero 25_00001.pdf: QR añadido correctamente
-- Fichero Alquiler1.pdf: QR añadido correctamente
-- Fichero Alquiler10.pdf: QR añadido correctamente
-- Fichero Alquiler11.pdf: QR añadido correctamente
-- Fichero Alquiler12.pdf: QR añadido correctamente
-- Fichero Alquiler2.pdf: QR añadido correctamente
-- Fichero Alquiler3.pdf: QR añadido correctamente
-- Fichero Alquiler4.pdf: QR añadido correctamente
-- Fichero Alquiler5.pdf: QR añadido correctamente
-- Fichero Alquiler6.pdf: QR añadido correctamente
-- Fichero Alquiler7.pdf: QR añadido correctamente
-- Fichero Alquiler8.pdf: QR añadido correctamente
-- Fichero Alquiler9.pdf: QR añadido correctamente
+- Fichero Alquiler-1.pdf: QR añadido correctamente
+- Fichero Alquiler-10.pdf: QR añadido correctamente
+- Fichero Alquiler-11.pdf: QR añadido correctamente
+- Fichero Alquiler-12.pdf: QR añadido correctamente
+- Fichero Alquiler-2.pdf: QR añadido correctamente
+- Fichero Alquiler-3.pdf: QR añadido correctamente
+- Fichero Alquiler-4.pdf: QR añadido correctamente
+- Fichero Alquiler-5.pdf: QR añadido correctamente
+- Fichero Alquiler-6.pdf: QR añadido correctamente
+- Fichero Alquiler-7.pdf: QR añadido correctamente
+- Fichero Alquiler-8.pdf: QR añadido correctamente
+- Fichero Alquiler-9.pdf: QR añadido correctamente
 - Fichero Factura.pdf: No se han pasado parametros del fichero 

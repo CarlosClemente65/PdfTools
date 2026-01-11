@@ -11,12 +11,13 @@ namespace PdfTools.Metodos
 {
     public class GestionContenido
     {
-        public PdfDocument InsertaMarcaAgua(PdfDocument documento, string textoMarcaAgua)
+        // Inserta la marca de agua pasando el documento PDF
+        public PdfDocument InsertaMarcaAgua(PdfDocument documento,  string textoMarcaAgua)
         {
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
 
-            // Añade el recuadro a la pagina
+            // Añade el recuadro para insertar los graficos a la pagina
             XGraphics gfx = XGraphics.FromPdfPage(pagina);
 
             // Dibuja la marca de agua
@@ -25,10 +26,10 @@ namespace PdfTools.Metodos
             return documento;
         }
 
-        public PdfPage InsertaMarcaAgua(PdfPage pagina, string textoMarcaAgua)
+        // Inserta la marca de agua pasando la pagina del documento (sobrecarga del metodo anterior)
+        public PdfPage InsertaMarcaAgua(PdfPage pagina, XGraphics gfx, string textoMarcaAgua)
         {
-            // Añade el recuadro a la pagina
-            XGraphics gfx = XGraphics.FromPdfPage(pagina);
+            // Se pasa por parametro el recuadro donde insertar los graficos porque ya esta creado fuera
 
             // Dibuja la marca de agua
             DibujarMarcaAgua(textoMarcaAgua, pagina, gfx);
@@ -36,9 +37,12 @@ namespace PdfTools.Metodos
             return pagina;
         }
 
+        // Proceso para dibujar la marca de agua en el recuadro grafico pasado por parametro
         private void DibujarMarcaAgua(string textoMarcaAgua, PdfPage pagina, XGraphics gfx)
         {
+            // Texto de error por defecto.
             string textoError = "Se ha producido un error al insertar la marca de agua.";
+
             try
             {
                 // Fuente y pincel para dibujar el texto
@@ -140,9 +144,11 @@ namespace PdfTools.Metodos
             }
         }
 
+
+        // Proceso para añadir el QR al documento PDF
         public void AgregarQR(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
         {
-            // Proceso para insertar el QR en el documento
+            // Instancia para insertar el QR en el documento
             var procesoPDF = new InsertaQR();
 
             // Genera el documento PDF para luego poder insertar las imagenes
@@ -151,7 +157,7 @@ namespace PdfTools.Metodos
             // Se utiliza el mismo documento para añadir el QR
             documento = procesoPDF.InsertarQR(documento, datosQR);
 
-            if(!Logger.TieneErrores())
+            if(!Logger.TieneContenido())
             {
                 // Si no se ha pasado el fichero de salida se asigna un nombre por defecto
                 var ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
@@ -159,6 +165,29 @@ namespace PdfTools.Metodos
                     : parametros.PdfSalida;
 
                 documento.Save(ficheroPDF);
+            }
+        }
+
+
+        // Proceso para añadir la marca de agua al documento PDF
+        public void AgregarMarcaAgua(ConfiguracionGeneral parametros, string textoMarcaAgua)
+        {
+            // Comprueba si hay texto para añadir y no provocar una excepcion
+            if(!string.IsNullOrEmpty(textoMarcaAgua))
+            {
+                GestionContenido gestorProceso = new GestionContenido();
+
+                // Carga en el documento el PDF de entrada
+                PdfDocument documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
+
+                // Utiliza el mismo documento abierto para añadirle la marca de agua
+                documento = gestorProceso.InsertaMarcaAgua(documento, textoMarcaAgua);
+
+                // Guarda el PDF modificado en la ruta de salida
+                parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)
+                        ? Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada) + "_salida.pdf")
+                        : parametros.PdfSalida;
+                documento.Save(parametros.PdfSalida);
             }
         }
     }

@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using PdfTools.Datos;
 
 
-
 namespace PdfTools
 {
     public static class Utilidades
@@ -117,8 +116,6 @@ namespace PdfTools
                 psi.UseShellExecute = false; // No se manda como un comando de la Shell
                 Process.Start(psi); // Lanza el comando
             }
-
         }
-
     }
 }
