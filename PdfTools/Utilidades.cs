@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using PdfSharp.Drawing;
 using PdfTools.Datos;
 
 
@@ -92,6 +93,46 @@ namespace PdfTools
             return Regex.IsMatch(colorHex, @"^#(?:[0-9a-fA-F]{6})$");
         }
 
+
+        // Convierte un color Hex a Rgb
+        public static XColor ConvierteColorAHex(string colorHex)
+        {
+            // Elimina el # si viene incluido
+            colorHex = colorHex.Replace("#", "");
+
+            // Se espera formato RRGGBB
+            if(colorHex.Length != 6)
+            {
+                throw new ArgumentException("El color hexadecimal debe tener 6 caracteres.");
+            }
+
+            byte r = Convert.ToByte(colorHex.Substring(0, 2), 16);
+            byte g = Convert.ToByte(colorHex.Substring(2, 2), 16);
+            byte b = Convert.ToByte(colorHex.Substring(4, 2), 16);
+
+            return XColor.FromArgb(r, g, b);
+        }
+
+        // Valida que el color pasado como Hex sea valido
+        public static bool ValidaColor(string colorHex) 
+        {
+            if(string.IsNullOrEmpty(colorHex))
+            {
+                return false; 
+            }
+
+            colorHex = colorHex.Replace("#", "");
+
+            if (colorHex.Length != 6)
+            {
+                return false;
+            }
+
+            return colorHex.All(c =>
+                (c >= '0' && c<= '9') ||
+                (c >= 'A' && c <= 'F') ||
+                (c >= 'a' && c <= 'f'));
+        }
 
         // Cierra todas las instancias del visor SumatraPDF que esten abiertas, matando la tarea del administrador de tareas (no implementado, lo dejo para futuras consultas)
         public static void ForzarCerrarVisor()

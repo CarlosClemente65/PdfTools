@@ -119,7 +119,7 @@ namespace PdfTools
                 {
                     // Si no hay que insertar el QR se revisa si hay que añadir la marca de agua
                     string textoMarcaAgua = DatosQR.MarcaAgua;
-                    gestorContenido.AgregarMarcaAgua(Parametros, textoMarcaAgua);
+                    gestorContenido.AgregarMarcaAgua(Parametros, DatosQR);
                 }
 
                 // Revisa si hay que ejecutar acciones adicionales

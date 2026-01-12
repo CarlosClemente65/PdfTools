@@ -12,7 +12,7 @@ namespace PdfTools.Metodos
     public class GestionContenido
     {
         // Inserta la marca de agua pasando el documento PDF
-        public PdfDocument InsertaMarcaAgua(PdfDocument documento,  string textoMarcaAgua)
+        public PdfDocument InsertaMarcaAgua(PdfDocument documento, ConfiguracionQR datosQR)
         {
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
@@ -21,37 +21,40 @@ namespace PdfTools.Metodos
             XGraphics gfx = XGraphics.FromPdfPage(pagina);
 
             // Dibuja la marca de agua
-            DibujarMarcaAgua(textoMarcaAgua, pagina, gfx);
+            DibujarMarcaAgua(datosQR, pagina, gfx);
 
             return documento;
         }
 
         // Inserta la marca de agua pasando la pagina del documento (sobrecarga del metodo anterior)
-        public PdfPage InsertaMarcaAgua(PdfPage pagina, XGraphics gfx, string textoMarcaAgua)
+        public PdfPage InsertaMarcaAgua(PdfPage pagina, XGraphics gfx, ConfiguracionQR datosQR)
         {
             // Se pasa por parametro el recuadro donde insertar los graficos porque ya esta creado fuera
 
             // Dibuja la marca de agua
-            DibujarMarcaAgua(textoMarcaAgua, pagina, gfx);
+            DibujarMarcaAgua(datosQR, pagina, gfx);
 
             return pagina;
         }
 
         // Proceso para dibujar la marca de agua en el recuadro grafico pasado por parametro
-        private void DibujarMarcaAgua(string textoMarcaAgua, PdfPage pagina, XGraphics gfx)
+        private void DibujarMarcaAgua(ConfiguracionQR datosQR, PdfPage pagina, XGraphics gfx)
         {
             // Texto de error por defecto.
             string textoError = "Se ha producido un error al insertar la marca de agua.";
+
+            string colorMarca = datosQR.ColorMarca;
+            string textoMarca = datosQR.MarcaAgua;
 
             try
             {
                 // Fuente y pincel para dibujar el texto
                 XFont fuenteMarca = new XFont("Arial", 20, XFontStyle.BoldItalic);
-                XBrush pincelMarca = new XSolidBrush(XColor.FromArgb(0, 225, 225, 225)); // Gris muy claro (el primer cero es la transparencia pero no se puede aplicar a un PDF)
+                XBrush pincelMarca = new XSolidBrush(Utilidades.ConvierteColorAHex(colorMarca)); // Por defecto esta puest un gris claro.
 
                 // Ajusta el texto en varias lineas si es necesario
                 List<string> lineas = new List<string>();
-                string[] bloques = textoMarcaAgua.Split(new string[] { "\n" }, StringSplitOptions.None);
+                string[] bloques = textoMarca.Split(new string[] { "\n" }, StringSplitOptions.None);
                 string linea = "";
 
                 // Se define un cuadrado seguro de 210x210 mm para insertar la marca de agua
@@ -170,10 +173,10 @@ namespace PdfTools.Metodos
 
 
         // Proceso para añadir la marca de agua al documento PDF
-        public void AgregarMarcaAgua(ConfiguracionGeneral parametros, string textoMarcaAgua)
+        public void AgregarMarcaAgua(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
         {
             // Comprueba si hay texto para añadir y no provocar una excepcion
-            if(!string.IsNullOrEmpty(textoMarcaAgua))
+            if(!string.IsNullOrEmpty(datosQR.MarcaAgua))
             {
                 GestionContenido gestorProceso = new GestionContenido();
 
@@ -181,7 +184,7 @@ namespace PdfTools.Metodos
                 PdfDocument documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
 
                 // Utiliza el mismo documento abierto para añadirle la marca de agua
-                documento = gestorProceso.InsertaMarcaAgua(documento, textoMarcaAgua);
+                documento = gestorProceso.InsertaMarcaAgua(documento, datosQR);
 
                 // Guarda el PDF modificado en la ruta de salida
                 parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)

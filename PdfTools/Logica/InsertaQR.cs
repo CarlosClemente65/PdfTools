@@ -55,7 +55,7 @@ namespace PdfTools
                 GestionContenido gestorProceso = new GestionContenido();
                 if(!string.IsNullOrEmpty(textoMarcaAgua))
                 {
-                    pagina = gestorProceso.InsertaMarcaAgua(pagina, gfx, textoMarcaAgua);
+                    pagina = gestorProceso.InsertaMarcaAgua(pagina, gfx, datosQR);
                 }
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos

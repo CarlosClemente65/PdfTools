@@ -25,7 +25,7 @@ Tambien puede usarse como visualizador de ficheros PDF.
 * v2.0.0.0 Modificado el proceso de cerrar el visor para pasarlo de forma independiente
 * v3.0.0.0 Modificado nombre de la aplicacion 
 * v3.1.0.0 Añadido parametro para indicar el idioma de respuesta de la AEAT en el QR de las facturas
-* v4.0.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
+* v3.2.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
 
 <br><br>
 
@@ -60,6 +60,7 @@ PdfTools.exe ds123456 guion.txt
 	* ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
 	* color=Color del QR en formato hexadecimal (opcional)
 	* marcaagua=Texto para insertar una marca de agua en el documento (opcional)
+	* colormarca=Color de la marca de agua en formato hexadecimal; defecto #E1E1E1 (gris claro)
 	* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
 
 <br>
@@ -95,7 +96,7 @@ PdfTools.exe ds123456 guion.txt
 * En el caso de procesado de una carpeta se debe tener en cuenta lo siguiente:
 	- El parametro 'carpetaentrada' es obligatorio, y si no se pasa 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada
 	- En la carpeta de entrada, ademas del PDF debe haber un fichero.txt con los parametros para generar el QR
-	- Si se incluye un fichero de imagen con el mismo nombre que el PDF, se insertara; en ese caso solo son necesarios los parametros de posicion
+	- Si se incluye un fichero de imagen con el mismo nombre que el PDF, se insertara; en ese caso solo son necesarios los parametros de posicion y marca de agua
 	- Si no se pasa un nombre del fichero de salida, se pondra el mismo que el de entrada con el sufijo '_salida'
 * En la ruta de ejecucion deben estar los siguientes ficheros:
 	- PdfSharp.dll

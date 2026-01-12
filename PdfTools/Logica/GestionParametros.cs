@@ -129,12 +129,23 @@ namespace PdfTools.Logica
 
                 case "color":
                     // Asigna el color del QR
-                    datosQR.Posicion.ColorQR = valor;
+                    if(Utilidades.ValidaColor(valor))
+                    {
+                        datosQR.Posicion.ColorQR = valor;
+                    }
                     break;
 
                 case "marcaagua":
                     // Asigna la marca de agua, reemplazando \n por saltos de línea
                     datosQR.MarcaAgua = valor.Replace("\\n", "\n");
+                    break;
+
+                case "colormarca":
+                    // Asigna el color de la marca de agua
+                    if(Utilidades.ValidaColor(valor))
+                    {
+                        datosQR.ColorMarca = valor;
+                    }
                     break;
 
                 case "idioma":
@@ -343,6 +354,7 @@ namespace PdfTools.Logica
             "ancho",
             "color",
             "marcaagua",
+            "colormarca",
             "idioma"
 
         };
@@ -367,7 +379,7 @@ namespace PdfTools.Logica
         private Enums.tiposParametros DetectaTipoParametro(string clave)
         {
             Enums.tiposParametros tipoParametro = Enums.tiposParametros.Desconocido;
-            if (clave == "accionpdf")
+            if(clave == "accionpdf")
             {
                 tipoParametro = Enums.tiposParametros.Accion;
             }
@@ -383,6 +395,6 @@ namespace PdfTools.Logica
             return tipoParametro;
         }
 
-        
+
     }
 }
