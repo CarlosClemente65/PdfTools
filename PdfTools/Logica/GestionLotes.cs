@@ -33,6 +33,7 @@ namespace PdfTools.Metodos
             // Objeto con los nombres de los ficheros necesarios
             List<DocumentoLoteQR> lote = new List<DocumentoLoteQR>();
 
+            
             // SI hay archivos PDF en la carpeta de entrada se lanza el proceso
             if(ArchivosPDF.Count > 0)
             {
@@ -40,9 +41,9 @@ namespace PdfTools.Metodos
                 string[] extensionesImagen = { ".bmp", ".jpg", ".jpeg", ".png", ".gif", ".tiff" };
 
                 // Procesa cada archivo PDF leido en la carpeta
-                foreach(string rutaPdf in ArchivosPDF)
+                foreach(string archivoPDF in ArchivosPDF)
                 {
-                    string nombreBase = Path.GetFileNameWithoutExtension(rutaPdf); // Necesario para localizar el resto de ficheros necesarios (guion y imagen del qr)
+                    string nombreBase = Path.GetFileNameWithoutExtension(archivoPDF); // Necesario para localizar el resto de ficheros necesarios (guion y imagen del qr)
                     string rutaTxt = Path.Combine(carpetaEntrada, nombreBase + ".txt"); // Nombre del guion que debe tener el mismo nombre que el PDF
 
                     string rutaImagen = null;
@@ -63,7 +64,7 @@ namespace PdfTools.Metodos
                     DocumentoLoteQR doc = new DocumentoLoteQR
                     {
                         NombreBase = nombreBase,
-                        RutaPdf = rutaPdf,
+                        RutaPdf = archivoPDF,
                         RutaGuion = File.Exists(rutaTxt) ? rutaTxt : null,
                         RutaImagenQR = rutaImagen
                     };

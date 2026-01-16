@@ -1,0 +1,3 @@
+carpetaentrada=C:\Programacion\c#\PdfTools\Pruebas\Unir
+listaficheros=alquiler-a, alquiler-2, alquiler-3, alquiler-4, alquiler-5, alquiler-6, alquiler-7, alquiler-8, alquiler-9, alquiler-10, alquiler-11, alquiler-12
+accionpdf=unir

@@ -64,7 +64,7 @@ namespace PdfTools
                 GestionContenido gestorContenido = new GestionContenido();
 
                 // Proceso por lotes en caso de haber pasado una carpeta
-                if(Parametros.ProcesarCarpeta)
+                if(Parametros.ProcesarCarpeta && Acciones.AccionPDF != Enums.AccionesPDF.Unir)
                 {
                     StringBuilder resultadoLote = new StringBuilder();
 
@@ -84,7 +84,7 @@ namespace PdfTools
                         // Controla si se han pasado todos los datos necesarios antes de procesarlo
                         if(fichero.EsValido)
                         {
-                           resultadoLote = gestorLotes.ProcesarFicheroLote(Parametros, fichero, resultadoLote);
+                            resultadoLote = gestorLotes.ProcesarFicheroLote(Parametros, fichero, resultadoLote);
                         }
                         else
                         {
@@ -96,7 +96,7 @@ namespace PdfTools
                         Logger.Limpiar();
                     }
 
-                    // Una vez procesados los ficheros se añaden los mensajes del procesado al looger
+                    // Una vez procesados los ficheros se añaden los mensajes del procesado al logger
                     Logger.Agregar(resultadoLote);
                 }
 
@@ -127,8 +127,8 @@ namespace PdfTools
                 {
                     var gestorAcciones = new GestionAcciones();
                     // Ejecuta las acciones adicionales que se hayan solicitado
-                    Enums.AccionesPDF accion = Acciones.AccionPDF;
-                    gestorAcciones.ProcesarAccion(Parametros, accion);
+                    //Enums.AccionesPDF accion = Acciones.AccionPDF;
+                    gestorAcciones.ProcesarAccion(Parametros, Acciones);
                 }
             }
 

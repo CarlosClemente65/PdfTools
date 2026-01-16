@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Windows.Documents;
 
 
 namespace PdfTools.Datos
@@ -13,13 +15,14 @@ namespace PdfTools.Datos
         public string CarpetaEntrada { get; set; } // Carpeta de entrada si se procesan varios ficheros
         public string CarpetaSalida { get; set; } // Carpeta de salida si se procesan varios ficheros
         public bool ProcesarCarpeta { get; set; } // Indica si se procesa una carpeta completa
-        public string[] ListaArchivos { get; set; } // Lista de archivos para procesar si se pasa una carpeta
+        public List<string> ListaArchivos { get; set; } // Lista de archivos para procesar si se pasa una carpeta
 
         public ConfiguracionGeneral()
         {
             RutaFicheros = Directory.GetCurrentDirectory();
             FicheroSalida = Path.Combine(RutaFicheros, "resultado.txt");
             ProcesarCarpeta = false;
+            ListaArchivos = new List<string>();
         }
 
     }

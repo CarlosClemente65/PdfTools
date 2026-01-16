@@ -35,7 +35,8 @@
             Ninguna,
             Imprimir,
             Abrir,
-            Visualizar
+            Visualizar,
+            Unir
         }
     }
 }

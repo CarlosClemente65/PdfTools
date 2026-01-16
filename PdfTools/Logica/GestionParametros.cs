@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using PdfTools.Datos;
 
 namespace PdfTools.Logica
@@ -31,6 +32,24 @@ namespace PdfTools.Logica
                     // No implementado, pero puede servir para controlar que los parametros pasados sean correctos
                     // Logger.Agregar($"El parametro {clave} es desconocido");
                     break;
+            }
+
+            // Una vez procesados los parametros, se almacenan los ficheros de la carpeta de entrada en caso de procesado de una carpeta
+            if(parametros.ProcesarCarpeta)
+            {
+                // Lista de los archivos PDF de la carpeta
+                List<string> ArchivosPDF = new List<string>();
+
+                // Carga la lista con los ficheros PDF a procesar
+                try
+                {
+                    parametros.ListaArchivos.AddRange(Directory.GetFiles(parametros.CarpetaEntrada, "*.pdf"));
+                }
+
+                catch(Exception ex)
+                {
+                    Logger.Agregar("No hay ningun fichero PDF en la carpeta seleccionada\r\n" + ex);
+                }
             }
         }
 
@@ -215,6 +234,17 @@ namespace PdfTools.Logica
                     }
                     break;
 
+                case "listaficheros":
+                    // Separa los ficheros de la lista quitando espacios
+                    string[] listaPdfs = valor
+                        .Split(',')
+                        .Select(p => p.Trim())
+                        .ToArray();
+
+                    // Añade los ficheros recibidos por orden a la lista para procesar despues
+                    parametros.ListaArchivos.AddRange(listaPdfs);
+
+                    break;
             }
 
             return parametros;
@@ -242,6 +272,11 @@ namespace PdfTools.Logica
 
                         case "visualizar":
                             acciones.AccionPDF = Enums.AccionesPDF.Visualizar;
+                            acciones.EjecutarAcciones = true;
+                            break;
+
+                        case "unir":
+                            acciones.AccionPDF = Enums.AccionesPDF.Unir;
                             acciones.EjecutarAcciones = true;
                             break;
 
@@ -366,7 +401,8 @@ namespace PdfTools.Logica
             "pdfsalida",
             "carpetaentrada",
             "carpetasalida",
-            "ficherosalida"
+            "ficherosalida",
+            "listaficheros"
         };
 
         // Campo con los valores que pueden tener los parametros de acciones

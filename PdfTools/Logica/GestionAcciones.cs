@@ -1,23 +1,38 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using PdfSharp.Pdf;
 using PdfTools.Datos;
+using PdfTools.Logica;
 
 namespace PdfTools.Metodos
 {
     public class GestionAcciones
     {
         // Gestiona las acciones de abrir, imprimir o visualizar el PDF con SumatraPDF
-        public void ProcesarAccion(ConfiguracionGeneral parametros, Enums.AccionesPDF accion)
+        public void ProcesarAccion(ConfiguracionGeneral parametros, ConfiguracionAcciones acciones)
         {
             // Ruta del ejecutable SumatraPDF 
             string rutaSumatra = Utilidades.rutaSumatra;
             string cacheSumatra = Utilidades.cacheSumatra;
 
-            // Si no se ha indicado el PDF de salida, se usa el de entrada
-            var ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
-                ? parametros.PdfEntrada
-                : parametros.PdfSalida;
+            // Instancia para la fusion de archivos
+            UnirPDFs gestorFusion = new UnirPDFs();
+            string ficheroPDF = string.Empty;
+            PdfDocument fusionPDFs;
+
+            if(parametros.ProcesarCarpeta)
+            {
+                fusionPDFs = gestorFusion.ProcesarFicheros(parametros);
+            }
+            else
+            {
+                // Si no se ha indicado el PDF de salida, se usa el de entrada
+                ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
+                    ? parametros.PdfEntrada
+                    : parametros.PdfSalida;
+            }
+
             try
             {
                 // Borrado de la carpeta de cache antes de la ejecucion
@@ -40,10 +55,11 @@ namespace PdfTools.Metodos
                 bool espera = true; // Indica si hay que esperar al cierre del visor
 
                 //Configura los parametros segun si se va a imprimir, abrir o visualizar el PDF
-                switch(accion)
+                switch(acciones.AccionPDF)
                 {
                     // Configura el proceso para lanzar la impresion silenciosa en la impresora predeterminada
                     case Enums.AccionesPDF.Imprimir:
+                        acciones.AbrirVisor = true;
                         psi.Arguments = $"-print-to-default -silent \"{ficheroPDF}\""; // Imprime el PDF en la impresora predeterminada
                         psi.CreateNoWindow = true; // No crea ninguna ventana
                         psi.WindowStyle = ProcessWindowStyle.Hidden; // El proceso esta oculto
@@ -52,32 +68,55 @@ namespace PdfTools.Metodos
 
                     case Enums.AccionesPDF.Abrir:
                     case Enums.AccionesPDF.Visualizar:
+                        acciones.AbrirVisor = true;
                         psi.Arguments = $"{ficheroPDF}"; // Fichero PDF para abrir o visualizar
                         psi.CreateNoWindow = false; // Se crea la ventana del proceso
                         psi.WindowStyle = ProcessWindowStyle.Normal; // Estilo de la ventana del proceso
                         psi.UseShellExecute = true; // Usa el shell de Windows para abrir SumatraPDF normalmente (ventana visible)
 
+
                         // En la accion de visualizar no se espera a cerrar el visor
-                        if(accion == Enums.AccionesPDF.Visualizar)
+                        if(acciones.AccionPDF == Enums.AccionesPDF.Visualizar)
                         {
                             espera = false;
                         }
 
                         break;
 
+                    case Enums.AccionesPDF.Unir:
+                        var documentoSalida = gestorFusion.ProcesarFicheros(parametros);
+                        documentoSalida.Save(parametros.PdfSalida);
+
+                        // Parametros necesarios para mostrar el PDF fusionado
+
+                        /* Comentado porque de momento no se implanta
+
+                        psi.Arguments = $"{parametros.PdfSalida}"; // Fichero PDF para abrir o visualizar
+                        psi.CreateNoWindow = false; // Se crea la ventana del proceso
+                        psi.WindowStyle = ProcessWindowStyle.Normal; // Estilo de la ventana del proceso
+                        psi.UseShellExecute = true; // Usa el shell de Windows para abrir SumatraPDF normalmente (ventana visible)
+
+                        */
+
+                        break;
+
                 }
 
-                // Inicia el proceso configurado
-                using(var proceso = Process.Start(psi))
-                {
-                    if(espera)
-                    {
-                        proceso.WaitForExit();
 
-                        // Comprueba el código de salida
-                        if(proceso.ExitCode != 0)
+                // Solo inicia el proceso configurado si la accion NO es Unir
+                if(acciones.AbrirVisor)
+                {
+                    using(var proceso = Process.Start(psi))
+                    {
+                        if(espera)
                         {
-                            throw new InvalidOperationException($"La impresión del PDF falló. Código de salida: {proceso.ExitCode}");
+                            proceso.WaitForExit();
+
+                            // Comprueba el código de salida
+                            if(proceso.ExitCode != 0)
+                            {
+                                throw new InvalidOperationException($"La impresión del PDF falló. Código de salida: {proceso.ExitCode}");
+                            }
                         }
                     }
                 }

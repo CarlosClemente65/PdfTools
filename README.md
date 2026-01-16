@@ -26,6 +26,7 @@ Tambien puede usarse como visualizador de ficheros PDF.
 * v3.0.0.0 Modificado nombre de la aplicacion 
 * v3.1.0.0 Añadido parametro para indicar el idioma de respuesta de la AEAT en el QR de las facturas
 * v3.2.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
+* v3.3.0.0 Añadido parametros para unir en un solo PDF los ficheros de una carpeta
 
 <br><br>
 
@@ -43,7 +44,8 @@ PdfTools.exe ds123456 guion.txt
 	* ficherosalida=nombre del fichero para controlar la finalizacion del proceso (opcional)
 	* carpetaentrada=Nombre de la carpeta para procesar por lotes los PDFs que haya dentro
 	* carpetasalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes
-	* accionpdf=[imprimir | abrir | visualizar]; Acciones adicionales a realizar con el PDF (opcional)
+	* accionpdf=[imprimir | abrir | visualizar | unir]; Acciones adicionales a realizar con el PDF (opcional)
+	* listaficheros=Nombre de los ficheros a unir de la carpetaentrada por orden de insercion y separados por comas (no es necesaria la ruta completa ni la extension)
 	* cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
 
 - Parametros QR:

@@ -193,5 +193,10 @@ namespace PdfTools.Metodos
                 documento.Save(parametros.PdfSalida);
             }
         }
+
+        public PdfDocument CrearDocumento()
+        {
+            return new PdfDocument();
+        }
     }
 }

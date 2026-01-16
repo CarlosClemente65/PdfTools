@@ -1,1 +1,1 @@
-Error: El archivo de guion no existe.
+Error: El fichero alquiler-a no existe
