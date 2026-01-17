@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using PdfSharp.Pdf;
@@ -21,22 +22,29 @@ namespace PdfTools.Logica
                 ? Path.Combine(parametros.CarpetaEntrada, "fichero_salida.pdf")
                 : parametros.PdfSalida;
 
+            // Si no se ha pasado la lista de ficheros, se carga con los PDFs de la carpeta
+            if (parametros.ListaArchivos.Count == 0)
+            {
+                foreach (var fichero in ficherosPdfs)
+                {
+                    parametros.ListaArchivos.Add(fichero.NombreBase);
+                }
+            }
+
             // Fusiona los ficheros
-            var documentoSalida = FusionarFicheros(parametros, ficherosPdfs);
+            PdfDocument documentoSalida = new PdfDocument();
+            FusionarFicheros(parametros, ficherosPdfs, documentoSalida);
 
             return documentoSalida;
         }
 
-        public PdfDocument FusionarFicheros(ConfiguracionGeneral parametros, System.Collections.Generic.List<DocumentoLoteQR> ficherosPdfs)
+        public void FusionarFicheros(ConfiguracionGeneral parametros, List<DocumentoLoteQR> ficherosPdfs, PdfDocument documentoSalida)
         {
-            var documentoSalida = gestorContenido.CrearDocumento();
-
+            // Al pasar 'documentoSalida' como referencia no hay que devolver el resultado, ya que se asigna al mismo objeto desde el que se llama al metodo
             if(ficherosPdfs != null && ficherosPdfs.Count > 1)
             {
                 foreach(var archivo in parametros.ListaArchivos)
                 {
-                    //string nombreArchivo = Path.GetFileNameWithoutExtension(archivo);
-
                     //Buscamos el fichero correspondiente en la lista de PDFs
                     var fichero = ficherosPdfs.FirstOrDefault(f =>
                         string.Equals(f.NombreBase,
@@ -68,25 +76,26 @@ namespace PdfTools.Logica
 
                     catch(FileNotFoundException ex)
                     {
-                        Logger.Agregar($"El fichero {fichero.NombreBase} no existe.\n {ex.Message}");
+                        Logger.Agregar($"El fichero \"{fichero.NombreBase}\" no existe.");
                     }
                     catch(FileFormatException ex)
                     {
-                        Logger.Agregar($"El fichero {fichero.NombreBase} no es correcto.\n{ex.Message}");
+                        Logger.Agregar($"El fichero \"{fichero.NombreBase}\" no es correcto. - Error: {ex.Message}");
                     }
                     catch(PdfReaderException ex)
                     {
-                        Logger.Agregar($"Error al abrir el fichero {fichero.NombreBase}.\n {ex.Message}");
+                        Logger.Agregar($"Error al abrir el fichero \"{fichero.NombreBase}\". - Error: {ex.Message}");
+                    }
+                    catch(InvalidOperationException ex)
+                    {
+                        Logger.Agregar($"El fichero \"{fichero.NombreBase}\" no es un fichero PDF valido.");
                     }
                     catch(Exception ex)
                     {
-                        Logger.Agregar($"Error al agregar el fichero {fichero.NombreBase}.\n{ex.Message}");
+                        Logger.Agregar($"Error al agregar el fichero \"{fichero.NombreBase}\". - Error: {ex.Message}");
                     }
                 }
-
             }
-
-            return documentoSalida;
         }
     }
 }

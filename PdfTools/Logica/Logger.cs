@@ -27,11 +27,16 @@ namespace PdfTools.Logica
             return _log.Length > 0;
         }
 
+        public static bool EstaVacio()
+        {
+            return _log.Length == 0;
+        }
+
         // Guarda en la ruta el log generado
         public static void Guardar(string rutaFichero)
         {
             // Si no hay ningun mensaje, se pone un OK para no dejar vacio el fichero con el resultado
-            if(!TieneContenido())
+            if(EstaVacio())
             {
                 _log.AppendLine("OK");
             }

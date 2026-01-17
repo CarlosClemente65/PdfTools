@@ -160,7 +160,7 @@ namespace PdfTools.Metodos
             // Se utiliza el mismo documento para añadir el QR
             documento = procesoPDF.InsertarQR(documento, datosQR);
 
-            if(!Logger.TieneContenido())
+            if(Logger.EstaVacio())
             {
                 // Si no se ha pasado el fichero de salida se asigna un nombre por defecto
                 var ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
@@ -192,11 +192,6 @@ namespace PdfTools.Metodos
                         : parametros.PdfSalida;
                 documento.Save(parametros.PdfSalida);
             }
-        }
-
-        public PdfDocument CrearDocumento()
-        {
-            return new PdfDocument();
         }
     }
 }

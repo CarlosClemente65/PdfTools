@@ -19,19 +19,19 @@ namespace PdfTools.Metodos
             // Instancia para la fusion de archivos
             UnirPDFs gestorFusion = new UnirPDFs();
             string ficheroPDF = string.Empty;
-            PdfDocument fusionPDFs;
+            PdfDocument fusionPDFs = null;
 
-            if(parametros.ProcesarCarpeta)
-            {
-                fusionPDFs = gestorFusion.ProcesarFicheros(parametros);
-            }
-            else
-            {
-                // Si no se ha indicado el PDF de salida, se usa el de entrada
-                ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
-                    ? parametros.PdfEntrada
-                    : parametros.PdfSalida;
-            }
+            // Si no se ha indicado el PDF de salida, se usa el de entrada
+            ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
+                ? parametros.PdfEntrada
+                : parametros.PdfSalida;
+
+            //// Si se procesa una carpeta se fusionan los ficheros para la union, impresion o visualizacion
+            //if(parametros.ProcesarCarpeta)
+            //{
+            //    fusionPDFs = gestorFusion.ProcesarFicheros(parametros);
+            //    fusionPDFs.Save(parametros.PdfSalida);
+            //}
 
             try
             {
@@ -74,7 +74,6 @@ namespace PdfTools.Metodos
                         psi.WindowStyle = ProcessWindowStyle.Normal; // Estilo de la ventana del proceso
                         psi.UseShellExecute = true; // Usa el shell de Windows para abrir SumatraPDF normalmente (ventana visible)
 
-
                         // En la accion de visualizar no se espera a cerrar el visor
                         if(acciones.AccionPDF == Enums.AccionesPDF.Visualizar)
                         {
@@ -84,8 +83,12 @@ namespace PdfTools.Metodos
                         break;
 
                     case Enums.AccionesPDF.Unir:
-                        var documentoSalida = gestorFusion.ProcesarFicheros(parametros);
-                        documentoSalida.Save(parametros.PdfSalida);
+                        // Fusiona los fichero PDFs de la carpeta
+                        fusionPDFs = gestorFusion.ProcesarFicheros(parametros);
+                        if(fusionPDFs != null && fusionPDFs.PageCount > 0)
+                        {
+                            fusionPDFs.Save(parametros.PdfSalida);
+                        }
 
                         // Parametros necesarios para mostrar el PDF fusionado
 

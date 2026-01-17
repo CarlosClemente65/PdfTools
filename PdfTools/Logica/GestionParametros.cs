@@ -33,24 +33,6 @@ namespace PdfTools.Logica
                     // Logger.Agregar($"El parametro {clave} es desconocido");
                     break;
             }
-
-            // Una vez procesados los parametros, se almacenan los ficheros de la carpeta de entrada en caso de procesado de una carpeta
-            if(parametros.ProcesarCarpeta)
-            {
-                // Lista de los archivos PDF de la carpeta
-                List<string> ArchivosPDF = new List<string>();
-
-                // Carga la lista con los ficheros PDF a procesar
-                try
-                {
-                    parametros.ListaArchivos.AddRange(Directory.GetFiles(parametros.CarpetaEntrada, "*.pdf"));
-                }
-
-                catch(Exception ex)
-                {
-                    Logger.Agregar("No hay ningun fichero PDF en la carpeta seleccionada\r\n" + ex);
-                }
-            }
         }
 
         // Asignacion de parametros del QR
@@ -187,7 +169,7 @@ namespace PdfTools.Logica
         }
 
         // Asignacion de parametros generales
-        public ConfiguracionGeneral AsignaParametrosGenerales(string clave, string valor, ConfiguracionGeneral parametros)
+        public void AsignaParametrosGenerales(string clave, string valor, ConfiguracionGeneral parametros)
         {
             switch(clave)
             {
@@ -246,9 +228,6 @@ namespace PdfTools.Logica
 
                     break;
             }
-
-            return parametros;
-
         }
 
         // Asignacion de parametros de acciones
@@ -347,7 +326,7 @@ namespace PdfTools.Logica
                 }
 
                 // Solo se generan la URL si no hay errores en los datos
-                if(!Logger.TieneContenido())
+                if(Logger.EstaVacio())
                 {
                     Utilidades.GenerarURL(datosQR);
                 }

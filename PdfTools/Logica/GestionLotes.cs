@@ -33,7 +33,7 @@ namespace PdfTools.Metodos
             // Objeto con los nombres de los ficheros necesarios
             List<DocumentoLoteQR> lote = new List<DocumentoLoteQR>();
 
-            
+
             // SI hay archivos PDF en la carpeta de entrada se lanza el proceso
             if(ArchivosPDF.Count > 0)
             {
@@ -78,7 +78,7 @@ namespace PdfTools.Metodos
 
 
         // Procesasdo de cada fichero del lote para añadir el QR y la marca de agua
-        public StringBuilder ProcesarFicheroLote(ConfiguracionGeneral parametros, DocumentoLoteQR fichero, StringBuilder resultadoLote)
+        public void ProcesarFicheroLote(ConfiguracionGeneral parametros, DocumentoLoteQR fichero, StringBuilder resultadoLote)
         {
             // Instancias de los objetos necesarias para cada PDF a procesar
             var datosQRFichero = new ConfiguracionQR();
@@ -92,6 +92,7 @@ namespace PdfTools.Metodos
 
             // Cargar configuración del guion
             datosQRFichero = Utilidades.CargarParametros(parametrosFichero, datosQRFichero, accionesFichero, guionFichero);
+            
 
             // Asigna los valores segun los datos leidos del guion
             parametrosFichero.PdfEntrada = fichero.RutaPdf; // El fichero de entrada siempre sera el PDF leido de la carpeta
@@ -120,7 +121,7 @@ namespace PdfTools.Metodos
                 resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: QR añadido correctamente");
             }
 
-            return resultadoLote;
+            //return resultadoLote;
         }
 
     }

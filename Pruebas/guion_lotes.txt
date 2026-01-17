@@ -1,4 +1,4 @@
-carpetaentrada=c:\Programacion\C#\PdfTools\Pruebas\FacturasLote
-carpetasalida=c:\Programacion\C#\PdfTools\Pruebas\FacturasLote_salida
-ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\FacturasLote\salida.txt
-accionpdf=visualizar
+carpetaentrada=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote
+carpetasalida=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote_salida
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\FacturasLote\salida.txt
+accionpdfs=visualizar

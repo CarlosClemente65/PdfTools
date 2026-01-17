@@ -48,6 +48,7 @@ namespace PdfTools
                     // El parametro 'cerrarvisor' no tiene dos partes y se trata de forma independiente
                     acciones.CerrarVisor = true;
                 }
+
             }
 
             return datosQR;
@@ -114,22 +115,22 @@ namespace PdfTools
         }
 
         // Valida que el color pasado como Hex sea valido
-        public static bool ValidaColor(string colorHex) 
+        public static bool ValidaColor(string colorHex)
         {
             if(string.IsNullOrEmpty(colorHex))
             {
-                return false; 
+                return false;
             }
 
             colorHex = colorHex.Replace("#", "");
 
-            if (colorHex.Length != 6)
+            if(colorHex.Length != 6)
             {
                 return false;
             }
 
             return colorHex.All(c =>
-                (c >= '0' && c<= '9') ||
+                (c >= '0' && c <= '9') ||
                 (c >= 'A' && c <= 'F') ||
                 (c >= 'a' && c <= 'f'));
         }
