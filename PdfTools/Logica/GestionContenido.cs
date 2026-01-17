@@ -163,35 +163,35 @@ namespace PdfTools.Metodos
             if(Logger.EstaVacio())
             {
                 // Si no se ha pasado el fichero de salida se asigna un nombre por defecto
-                var ficheroPDF = string.IsNullOrWhiteSpace(parametros.PdfSalida)
+                parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)
                     ? Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada) + "_salida.pdf")
                     : parametros.PdfSalida;
 
-                documento.Save(ficheroPDF);
+                documento.Save(parametros.PdfSalida);
             }
         }
 
 
         // Proceso para añadir la marca de agua al documento PDF
-        public void AgregarMarcaAgua(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        public PdfDocument AgregarMarcaAgua(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
         {
+            // Creacion del documento para añadir la marcar de agua
+            PdfDocument documento = null;
+
             // Comprueba si hay texto para añadir y no provocar una excepcion
             if(!string.IsNullOrEmpty(datosQR.MarcaAgua))
             {
                 GestionContenido gestorProceso = new GestionContenido();
 
                 // Carga en el documento el PDF de entrada
-                PdfDocument documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
+                documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
 
                 // Utiliza el mismo documento abierto para añadirle la marca de agua
                 documento = gestorProceso.InsertaMarcaAgua(documento, datosQR);
 
-                // Guarda el PDF modificado en la ruta de salida
-                parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)
-                        ? Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada) + "_salida.pdf")
-                        : parametros.PdfSalida;
-                documento.Save(parametros.PdfSalida);
             }
+
+            return documento;
         }
     }
 }
