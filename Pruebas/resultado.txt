@@ -1,1 +1,1 @@
-Error: El archivo de guion no existe.
+Error: El fichero alquiler-1.pdf no existe

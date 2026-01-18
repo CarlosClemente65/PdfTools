@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using PdfSharp.Pdf;
 using PdfTools.Datos;
 using PdfTools.Logica;
 using PdfTools.Metodos;
@@ -60,86 +61,82 @@ namespace PdfTools
                     Utilidades.CerrarVisor();
                 }
 
+                // Crear el contexto de ejecución
+                var contexto = new ContextoEjecucion
+                {
+                    PdfActual = Parametros.PdfEntrada,          // PDF inicial
+                    RutaSumatra = Utilidades.rutaSumatra,       // Ruta del ejecutable SumatraPDF
+                    CacheSumatra = Utilidades.cacheSumatra,     // Ruta de la cache de SumatraPDF
+                    GestorFusion = new UnirPDFs(),              // Instancia del gestor de fusión
+                    EsperarCierreVisor = true                   // Valor por defecto
+                };
+
+
                 // Instancia para gestionar el contenido del PDF
                 GestionContenido gestorContenido = new GestionContenido();
 
-                // Proceso por lotes en caso de haber pasado una carpeta
-                if(Parametros.ProcesarCarpeta)
-                {
-                    StringBuilder resultadoLote = new StringBuilder();
-
-                    GestionLotes gestorLotes = new GestionLotes();
-
-                    // Asigna la carpeta de salida a la misma de entrada si no se ha pasado
-                    Parametros.CarpetaSalida = string.IsNullOrWhiteSpace(Parametros.CarpetaSalida) ?
-                        Parametros.CarpetaEntrada : Parametros.CarpetaSalida;
-
-                    // Lista con los documentos a procesar
-                    List<DocumentoLoteQR> ficherosLote = new List<DocumentoLoteQR>();
-                    ficherosLote = gestorLotes.CargarFicheros(Parametros.CarpetaEntrada);
-
-                    // Procesar cada fichero
-                    foreach(var fichero in ficherosLote)
-                    {
-                        // Controla si se han pasado todos los datos necesarios antes de procesarlo
-                        if(fichero.EsValido)
-                        {
-                           resultadoLote = gestorLotes.ProcesarFicheroLote(Parametros, fichero, resultadoLote);
-                        }
-                        else
-                        {
-                            // Graba el logger cuando no se ha pasado el guion del fichero
-                            resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: No se han pasado parametros del fichero ");
-                        }
-
-                        // Una vez procesao el fichero se limpia el logger para procesar el siguiente fichero
-                        Logger.Limpiar();
-                    }
-
-                    // Una vez procesados los ficheros se añaden los mensajes del procesado al looger
-                    Logger.Agregar(resultadoLote);
-                }
-
-                // Si no se procesa la carpeta, se chequea si hay que insertar el QR a un PDF individual
-                else if(DatosQR.InsertarQR)
+                /* --------------- Procesado del guion ------------------- */
+                // Insertar el QR a un PDF individual (tambien inserta la marca de agua en caso de ser necesario)
+                if(DatosQR.InsertarQR)
                 {
                     // Valida parametros obligatorios
                     gestor.ValidarParametros(Parametros, DatosQR);
 
                     // Insertar QR si no hay errores de configuración
-                    if(!Logger.TieneContenido())
+                    if(Logger.EstaVacio())
                     {
                         // Proceso para insertar el QR en el documento
                         var procesoPDF = new InsertaQR();
 
-                        gestorContenido.AgregarQR(Parametros, DatosQR);
+                        PdfDocument documento = gestorContenido.AgregarQR(Parametros, DatosQR);
+
+                        documento.Save(Parametros.PdfSalida);
+
+                        // Se actualiza el fichero por si hay que ejecutar acciones adicionales
+                        contexto.PdfActual = Parametros.PdfSalida;
                     }
+                }
+
+                // Procesado de una carpeta para añadir QR (la accion de unir PDFs se gestiona desde las acciones)
+                else if(Parametros.ProcesarCarpeta && !Acciones.AccionesPDF.Contains(Enums.AccionesPDF.Unir))
+                {
+                    GestionLotes gestorLotes = new GestionLotes();
+
+                    gestorLotes.ProcesarLoteQR(Parametros);
                 }
                 else
                 {
-                    // Si no hay que insertar el QR se revisa si hay que añadir la marca de agua
+                    // Insertar unicamente la marca de agua a un PDF individual 
                     string textoMarcaAgua = DatosQR.MarcaAgua;
-                    gestorContenido.AgregarMarcaAgua(Parametros, textoMarcaAgua);
+                    if(textoMarcaAgua.Length > 0)
+                    {
+                        PdfDocument documento = gestorContenido.AgregarMarcaAgua(Parametros, DatosQR);
+
+                        // Si no se pasa el fichero de salida se genera uno con el mismo nombre del de entrada y un sufijo para no machacarlo
+                        Parametros.PdfSalida = string.IsNullOrWhiteSpace(Parametros.PdfSalida)
+                                ? Path.Combine(Parametros.RutaFicheros, Path.GetFileNameWithoutExtension(Parametros.PdfEntrada) + "_salida.pdf")
+                                : Parametros.PdfSalida;
+
+                        documento.Save(Parametros.PdfSalida);
+
+                        // Se actualiza el fichero por si hay que ejecutar acciones adicionales
+                        contexto.PdfActual = Parametros.PdfSalida;
+                    }
                 }
 
-                // Revisa si hay que ejecutar acciones adicionales
-                if(Acciones.EjecutarAcciones)
+                // Procesado de acciones adicionales con la nueva arquitectura
+                if(Acciones.EjecutarAcciones && Acciones.AccionesPDF != null && Acciones.AccionesPDF.Count > 0)
                 {
                     var gestorAcciones = new GestionAcciones();
-                    // Ejecuta las acciones adicionales que se hayan solicitado
-                    Enums.AccionesPDF accion = Acciones.AccionPDF;
-                    gestorAcciones.ProcesarAccion(Parametros, accion);
-                }
-            }
 
-            catch(InvalidOperationException ex)
-            {
-                Logger.Agregar(ex.Message);
+                    // Llamada al nuevo método que ejecuta la lista de acciones
+                    gestorAcciones.EjecutarAcciones(Parametros, Acciones, contexto);
+                }
             }
 
             catch(Exception ex)
             {
-                Logger.Agregar($"Se ha producido un error al procesar el fichero. Mensaje: {ex.Message}");
+                Logger.Agregar($"Se ha producido un error en el proceso. Mensaje: {ex.Message}");
             }
 
             finally

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using PdfTools.Datos;
 
 namespace PdfTools.Logica
@@ -20,7 +21,6 @@ namespace PdfTools.Logica
 
                 case Enums.tiposParametros.General:
                     AsignaParametrosGenerales(clave, valor, parametros);
-
                     break;
 
                 case Enums.tiposParametros.Accion:
@@ -129,12 +129,23 @@ namespace PdfTools.Logica
 
                 case "color":
                     // Asigna el color del QR
-                    datosQR.Posicion.ColorQR = valor;
+                    if(Utilidades.ValidaColor(valor))
+                    {
+                        datosQR.Posicion.ColorQR = valor;
+                    }
                     break;
 
                 case "marcaagua":
                     // Asigna la marca de agua, reemplazando \n por saltos de línea
                     datosQR.MarcaAgua = valor.Replace("\\n", "\n");
+                    break;
+
+                case "colormarca":
+                    // Asigna el color de la marca de agua
+                    if(Utilidades.ValidaColor(valor))
+                    {
+                        datosQR.ColorMarca = valor;
+                    }
                     break;
 
                 case "idioma":
@@ -157,7 +168,7 @@ namespace PdfTools.Logica
         }
 
         // Asignacion de parametros generales
-        public ConfiguracionGeneral AsignaParametrosGenerales(string clave, string valor, ConfiguracionGeneral parametros)
+        public void AsignaParametrosGenerales(string clave, string valor, ConfiguracionGeneral parametros)
         {
             switch(clave)
             {
@@ -204,10 +215,18 @@ namespace PdfTools.Logica
                     }
                     break;
 
+                case "listaficheros":
+                    // Separa los ficheros de la lista quitando espacios
+                    string[] listaPdfs = valor
+                        .Split(',')
+                        .Select(p => p.Trim())
+                        .ToArray();
+
+                    // Añade los ficheros recibidos por orden a la lista para procesar despues
+                    parametros.ListaArchivos.AddRange(listaPdfs);
+
+                    break;
             }
-
-            return parametros;
-
         }
 
         // Asignacion de parametros de acciones
@@ -220,17 +239,22 @@ namespace PdfTools.Logica
                     switch(valor.ToLower())
                     {
                         case "imprimir":
-                            acciones.AccionPDF = Enums.AccionesPDF.Imprimir;
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Imprimir);
                             acciones.EjecutarAcciones = true;
                             break;
 
                         case "abrir":
-                            acciones.AccionPDF = Enums.AccionesPDF.Abrir;
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Abrir);
                             acciones.EjecutarAcciones = true;
                             break;
 
                         case "visualizar":
-                            acciones.AccionPDF = Enums.AccionesPDF.Visualizar;
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Visualizar);
+                            acciones.EjecutarAcciones = true;
+                            break;
+
+                        case "unir":
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Unir);
                             acciones.EjecutarAcciones = true;
                             break;
 
@@ -301,7 +325,7 @@ namespace PdfTools.Logica
                 }
 
                 // Solo se generan la URL si no hay errores en los datos
-                if(!Logger.TieneContenido())
+                if(Logger.EstaVacio())
                 {
                     Utilidades.GenerarURL(datosQR);
                 }
@@ -343,6 +367,7 @@ namespace PdfTools.Logica
             "ancho",
             "color",
             "marcaagua",
+            "colormarca",
             "idioma"
 
         };
@@ -354,7 +379,8 @@ namespace PdfTools.Logica
             "pdfsalida",
             "carpetaentrada",
             "carpetasalida",
-            "ficherosalida"
+            "ficherosalida",
+            "listaficheros"
         };
 
         // Campo con los valores que pueden tener los parametros de acciones
@@ -367,7 +393,7 @@ namespace PdfTools.Logica
         private Enums.tiposParametros DetectaTipoParametro(string clave)
         {
             Enums.tiposParametros tipoParametro = Enums.tiposParametros.Desconocido;
-            if (clave == "accionpdf")
+            if(clave == "accionpdf")
             {
                 tipoParametro = Enums.tiposParametros.Accion;
             }
@@ -383,6 +409,6 @@ namespace PdfTools.Logica
             return tipoParametro;
         }
 
-        
+
     }
 }
