@@ -149,26 +149,30 @@ namespace PdfTools.Metodos
 
 
         // Proceso para añadir el QR al documento PDF
-        public void AgregarQR(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        public PdfDocument AgregarQR(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
         {
             // Instancia para insertar el QR en el documento
             var procesoPDF = new InsertaQR();
 
-            // Genera el documento PDF para luego poder insertar las imagenes
-            PdfDocument documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
+            // Documento PDF para insertar el QR
+            PdfDocument documento = new PdfDocument();
 
-            // Se utiliza el mismo documento para añadir el QR
-            documento = procesoPDF.InsertarQR(documento, datosQR);
-
-            if(Logger.EstaVacio())
+            try
             {
-                // Si no se ha pasado el fichero de salida se asigna un nombre por defecto
-                parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)
-                    ? Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada) + "_salida.pdf")
-                    : parametros.PdfSalida;
+                // Genera el documento PDF para luego poder insertar las imagenes
+                documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
 
-                documento.Save(parametros.PdfSalida);
+                // Se utiliza el mismo documento para añadir el QR
+                documento = procesoPDF.InsertarQR(documento, datosQR);
+
+                return documento;
             }
+            catch(Exception ex)
+            {
+                throw new Exception($"Error al insertar el QR en el fichero {parametros.PdfEntrada}. Mensaje: {ex.Message}");
+            }
+
+
         }
 
 

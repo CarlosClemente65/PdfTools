@@ -21,7 +21,6 @@ namespace PdfTools.Logica
 
                 case Enums.tiposParametros.General:
                     AsignaParametrosGenerales(clave, valor, parametros);
-
                     break;
 
                 case Enums.tiposParametros.Accion:
@@ -240,22 +239,22 @@ namespace PdfTools.Logica
                     switch(valor.ToLower())
                     {
                         case "imprimir":
-                            acciones.AccionPDF = Enums.AccionesPDF.Imprimir;
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Imprimir);
                             acciones.EjecutarAcciones = true;
                             break;
 
                         case "abrir":
-                            acciones.AccionPDF = Enums.AccionesPDF.Abrir;
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Abrir);
                             acciones.EjecutarAcciones = true;
                             break;
 
                         case "visualizar":
-                            acciones.AccionPDF = Enums.AccionesPDF.Visualizar;
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Visualizar);
                             acciones.EjecutarAcciones = true;
                             break;
 
                         case "unir":
-                            acciones.AccionPDF = Enums.AccionesPDF.Unir;
+                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Unir);
                             acciones.EjecutarAcciones = true;
                             break;
 

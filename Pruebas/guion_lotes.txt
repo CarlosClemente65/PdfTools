@@ -1,4 +1,3 @@
 carpetaentrada=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote
 carpetasalida=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote_salida
 ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\FacturasLote\salida.txt
-accionpdfs=visualizar

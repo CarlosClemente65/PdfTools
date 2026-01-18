@@ -8,7 +8,7 @@ namespace PdfTools.Datos
         public bool UsarQrExterno = false; // Indica si se usa un fichero de QR externo
 
         public bool InsertarQR = false; // Control para incluir o no el QR en el PDF
-        public string MarcaAgua { get; set; } // Texto de la marca de agua en caso de que se use
+        public string MarcaAgua { get; set; } = string.Empty; // Texto de la marca de agua en caso de que se use
         public string ColorMarca { get; set; } = "#E1E1E1"; // Color de la marca de agua (gris claro)
         public string NombreFicheroQR { get; set; } // Fichero de imagen del QR externo
 

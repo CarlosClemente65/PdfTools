@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using PdfTools.Datos;
@@ -16,26 +17,44 @@ namespace PdfTools.Logica
 
         public PdfDocument ProcesarFicheros(ConfiguracionGeneral parametros)
         {
+            // Creacion del documento de salida
+            PdfDocument documentoSalida = new PdfDocument();
+
+            // Carga los nombres de los ficheros para procesar
             var ficherosPdfs = gestorLotes.CargarFicheros(parametros.CarpetaEntrada);
 
+            // Si no hay carpeta de salida, se utiliza la de entrada
+            string carpetaSalida = string.IsNullOrWhiteSpace(parametros.CarpetaSalida)
+                ? parametros.CarpetaEntrada
+                : parametros.CarpetaSalida;
+
+            // Si no se pasa el nombre del fichero de salida, se crea uno por defecto
             parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)
-                ? Path.Combine(parametros.CarpetaEntrada, "fichero_salida.pdf")
+                ? Path.Combine(carpetaSalida, "fichero_salida.pdf")
                 : parametros.PdfSalida;
 
-            // Si no se ha pasado la lista de ficheros, se carga con los PDFs de la carpeta
-            if (parametros.ListaArchivos.Count == 0)
+            // Si no se ha pasado la lista de ficheros en el guion, se carga con los PDFs de la carpeta
+            if(parametros.ListaArchivos.Count == 0)
             {
-                foreach (var fichero in ficherosPdfs)
+
+                foreach(var fichero in ficherosPdfs)
                 {
                     parametros.ListaArchivos.Add(fichero.NombreBase);
                 }
             }
 
-            // Fusiona los ficheros
-            PdfDocument documentoSalida = new PdfDocument();
-            FusionarFicheros(parametros, ficherosPdfs, documentoSalida);
+            // Solo procesa los ficheros si hay alguno en la lista
+            if(parametros.ListaArchivos.Count > 0)
+            {
+                // Fusiona los ficheros
+                FusionarFicheros(parametros, ficherosPdfs, documentoSalida);
+            }
+            else
+            {
+                throw new Exception($"No hay ningun fichero en la carpeta \"{parametros.CarpetaEntrada}\"");
+            }
 
-            return documentoSalida;
+                return documentoSalida;
         }
 
         public void FusionarFicheros(ConfiguracionGeneral parametros, List<DocumentoLoteQR> ficherosPdfs, PdfDocument documentoSalida)
@@ -43,6 +62,9 @@ namespace PdfTools.Logica
             // Al pasar 'documentoSalida' como referencia no hay que devolver el resultado, ya que se asigna al mismo objeto desde el que se llama al metodo
             if(ficherosPdfs != null && ficherosPdfs.Count > 1)
             {
+                // Control del proceso de union de ficheros
+                StringBuilder resultadoLote = new StringBuilder();
+
                 foreach(var archivo in parametros.ListaArchivos)
                 {
                     //Buscamos el fichero correspondiente en la lista de PDFs

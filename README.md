@@ -8,7 +8,7 @@
 <h3>Descripción</h3>
 Añade el codigo QR obligatorio en facturas para sistemas Veri*Factu.
 Permite añadir una marca de agua, y al finalizar puede imprimir o abrir el PDF generado
-Tambien puede usarse como visualizador de ficheros PDF.
+Tambien puede usarse como visualizador de ficheros PDF, y para fusionar varios PDFs en uno
 <br><br>
 
 ### Control versiones
@@ -45,7 +45,7 @@ PdfTools.exe ds123456 guion.txt
 	* carpetaentrada=Nombre de la carpeta para procesar por lotes los PDFs que haya dentro
 	* carpetasalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes
 	* accionpdf=[imprimir | abrir | visualizar | unir]; Acciones adicionales a realizar con el PDF (opcional)
-	* listaficheros=Nombre de los ficheros a unir de la carpetaentrada por orden de insercion y separados por comas (no es necesaria la ruta completa ni la extension)
+	* listaficheros=Nombre de los ficheros a unir de la carpetaentrada
 	* cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
 
 - Parametros QR:
@@ -70,7 +70,7 @@ PdfTools.exe ds123456 guion.txt
 ### Notas:
 * No es necesario pasar los parametros con comillas si hay espacios; se toma el valor que hay a continuacion del '='
 * Los nombres de los parametros pueden ir en mayusculas o minusculas (se convierten a minusculas)
-* Si no se pasa el nombre de salida, se utiliza el mismo que el de entrada con un sufijo (_salida)
+* Si no se pasa el nombre del fichero de salida, se utiliza el mismo que el de entrada con un sufijo (_salida)
 * La url se puede pasar (debe estar bien formada), y si no se pasa, se genera en base a los datos de la factura, entorno y verifactu
 * El entorno por defecto es la web de produccion (real), por lo que en pruebas debe pasarse el parametro entorno=pruebas
 * Por defecto se funciona en modo NO VeriFactu, por lo que para trabajar de ese modo se debe pasar el parametro verifactu=si
@@ -85,6 +85,7 @@ PdfTools.exe ds123456 guion.txt
 	- 'imprimir' = Lanza el PDF generado por la impresora predeterminada
 	- 'abrir' = Abre el PDF generado con el visor; la aplicacion espera a que se cierre el visor para continuar
 	- 'visualizar' = Abre el PDF pasado por parametro con el visor; la aplicacion continua sin esperar al cierre del visor
+	- 'unir' = Fusiona en un solo PDF los ficheros de una carpeta.
 * El parametro cerrarvisor' permite cerrar todos los procesos abiertos del visor SumatraPDF; se puede pasar como un parametro adicional ademas del resto
 * Si se incluye el parametro 'ficherosalida' la aplicacion genera un fichero que puede usarse para controlar si la aplicacion ha terminado o no. 
   Con el parametro 'visualizar' la aplicacion no se detiene aunque no se cierre el visor, por lo que se generara (si se ha indicado) el fichero de salida
@@ -96,10 +97,17 @@ PdfTools.exe ds123456 guion.txt
 	- va: valenciano
 	- en: inglés
 * En el caso de procesado de una carpeta se debe tener en cuenta lo siguiente:
-	- El parametro 'carpetaentrada' es obligatorio, y si no se pasa 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada
+	- El parametro 'carpetaentrada' es obligatorio, 
+	- Si no se pasa 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada
 	- En la carpeta de entrada, ademas del PDF debe haber un fichero.txt con los parametros para generar el QR
 	- Si se incluye un fichero de imagen con el mismo nombre que el PDF, se insertara; en ese caso solo son necesarios los parametros de posicion y marca de agua
 	- Si no se pasa un nombre del fichero de salida, se pondra el mismo que el de entrada con el sufijo '_salida'
+* En el caso del proceso de union de PDFs se debe tener en cueta lo siguiente:
+	- En 'listaficheros' estaran los nombres de los ficheros a añadir por orden de insercion y separados por comas
+	- No es necesaria la ruta completa ni la extension de la lista de ficheros
+	- Si no se incluye la 'listaficheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
+	- Si no se incluye la 'carpetasalida' el fichero de union se dejara en la carpeta de entrada
+	- Si no se incluye el 'ficherosalida' se genera un por defecto "fichero_salida.pdf"
 * En la ruta de ejecucion deben estar los siguientes ficheros:
 	- PdfSharp.dll
 	- QRCoder.dll

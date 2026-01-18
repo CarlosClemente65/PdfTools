@@ -61,6 +61,17 @@ namespace PdfTools
                     Utilidades.CerrarVisor();
                 }
 
+                // Crear el contexto de ejecución
+                var contexto = new ContextoEjecucion
+                {
+                    PdfActual = Parametros.PdfEntrada,          // PDF inicial
+                    RutaSumatra = Utilidades.rutaSumatra,       // Ruta del ejecutable SumatraPDF
+                    CacheSumatra = Utilidades.cacheSumatra,     // Ruta de la cache de SumatraPDF
+                    GestorFusion = new UnirPDFs(),              // Instancia del gestor de fusión
+                    EsperarCierreVisor = true                   // Valor por defecto
+                };
+
+
                 // Instancia para gestionar el contenido del PDF
                 GestionContenido gestorContenido = new GestionContenido();
 
@@ -77,8 +88,21 @@ namespace PdfTools
                         // Proceso para insertar el QR en el documento
                         var procesoPDF = new InsertaQR();
 
-                        gestorContenido.AgregarQR(Parametros, DatosQR);
+                        PdfDocument documento = gestorContenido.AgregarQR(Parametros, DatosQR);
+
+                        documento.Save(Parametros.PdfSalida);
+
+                        // Se actualiza el fichero por si hay que ejecutar acciones adicionales
+                        contexto.PdfActual = Parametros.PdfSalida;
                     }
+                }
+
+                // Procesado de una carpeta para añadir QR (la accion de unir PDFs se gestiona desde las acciones)
+                else if(Parametros.ProcesarCarpeta && !Acciones.AccionesPDF.Contains(Enums.AccionesPDF.Unir))
+                {
+                    GestionLotes gestorLotes = new GestionLotes();
+
+                    gestorLotes.ProcesarLoteQR(Parametros);
                 }
                 else
                 {
@@ -87,56 +111,32 @@ namespace PdfTools
                     if(textoMarcaAgua.Length > 0)
                     {
                         PdfDocument documento = gestorContenido.AgregarMarcaAgua(Parametros, DatosQR);
-                        
-                        // Guarda el PDF generado en la ruta de salida
+
+                        // Si no se pasa el fichero de salida se genera uno con el mismo nombre del de entrada y un sufijo para no machacarlo
                         Parametros.PdfSalida = string.IsNullOrWhiteSpace(Parametros.PdfSalida)
                                 ? Path.Combine(Parametros.RutaFicheros, Path.GetFileNameWithoutExtension(Parametros.PdfEntrada) + "_salida.pdf")
                                 : Parametros.PdfSalida;
 
                         documento.Save(Parametros.PdfSalida);
+
+                        // Se actualiza el fichero por si hay que ejecutar acciones adicionales
+                        contexto.PdfActual = Parametros.PdfSalida;
                     }
                 }
-
-
-
-                //// Procesado de acciones adicionales
-                //if(Acciones.EjecutarAcciones)
-                //{
-                //    var gestorAcciones = new GestionAcciones();
-                //    // Ejecuta las acciones adicionales que se hayan solicitado
-                //    gestorAcciones.ProcesarAcciones(Parametros, Acciones);
-                //}
-
 
                 // Procesado de acciones adicionales con la nueva arquitectura
                 if(Acciones.EjecutarAcciones && Acciones.AccionesPDF != null && Acciones.AccionesPDF.Count > 0)
                 {
                     var gestorAcciones = new GestionAcciones();
 
-                    // Crear el contexto de ejecución
-                    var contexto = new ContextoEjecucion
-                    {
-                        PdfActual = Parametros.PdfEntrada,          // PDF inicial
-                        RutaSumatra = Utilidades.rutaSumatra,       // Ruta del ejecutable SumatraPDF
-                        GestorFusion = new UnirPDFs(),             // Instancia del gestor de fusión
-                        EsperarCierreVisor = true                  // Valor por defecto
-                    };
-
                     // Llamada al nuevo método que ejecuta la lista de acciones
                     gestorAcciones.EjecutarAcciones(Parametros, Acciones, contexto);
                 }
-
-
-            }
-
-            catch(InvalidOperationException ex)
-            {
-                Logger.Agregar(ex.Message);
             }
 
             catch(Exception ex)
             {
-                Logger.Agregar($"Se ha producido un error al procesar el fichero. Mensaje: {ex.Message}");
+                Logger.Agregar($"Se ha producido un error en el proceso. Mensaje: {ex.Message}");
             }
 
             finally

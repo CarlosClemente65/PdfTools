@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using PdfSharp.Pdf;
 using PdfTools.Datos;
 using PdfTools.Logica;
 
@@ -12,6 +12,42 @@ namespace PdfTools.Metodos
     // Clase para la gestion de los procesos del lote de ficheros
     public class GestionLotes
     {
+        // Metodo de entrada para procesar el lote de ficheros a añadir el QR
+        public void ProcesarLoteQR(ConfiguracionGeneral parametros)
+        {
+            StringBuilder resultadoLote = new StringBuilder();
+
+            // Asigna la carpeta de salida a la misma de entrada si no se ha pasado
+            parametros.CarpetaSalida = string.IsNullOrWhiteSpace(parametros.CarpetaSalida) ?
+                parametros.CarpetaEntrada : parametros.CarpetaSalida;
+
+            // Lista con los documentos a procesar
+            List<DocumentoLoteQR> ficherosLote = new List<DocumentoLoteQR>();
+            ficherosLote = CargarFicheros(parametros.CarpetaEntrada);
+
+            // Procesar cada fichero
+            foreach(var fichero in ficherosLote)
+            {
+                // Controla si se estan grabados el nombre del fichero PDF y del guion
+                if(fichero.EsValido)
+                {
+                    ProcesarFicheroLote(parametros, fichero, resultadoLote);
+                }
+                else
+                {
+                    // Graba el logger cuando no se ha pasado el guion del fichero
+                    resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: No se han pasado parametros del fichero ");
+                }
+
+                // Una vez procesado el fichero se limpia el logger para procesar el siguiente fichero
+                Logger.Limpiar();
+            }
+
+            // Una vez procesados los ficheros se añaden los mensajes del procesado al logger
+            Logger.Agregar(resultadoLote);
+
+        }
+
         // Genera una lista con los ficheros PDF a procesar en la carpeta de entrada
         public List<DocumentoLoteQR> CargarFicheros(string carpetaEntrada)
         {
@@ -34,7 +70,7 @@ namespace PdfTools.Metodos
             List<DocumentoLoteQR> lote = new List<DocumentoLoteQR>();
 
 
-            // SI hay archivos PDF en la carpeta de entrada se lanza el proceso
+            // Si hay archivos PDF en la carpeta de entrada se lanza el proceso
             if(ArchivosPDF.Count > 0)
             {
                 // Extensiones validas de arvhicos
@@ -96,7 +132,14 @@ namespace PdfTools.Metodos
 
             // Asigna los valores segun los datos leidos del guion
             parametrosFichero.PdfEntrada = fichero.RutaPdf; // El fichero de entrada siempre sera el PDF leido de la carpeta
-            parametrosFichero.RutaFicheros = parametros.CarpetaSalida; // Se fija la ruta de salida de los ficheros
+
+            // Se fija la ruta de salida de los ficheros
+            parametrosFichero.RutaFicheros = parametros.CarpetaSalida;
+
+            // Si la carpeta de salida es igual a la de entrada, se añade un sufijo a los ficheros
+            string sufijoNombreSalida = parametros.CarpetaEntrada == parametros.CarpetaSalida
+                ? "_salida.pdf"
+                : ".pdf";
 
             // Controla si se ha pasado un fichero con la imagen
             if(!string.IsNullOrEmpty(fichero.RutaImagenQR))
@@ -109,7 +152,17 @@ namespace PdfTools.Metodos
             gestorParametros.ValidarParametros(parametrosFichero, datosQRFichero);
 
             // Añadir el QR al PDF
-            gestorContenido.AgregarQR(parametrosFichero, datosQRFichero);
+            PdfDocument documento = gestorContenido.AgregarQR(parametrosFichero, datosQRFichero);
+
+            // Si el documento tiene paginas, se graba
+            if(documento.PageCount > 0)
+            {
+                string pdfSalida = string.IsNullOrWhiteSpace(parametrosFichero.PdfSalida)
+                    ? Path.Combine(parametrosFichero.RutaFicheros, Path.GetFileNameWithoutExtension(parametrosFichero.PdfEntrada) + sufijoNombreSalida)
+                    : parametrosFichero.PdfSalida;
+
+                documento.Save(pdfSalida);
+            }
 
             // Gestion del mensaje para controlar el resultado
             if(Logger.TieneContenido())
@@ -120,10 +173,7 @@ namespace PdfTools.Metodos
             {
                 resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: QR añadido correctamente");
             }
-
-            //return resultadoLote;
         }
-
     }
 
 
