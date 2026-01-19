@@ -27,6 +27,7 @@ Tambien puede usarse como visualizador de ficheros PDF, y para fusionar varios P
 * v3.1.0.0 Añadido parametro para indicar el idioma de respuesta de la AEAT en el QR de las facturas
 * v3.2.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
 * v3.3.0.0 Añadido parametros para unir en un solo PDF los ficheros de una carpeta
+* v3.4.0.0 Añadida posibilidad de ejecutar varias acciones adicionales
 
 <br><br>
 
