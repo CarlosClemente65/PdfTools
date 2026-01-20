@@ -1,1 +1,0 @@
-- Fichero Factura.pdf: No se han pasado parametros del fichero 

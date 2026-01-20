@@ -43,13 +43,15 @@ namespace PdfTools.Metodos
                 // Una vez procesado el fichero se limpia el logger para procesar el siguiente fichero
                 Logger.Limpiar();
 
-                // Se revisa si hay que abrir el PDF
-                if(acciones.AccionesPDF.Contains(Enums.AccionesPDF.Visualizar) || acciones.AccionesPDF.Contains(Enums.AccionesPDF.Abrir))
+                // Se revisa si hay que hacer alguna accion con el PDF
+                if (acciones.AccionesPDF.Count > 0)
                 {
-                    //contexto.PdfActual = fichero.RutaPdf;
                     gestorAcciones.EjecutarAcciones(parametros, acciones, contexto);
                 }
             }
+
+            // Cuando acaba de procesar todos los ficheros, se limpian las acciones para evitar que se vuelvan a ejecutar
+            acciones.AccionesPDF.Clear();
 
             // Una vez procesados los ficheros se añaden los mensajes del procesado al logger
             Logger.Agregar(resultadoLote);
@@ -178,10 +180,6 @@ namespace PdfTools.Metodos
             {
                 resultadoLote.AppendLine($"- Fichero: {fichero.NombreBase}.pdf: {Logger.Contenido()}");
             }
-            //else
-            //{
-            //    resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: QR añadido correctamente");
-            //}
         }
     }
 

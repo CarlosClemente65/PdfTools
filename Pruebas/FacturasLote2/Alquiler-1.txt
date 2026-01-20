@@ -1,0 +1,12 @@
+entorno=pruebas
+pdfsalida=C:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Alquiler-1.pdf
+verifactu=si
+nifemisor=05196375P
+numerofactura=25 / 1
+fechafactura=01.01.2025
+totalfactura=150,22
+posicionx=170
+posiciony=5
+ancho=25
+color=#000000
+idioma=gl
