@@ -1,6 +1,6 @@
-pdfentrada=d:\Programacion\c#\PdfTools\Pruebas\Factura.pdf
+pdfentrada=c:\Programacion\c#\PdfTools\Pruebas\Factura.pdf
 MARCAAGUA=FACTURA BORRADOR SIN VALIDEZ A EFECTOS FISCALES \nY ALGUN TEXOTO MAS PARA QUE DESBORDE Y VER COMO SE AJUSTA
 colormarca=#C9C9C9
 accionpdf=visualizar
-;cerrarvisor
-ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\salida_marcaacua.txt
+cerrarvisor
+ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\salida_marcaacua.txt

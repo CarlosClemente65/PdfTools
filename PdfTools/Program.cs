@@ -102,7 +102,7 @@ namespace PdfTools
                 {
                     GestionLotes gestorLotes = new GestionLotes();
 
-                    gestorLotes.ProcesarLoteQR(Parametros);
+                    gestorLotes.ProcesarLoteQR(Parametros, Acciones, contexto);
                 }
                 else
                 {
