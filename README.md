@@ -28,6 +28,7 @@ Tambien puede usarse como visualizador de ficheros PDF, y para fusionar varios P
 * v3.2.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
 * v3.3.0.0 Añadido parametros para unir en un solo PDF los ficheros de una carpeta
 * v3.4.0.0 Añadida posibilidad de ejecutar varias acciones adicionales
+* v3.4.1.0 Añadida posibilidad de ejecutar acciones individuales por cada fichero
 
 <br><br>
 
@@ -86,6 +87,7 @@ PdfTools.exe ds123456 guion.txt
 	- 'abrir' = Abre el PDF generado con el visor; la aplicacion espera a que se cierre el visor para continuar
 	- 'visualizar' = Abre el PDF pasado por parametro con el visor; la aplicacion continua sin esperar al cierre del visor
 	- 'unir' = Fusiona en un solo PDF los ficheros de la carpetaentrada.
+* Para realizar varias acciones, deben incluirse tantos parametros 'accionpdf' como sean necesarios y por el orden de ejecucion
 * El parametro cerrarvisor' permite cerrar todos los procesos abiertos del visor SumatraPDF; se puede pasar como un parametro adicional ademas del resto
 * Si se incluye el parametro 'ficherosalida' la aplicacion genera un fichero que puede usarse para controlar si la aplicacion ha terminado o no. 
   Con el parametro 'visualizar' la aplicacion no se detiene aunque no se cierre el visor, por lo que se generara (si se ha indicado) el fichero de salida
@@ -101,10 +103,12 @@ PdfTools.exe ds123456 guion.txt
 	- En la carpeta de entrada, ademas del PDF debe haber un fichero.txt con los parametros para generar el QR
 	- Si se quiere usar una imagen para insertar, debe ponerse tambien en la carpeta de entrada con el mismo nombre que el PDF (factura.pdf - factura.bmp)
 	- En caso de usar una imagen, en el guion solo son necesarios los parametros de posicion y marca de agua
-	- Si se pasa el parametro 'carpetasalida' grabara en esa carpeta (si no existe se crea), los ficheros con el mismo nombre que en la entrada
+	- Si se pasa el parametro 'carpetasalida' grabara en esa carpeta (si no existe se crea) los ficheros con el mismo nombre que en la entrada
 	- Si no se pasa el parametro 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada, teniendo en cuenta lo siguiente:
 		- Si el guion del fichero tiene el parametro 'pdfsalida' se utilizara ese nombre
 		- Si el guion del fichero no tiene el parametro 'pdfsalida', se pondra el mismo que el de entrada con el sufijo '_salida'
+	- Si se incluyen acciones en el guion inicial, se ejecutaran para todos los ficheros de la carpeta de entrada
+	- Si en el guion inicial no se indica ninguna accion, en el guion de cada fichero se pueden indicar acciones para ese fichero (abrir, imprimir, etc)
 * En el caso del proceso de union de PDFs se debe tener en cueta lo siguiente:
 	- En 'listaficheros' estaran los nombres de los ficheros a añadir por orden de insercion y separados por comas
 	- No es necesaria la ruta completa ni la extension de la lista de ficheros (valido factura o factura.pdf)

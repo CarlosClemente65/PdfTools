@@ -43,7 +43,7 @@ namespace PdfTools.Metodos
                 // Una vez procesado el fichero se limpia el logger para procesar el siguiente fichero
                 Logger.Limpiar();
 
-                // Se revisa si hay que hacer alguna accion con el PDF
+                // Se revisa si hay que hacer alguna accion global con el PDF
                 if (acciones.AccionesPDF.Count > 0)
                 {
                     gestorAcciones.EjecutarAcciones(parametros, acciones, contexto);
@@ -179,6 +179,12 @@ namespace PdfTools.Metodos
             if(Logger.TieneContenido())
             {
                 resultadoLote.AppendLine($"- Fichero: {fichero.NombreBase}.pdf: {Logger.Contenido()}");
+            }
+
+            // Ejecuta las acciones adicionales que se pasen en el guion del fichero
+            if (accionesFichero.AccionesPDF.Count > 0 && contexto.AccionGlobal != true)
+            {
+                gestorAcciones.EjecutarAcciones(parametros, accionesFichero, contexto);
             }
         }
     }
