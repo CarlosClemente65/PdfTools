@@ -219,7 +219,7 @@ namespace PdfTools.Logica
                     // Separa los ficheros de la lista quitando espacios
                     string[] listaPdfs = valor
                         .Split(',')
-                        .Select(p => p.Trim())
+                        .Select(p => Path.GetFileNameWithoutExtension(p.Trim()))
                         .ToArray();
 
                     // Añade los ficheros recibidos por orden a la lista para procesar despues

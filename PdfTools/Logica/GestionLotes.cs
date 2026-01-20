@@ -12,8 +12,9 @@ namespace PdfTools.Metodos
     // Clase para la gestion de los procesos del lote de ficheros
     public class GestionLotes
     {
+        GestionAcciones gestorAcciones = new GestionAcciones();
         // Metodo de entrada para procesar el lote de ficheros a añadir el QR
-        public void ProcesarLoteQR(ConfiguracionGeneral parametros)
+        public void ProcesarLoteQR(ConfiguracionGeneral parametros, ConfiguracionAcciones acciones, ContextoEjecucion contexto)
         {
             StringBuilder resultadoLote = new StringBuilder();
 
@@ -31,7 +32,7 @@ namespace PdfTools.Metodos
                 // Controla si se estan grabados el nombre del fichero PDF y del guion
                 if(fichero.EsValido)
                 {
-                    ProcesarFicheroLote(parametros, fichero, resultadoLote);
+                    ProcesarFicheroLote(parametros, fichero, resultadoLote, contexto);
                 }
                 else
                 {
@@ -41,6 +42,13 @@ namespace PdfTools.Metodos
 
                 // Una vez procesado el fichero se limpia el logger para procesar el siguiente fichero
                 Logger.Limpiar();
+
+                // Se revisa si hay que abrir el PDF
+                if(acciones.AccionesPDF.Contains(Enums.AccionesPDF.Visualizar) || acciones.AccionesPDF.Contains(Enums.AccionesPDF.Abrir))
+                {
+                    //contexto.PdfActual = fichero.RutaPdf;
+                    gestorAcciones.EjecutarAcciones(parametros, acciones, contexto);
+                }
             }
 
             // Una vez procesados los ficheros se añaden los mensajes del procesado al logger
@@ -114,7 +122,7 @@ namespace PdfTools.Metodos
 
 
         // Procesasdo de cada fichero del lote para añadir el QR y la marca de agua
-        public void ProcesarFicheroLote(ConfiguracionGeneral parametros, DocumentoLoteQR fichero, StringBuilder resultadoLote)
+        public void ProcesarFicheroLote(ConfiguracionGeneral parametros, DocumentoLoteQR fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
         {
             // Instancias de los objetos necesarias para cada PDF a procesar
             var datosQRFichero = new ConfiguracionQR();
@@ -162,6 +170,7 @@ namespace PdfTools.Metodos
                     : parametrosFichero.PdfSalida;
 
                 documento.Save(pdfSalida);
+                contexto.PdfActual = pdfSalida;
             }
 
             // Gestion del mensaje para controlar el resultado
@@ -169,10 +178,10 @@ namespace PdfTools.Metodos
             {
                 resultadoLote.AppendLine($"- Fichero: {fichero.NombreBase}.pdf: {Logger.Contenido()}");
             }
-            else
-            {
-                resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: QR añadido correctamente");
-            }
+            //else
+            //{
+            //    resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: QR añadido correctamente");
+            //}
         }
     }
 
