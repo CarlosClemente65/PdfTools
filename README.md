@@ -46,7 +46,7 @@ PdfTools.exe ds123456 guion.txt
 	* carpetaentrada=Nombre de la carpeta para procesar por lotes los PDFs que haya dentro
 	* carpetasalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes
 	* accionpdf=[imprimir | abrir | visualizar | unir]; Acciones adicionales a realizar con el PDF (opcional)
-	* listaficheros=Nombre de los ficheros a unir de la carpetaentrada
+	* listaficheros=Nombre de los ficheros de la carpetaentrada separados por comas a unir 
 	* cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
 
 - Parametros QR:
@@ -61,7 +61,7 @@ PdfTools.exe ds123456 guion.txt
 	* posicionx=posicion en milimetros desde el margen izquierdo (opcional)
 	* posiciony=posicion en milimetros desde el margen superior (opcional)
 	* ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
-	* color=Color del QR en formato hexadecimal (opcional)
+	* color=Color del QR en formato hexadecimal (opcional); defecto #000000 (negro)
 	* marcaagua=Texto para insertar una marca de agua en el documento (opcional)
 	* colormarca=Color de la marca de agua en formato hexadecimal; defecto #E1E1E1 (gris claro)
 	* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
@@ -71,7 +71,7 @@ PdfTools.exe ds123456 guion.txt
 ### Notas:
 * No es necesario pasar los parametros con comillas si hay espacios; se toma el valor que hay a continuacion del '='
 * Los nombres de los parametros pueden ir en mayusculas o minusculas (se convierten a minusculas)
-* Si no se pasa el nombre del fichero de salida, se utiliza el mismo que el de entrada con un sufijo (_salida)
+* Si no se pasa el nombre del pdf de salida, se utiliza el mismo que el de entrada con un sufijo (_salida)
 * La url se puede pasar (debe estar bien formada), y si no se pasa, se genera en base a los datos de la factura, entorno y verifactu
 * El entorno por defecto es la web de produccion (real), por lo que en pruebas debe pasarse el parametro entorno=pruebas
 * Por defecto se funciona en modo NO VeriFactu, por lo que para trabajar de ese modo se debe pasar el parametro verifactu=si
@@ -79,18 +79,17 @@ PdfTools.exe ds123456 guion.txt
 * Si no se pasa el NIF del emisor no se añadira el QR; si se pasa es obligatorio pasar los demas parametros de la factura.
 * Las posiciones X e Y del QR estan puestas por defecto a 10 mm de los margenes
 * El ancho del QR tiene un defecto de 30 mm; no tiene limitacion pero deberia estar entre 25 y 40 mm (alto y ancho)
-* El color del QR por defecto es negro (#000000)
 * El texto de la marca de agua admite saltos de linea añadiendo '\n' en la posicion donde insertarlo
 * Si se produce algun error por algun parametro que falte o no sea correcto, se genera el fichero "errores.txt" con el detalle
 * El parametro 'accionpdf= permite realizar acciones adicionales con el PDF utilizando el programa SumatraPDF
 	- 'imprimir' = Lanza el PDF generado por la impresora predeterminada
 	- 'abrir' = Abre el PDF generado con el visor; la aplicacion espera a que se cierre el visor para continuar
 	- 'visualizar' = Abre el PDF pasado por parametro con el visor; la aplicacion continua sin esperar al cierre del visor
-	- 'unir' = Fusiona en un solo PDF los ficheros de una carpeta.
+	- 'unir' = Fusiona en un solo PDF los ficheros de la carpetaentrada.
 * El parametro cerrarvisor' permite cerrar todos los procesos abiertos del visor SumatraPDF; se puede pasar como un parametro adicional ademas del resto
 * Si se incluye el parametro 'ficherosalida' la aplicacion genera un fichero que puede usarse para controlar si la aplicacion ha terminado o no. 
   Con el parametro 'visualizar' la aplicacion no se detiene aunque no se cierre el visor, por lo que se generara (si se ha indicado) el fichero de salida
-* El parametro 'idioma' puede tener los siguientes valores:
+* El parametro 'idioma' permite que la respuesta de Hacienda al chequear el QR sea en uno de los idiomas siguientes:
 	- gl: gallego
 	- ca: catalán
 	- eu: euskera
@@ -98,17 +97,20 @@ PdfTools.exe ds123456 guion.txt
 	- va: valenciano
 	- en: inglés
 * En el caso de procesado de una carpeta se debe tener en cuenta lo siguiente:
-	- El parametro 'carpetaentrada' es obligatorio, 
-	- Si no se pasa 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada
+	- El parametro 'carpetaentrada' es obligatorio
 	- En la carpeta de entrada, ademas del PDF debe haber un fichero.txt con los parametros para generar el QR
-	- Si se incluye un fichero de imagen con el mismo nombre que el PDF, se insertara; en ese caso solo son necesarios los parametros de posicion y marca de agua
-	- Si no se pasa un nombre del fichero de salida, se pondra el mismo que el de entrada con el sufijo '_salida'
+	- Si se quiere usar una imagen para insertar, debe ponerse tambien en la carpeta de entrada con el mismo nombre que el PDF (factura.pdf - factura.bmp)
+	- En caso de usar una imagen, en el guion solo son necesarios los parametros de posicion y marca de agua
+	- Si se pasa el parametro 'carpetasalida' grabara en esa carpeta (si no existe se crea), los ficheros con el mismo nombre que en la entrada
+	- Si no se pasa el parametro 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada, teniendo en cuenta lo siguiente:
+		- Si el guion del fichero tiene el parametro 'pdfsalida' se utilizara ese nombre
+		- Si el guion del fichero no tiene el parametro 'pdfsalida', se pondra el mismo que el de entrada con el sufijo '_salida'
 * En el caso del proceso de union de PDFs se debe tener en cueta lo siguiente:
 	- En 'listaficheros' estaran los nombres de los ficheros a añadir por orden de insercion y separados por comas
-	- No es necesaria la ruta completa ni la extension de la lista de ficheros
-	- Si no se incluye la 'listaficheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
-	- Si no se incluye la 'carpetasalida' el fichero de union se dejara en la carpeta de entrada
-	- Si no se incluye el 'ficherosalida' se genera un por defecto "fichero_salida.pdf"
+	- No es necesaria la ruta completa ni la extension de la lista de ficheros (valido factura o factura.pdf)
+	- Si no se incluye el parametro 'listaficheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
+	- Si no se incluye el parametro 'carpetasalida' el pdf generado se dejara en la carpeta de entrada
+	- Si no se incluye el parametro 'pdfsalida' se genera uno por defecto "fichero_salida.pdf"
 * En la ruta de ejecucion deben estar los siguientes ficheros:
 	- PdfSharp.dll
 	- QRCoder.dll

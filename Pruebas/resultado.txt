@@ -1,1 +1,1 @@
-Error: El fichero alquiler-1.pdf no existe
+OK

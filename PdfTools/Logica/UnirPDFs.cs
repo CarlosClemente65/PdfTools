@@ -65,20 +65,25 @@ namespace PdfTools.Logica
                 // Control del proceso de union de ficheros
                 StringBuilder resultadoLote = new StringBuilder();
 
+                // Creamos un diccionario con el nombre base del fichero como clave, y el objeto con cada fichero procesado para facilitar la busqueda
+                var diccionarioPdfs = new Dictionary<string, DocumentoLoteQR>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var f in ficherosPdfs)
+                {
+                    diccionarioPdfs[f.NombreBase] = f;
+                }
+
+                // Se procesa la lista de archivos para buscar si existe el ficheroPdf leido en la carpeta de entrada
                 foreach(var archivo in parametros.ListaArchivos)
                 {
-                    //Buscamos el fichero correspondiente en la lista de PDFs
-                    var fichero = ficherosPdfs.FirstOrDefault(f =>
-                        string.Equals(f.NombreBase,
-                        archivo,
-                        StringComparison.OrdinalIgnoreCase));
-
-                    if(fichero == null)
+                    // Si no existe el fichero, se añade el error al logger y se continua con el siguiente.
+                    if (!diccionarioPdfs.TryGetValue(archivo, out var fichero))
                     {
                         Logger.Agregar($"El fichero {archivo} no existe");
                         continue;
                     }
 
+                    // Añade el fichero al documento de salida que despues sera el PDF con la fusion
                     try
                     {
                         using(PdfDocument pdfOrigen = PdfReader.Open(
