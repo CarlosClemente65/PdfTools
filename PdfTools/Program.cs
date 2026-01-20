@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using PdfSharp.Pdf;
 using PdfTools.Datos;
 using PdfTools.Logica;
@@ -68,9 +66,16 @@ namespace PdfTools
                     RutaSumatra = Utilidades.rutaSumatra,       // Ruta del ejecutable SumatraPDF
                     CacheSumatra = Utilidades.cacheSumatra,     // Ruta de la cache de SumatraPDF
                     GestorFusion = new UnirPDFs(),              // Instancia del gestor de fusión
-                    EsperarCierreVisor = true                   // Valor por defecto
+                    EsperarCierreVisor = true,                  // Valor por defecto
+                    AccionGlobal = null                         // No se fija ninguna accion global por defeccto
                 };
 
+
+                // Controla si se ha pasado una accion global
+                if(Acciones.AccionesPDF.Count > 0)
+                {
+                    contexto.AccionGlobal = true;
+                }
 
                 // Instancia para gestionar el contenido del PDF
                 GestionContenido gestorContenido = new GestionContenido();

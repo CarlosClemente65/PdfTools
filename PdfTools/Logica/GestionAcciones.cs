@@ -190,6 +190,9 @@ namespace PdfTools.Metodos
 
         // Gestor reutilizable para la unión de PDFs
         public UnirPDFs GestorFusion { get; set; }
+
+        // Controla si se ejecuta una accion global
+        public bool? AccionGlobal {  get; set; }
     }
 
 }
