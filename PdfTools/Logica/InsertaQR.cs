@@ -15,7 +15,7 @@ namespace PdfTools
         private ConfiguracionQR _datosQR = null;
 
         // Proceso para insertar el codigo QR en el documento PDF
-        public PdfDocument InsertarQR(PdfDocument documento, ConfiguracionQR datosQR)
+        public PdfDocument InsertarQR(PdfDocument documento, ConfiguracionQR datosQR, ConfiguracionAcciones acciones)
         {
             _datosQR = datosQR; // Se asigna al objeto de clase porque se utiliza en otro metodo de la clase
 
@@ -50,13 +50,21 @@ namespace PdfTools
                 }
 
                 // Primero se inserta la marca de agua (si tiene contenido) para que quede debajo del todo
-                string textoMarcaAgua = datosQR.MarcaAgua;
-
-                GestionContenido gestorProceso = new GestionContenido();
-                if(!string.IsNullOrEmpty(textoMarcaAgua))
+                if(acciones.AccionesProceso.Contains(Enums.AccionesProceso.MarcaAgua))
                 {
-                    pagina = gestorProceso.InsertaMarcaAgua(pagina, gfx, datosQR);
+                    // Carga el texto de la marca de agua
+                    string textoMarcaAgua = datosQR.MarcaAgua;
+
+                    // Instancia el gestor de contenido para insertar la marca de agua
+                    GestionContenido gestorContenido = new GestionContenido();
+
+                    // Inserta la marca de agua en la pagina
+                    if(!string.IsNullOrEmpty(textoMarcaAgua))
+                    {
+                        pagina = gestorContenido.InsertaMarcaAgua(pagina, gfx, datosQR);
+                    }
                 }
+
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos
 

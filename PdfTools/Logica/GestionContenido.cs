@@ -149,8 +149,12 @@ namespace PdfTools.Metodos
 
 
         // Proceso para añadir el QR al documento PDF
-        public PdfDocument AgregarQR(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        public PdfDocument AgregarQR(ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+            var acciones = contexto.Acciones;
+
             // Instancia para insertar el QR en el documento
             var procesoPDF = new InsertaQR();
 
@@ -163,7 +167,7 @@ namespace PdfTools.Metodos
                 documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
 
                 // Se utiliza el mismo documento para añadir el QR
-                documento = procesoPDF.InsertarQR(documento, datosQR);
+                documento = procesoPDF.InsertarQR(documento, datosQR, acciones);
 
                 return documento;
             }

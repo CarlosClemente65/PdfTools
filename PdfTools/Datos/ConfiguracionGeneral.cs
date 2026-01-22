@@ -15,6 +15,7 @@ namespace PdfTools.Datos
         public string CarpetaEntrada { get; set; } // Carpeta de entrada si se procesan varios ficheros
         public string CarpetaSalida { get; set; } // Carpeta de salida si se procesan varios ficheros
         public bool ProcesarCarpeta { get; set; } // Indica si se procesa una carpeta completa
+        public bool AccionGlobal { get; set; } // Indica si las acciones se aplican a todos los ficheros
         public List<string> ListaArchivos { get; set; } // Lista de archivos para procesar si se pasa una carpeta
 
         public ConfiguracionGeneral()
@@ -22,6 +23,7 @@ namespace PdfTools.Datos
             RutaFicheros = Directory.GetCurrentDirectory();
             FicheroSalida = Path.Combine(RutaFicheros, "resultado.txt");
             ProcesarCarpeta = false;
+            AccionGlobal = false;
             ListaArchivos = new List<string>();
         }
 
