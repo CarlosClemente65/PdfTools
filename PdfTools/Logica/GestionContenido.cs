@@ -12,8 +12,10 @@ namespace PdfTools.Metodos
     public class GestionContenido
     {
         // Inserta la marca de agua pasando el documento PDF
-        public PdfDocument InsertaMarcaAgua(PdfDocument documento, ConfiguracionQR datosQR)
+        public PdfDocument InsertaMarcaAgua(PdfDocument documento, ContextoEjecucion contexto)
         {
+            var datosQR = contexto.DatosQR;
+
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
 
@@ -167,7 +169,7 @@ namespace PdfTools.Metodos
                 documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
 
                 // Se utiliza el mismo documento para añadir el QR
-                documento = procesoPDF.InsertarQR(documento, datosQR, acciones);
+                documento = procesoPDF.InsertarQR(documento, contexto);
 
                 return documento;
             }
@@ -181,8 +183,11 @@ namespace PdfTools.Metodos
 
 
         // Proceso para añadir la marca de agua al documento PDF
-        public PdfDocument AgregarMarcaAgua(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        public PdfDocument AgregarMarcaAgua(ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+
             // Creacion del documento para añadir la marcar de agua
             PdfDocument documento = null;
 
@@ -191,11 +196,11 @@ namespace PdfTools.Metodos
             {
                 GestionContenido gestorProceso = new GestionContenido();
 
-                // Carga en el documento el PDF de entrada
-                documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
+                // Carga en el documento el PDF de entrada (necesita el PdfActual) revisar contexto al inicio
+                documento = PdfReader.Open(contexto.PdfActual, PdfDocumentOpenMode.Modify);
 
                 // Utiliza el mismo documento abierto para añadirle la marca de agua
-                documento = gestorProceso.InsertaMarcaAgua(documento, datosQR);
+                documento = gestorProceso.InsertaMarcaAgua(documento, contexto);
 
             }
 

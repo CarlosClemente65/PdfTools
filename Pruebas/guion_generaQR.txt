@@ -10,7 +10,6 @@ posicionx=170
 posiciony=5
 ancho=25
 color=#000000
-accionpdf=abrir
+acciones=insertarqr, abrir, cerrarvisor
 ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\salida.txt
-cerrarvisor
 idioma=gl

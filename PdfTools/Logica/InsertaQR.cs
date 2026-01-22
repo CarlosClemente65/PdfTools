@@ -15,8 +15,10 @@ namespace PdfTools
         private ConfiguracionQR _datosQR = null;
 
         // Proceso para insertar el codigo QR en el documento PDF
-        public PdfDocument InsertarQR(PdfDocument documento, ConfiguracionQR datosQR, ConfiguracionAcciones acciones)
+        public PdfDocument InsertarQR(PdfDocument documento, ContextoEjecucion contexto)
         {
+            var datosQR = contexto.DatosQR;
+            var acciones = contexto.Acciones;
             _datosQR = datosQR; // Se asigna al objeto de clase porque se utiliza en otro metodo de la clase
 
             // Establece la pagina 1 para insertar el QR y las imagenes

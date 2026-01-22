@@ -38,13 +38,15 @@ namespace PdfTools.Logica
         // Asignacion de parametros del QR
         public void AsignaParametrosQR(string clave, string valor, ContextoEjecucion contexto)
         {
+            var datosQR = contexto.DatosQR;
+            var acciones = contexto.Acciones;
             switch(clave)
             {
                 case "entorno":
                     // Define el entorno de pruebas o producción
                     if(string.Equals(valor, "pruebas", StringComparison.OrdinalIgnoreCase))
                     {
-                        contexto.DatosQR.DatosUrl.EntornoProduccion = false;
+                        datosQR.DatosUrl.EntornoProduccion = false;
                     }
                     break;
 
@@ -52,8 +54,8 @@ namespace PdfTools.Logica
                     // Define si se usa el sistema VeriFactu
                     if(string.Equals(valor, "si", StringComparison.OrdinalIgnoreCase))
                     {
-                        contexto.DatosQR.DatosUrl.VeriFactu = true;
-                        contexto.DatosQR.DatosAdicionales.TextoAbajo = "VERI*FACTU"; // Si es VeriFactu, se pone el texto abajo
+                        datosQR.DatosUrl.VeriFactu = true;
+                        datosQR.DatosAdicionales.TextoAbajo = "VERI*FACTU"; // Si es VeriFactu, se pone el texto abajo
                     }
                     break;
 
@@ -61,31 +63,31 @@ namespace PdfTools.Logica
                     // Si se pasa un fichero de QR, se usa ese directamente
                     if(!string.IsNullOrEmpty(valor))
                     {
-                        contexto.DatosQR.NombreFicheroQR = Path.GetFullPath(valor.Trim('"'));
-                        contexto.DatosQR.UsarQrExterno = true; // Se indica que se usará un fichero externo
-                        contexto.DatosQR.InsertarQR = true; // Si se pasa un fichero con el QR hay que insertarlo en el PDF
+                        datosQR.NombreFicheroQR = Path.GetFullPath(valor.Trim('"'));
+                        datosQR.UsarQrExterno = true; // Se indica que se usará un fichero externo
+                        datosQR.InsertarQR = true; // Si se pasa un fichero con el QR hay que insertarlo en el PDF
                     }
                     break;
 
                 case "url":
                     // Si se pasa la URL, se usa esa directamente
-                    contexto.DatosQR.DatosUrl.UrlEnvio = valor;
-                    contexto.DatosQR.InsertarQR = true; // Al pasar la url hay que insertar el QR en el PDF
+                    datosQR.DatosUrl.UrlEnvio = valor;
+                    datosQR.InsertarQR = true; // Al pasar la url hay que insertar el QR en el PDF
                     break;
 
                 case "nifemisor":
                     // Asigna el NIF del emisor
-                    contexto.DatosQR.DatosFactura.NifEmisor = valor;
-                    if(!string.IsNullOrEmpty(contexto.DatosQR.DatosFactura.NifEmisor))
+                    datosQR.DatosFactura.NifEmisor = valor;
+                    if(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor))
                     {
                         // Si se ha pasado el NIF del emisor, se insertara el QR
-                        contexto.DatosQR.InsertarQR = true;
+                        datosQR.InsertarQR = true;
                     }
                     break;
 
                 case "numerofactura":
                     // Asigna el número de la factura
-                    contexto.DatosQR.DatosFactura.NumeroFactura = valor;
+                    datosQR.DatosFactura.NumeroFactura = valor;
                     break;
 
                 case "fechafactura":
@@ -95,11 +97,11 @@ namespace PdfTools.Logica
                     // Intentar parsear la fecha con los formatos válidos
                     if(DateTime.TryParseExact(valor, formatosValidos, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime fecha))
                     {
-                        contexto.DatosQR.DatosFactura.FechaFactura = fecha;
+                        datosQR.DatosFactura.FechaFactura = fecha;
                     }
                     else
                     {
-                        contexto.DatosQR.DatosFactura.FechaFactura = DateTime.MinValue; // Valor inválido
+                        datosQR.DatosFactura.FechaFactura = DateTime.MinValue; // Valor inválido
                     }
                     break;
 
@@ -109,43 +111,44 @@ namespace PdfTools.Logica
                     {
                         total = 0m;
                     }
-                    contexto.DatosQR.DatosFactura.TotalFactura = total;
+                    datosQR.DatosFactura.TotalFactura = total;
                     break;
 
                 case "posicionx":
                     // Asigna la posición X del QR
-                    contexto.DatosQR.Posicion.PosX = double.Parse(valor);
+                    datosQR.Posicion.PosX = double.Parse(valor);
                     break;
 
                 case "posiciony":
                     // Asigna la posición Y del QR
-                    contexto.DatosQR.Posicion.PosY = double.Parse(valor);
+                    datosQR.Posicion.PosY = double.Parse(valor);
                     break;
 
                 case "ancho":
                     // Asigna el ancho y alto del QR
-                    contexto.DatosQR.Posicion.Ancho = double.Parse(valor);
-                    contexto.DatosQR.Posicion.Alto = contexto.DatosQR.Posicion.Ancho; // Mantener proporción cuadrada
+                    datosQR.Posicion.Ancho = double.Parse(valor);
+                    datosQR.Posicion.Alto = datosQR.Posicion.Ancho; // Mantener proporción cuadrada
                     break;
 
                 case "color":
                     // Asigna el color del QR
                     if(Utilidades.ValidaColor(valor))
                     {
-                        contexto.DatosQR.Posicion.ColorQR = valor;
+                        datosQR.Posicion.ColorQR = valor;
                     }
                     break;
 
-                case "marcaagua":
+                case "textomarcaagua":
                     // Asigna la marca de agua, reemplazando \n por saltos de línea
-                    contexto.DatosQR.MarcaAgua = valor.Replace("\\n", "\n");
+                    datosQR.MarcaAgua = valor.Replace("\\n", "\n");
+                    acciones.AccionesProceso.Add(Enums.AccionesProceso.MarcaAgua);
                     break;
 
                 case "colormarca":
                     // Asigna el color de la marca de agua
                     if(Utilidades.ValidaColor(valor))
                     {
-                        contexto.DatosQR.ColorMarca = valor;
+                        datosQR .ColorMarca = valor;
                     }
                     break;
 
@@ -160,7 +163,7 @@ namespace PdfTools.Logica
 
                     if(esValido && Enum.IsDefined(typeof(Enums.IdiomasQR), idiomaQR))
                     {
-                        contexto.DatosQR.DatosUrl.IdiomaQR = idiomaQR;
+                        datosQR.DatosUrl.IdiomaQR = idiomaQR;
                     }
                     break;
             }
@@ -169,15 +172,16 @@ namespace PdfTools.Logica
         // Asignacion de parametros generales
         public void AsignaParametrosGenerales(string clave, string valor, ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
             switch(clave)
             {
                 case "pdfentrada":
-                    contexto.Parametros.PdfEntrada = Path.GetFullPath(valor.Trim('"'));
+                    parametros.PdfEntrada = Path.GetFullPath(valor.Trim('"'));
 
                     // Chequea si el fichero existe para asignar la ruta de ficheros
-                    if(File.Exists(contexto.Parametros.PdfEntrada))
+                    if(File.Exists(parametros.PdfEntrada))
                     {
-                        contexto.Parametros.RutaFicheros = Path.GetDirectoryName(contexto.Parametros.PdfEntrada);
+                        parametros.RutaFicheros = Path.GetDirectoryName(parametros.PdfEntrada);
                     }
                     break;
 
@@ -185,31 +189,31 @@ namespace PdfTools.Logica
                     // Asigna el PDF de salida eliminando las comillas si las tiene
                     if(!string.IsNullOrEmpty(valor))
                     {
-                        contexto.Parametros.PdfSalida = Path.GetFullPath(valor.Trim('"'));
+                        parametros.PdfSalida = Path.GetFullPath(valor.Trim('"'));
                     }
                     break;
 
                 case "ficherosalida":
                     // Fichero para controlar si se ha terminado el proceso
-                    contexto.Parametros.FicheroSalida = valor;
+                    parametros.FicheroSalida = valor;
 
                     // Revisa si existe el fichero para borrarlo antes
-                    if(File.Exists(contexto.Parametros.FicheroSalida))
+                    if(File.Exists(parametros.FicheroSalida))
                     {
-                        File.Delete(contexto.Parametros.FicheroSalida);
+                        File.Delete(parametros.FicheroSalida);
                     }
                     break;
 
                 case "carpetaentrada":
-                    contexto.Parametros.CarpetaEntrada = Path.GetFullPath(valor.Trim('"'));
-                    contexto.Parametros.ProcesarCarpeta = true; // Indica que se procesará una carpeta completa
+                    parametros.CarpetaEntrada = Path.GetFullPath(valor.Trim('"'));
+                    parametros.ProcesarCarpeta = true; // Indica que se procesará una carpeta completa
                     break;
 
                 case "carpetasalida":
-                    contexto.Parametros.CarpetaSalida = Path.GetFullPath(valor.Trim('"'));
-                    if(!Directory.Exists(contexto.Parametros.CarpetaSalida))
+                    parametros.CarpetaSalida = Path.GetFullPath(valor.Trim('"'));
+                    if(!Directory.Exists(parametros.CarpetaSalida))
                     {
-                        Directory.CreateDirectory(contexto.Parametros.CarpetaSalida);
+                        Directory.CreateDirectory(parametros.CarpetaSalida);
                     }
                     break;
 
@@ -221,7 +225,7 @@ namespace PdfTools.Logica
                         .ToArray();
 
                     // Añade los ficheros recibidos por orden a la lista para procesar despues
-                    contexto.Parametros.ListaArchivos.AddRange(listaPdfs);
+                    parametros.ListaArchivos.AddRange(listaPdfs);
 
                     break;
             }
@@ -383,7 +387,7 @@ namespace PdfTools.Logica
             "posiciony",
             "ancho",
             "color",
-            "marcaagua",
+            "textomarcaagua",
             "colormarca",
             "idioma"
 

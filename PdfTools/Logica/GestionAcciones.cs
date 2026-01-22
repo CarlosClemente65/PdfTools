@@ -114,7 +114,7 @@ namespace PdfTools.Metodos
             string textoMarcaAgua = datosQR.MarcaAgua;
             if(textoMarcaAgua.Length > 0)
             {
-                PdfDocument documento = gestorContenido.AgregarMarcaAgua(parametros, datosQR);
+                PdfDocument documento = gestorContenido.AgregarMarcaAgua(contexto);
 
                 // Si no se pasa el fichero de salida se genera uno con el mismo nombre del de entrada y un sufijo para no machacarlo
                 parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)
