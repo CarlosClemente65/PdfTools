@@ -14,8 +14,6 @@ namespace PdfTools.Metodos
         // Inserta la marca de agua pasando el documento PDF
         public PdfDocument InsertaMarcaAgua(PdfDocument documento, ContextoEjecucion contexto)
         {
-            var datosQR = contexto.DatosQR;
-
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
 
@@ -23,30 +21,33 @@ namespace PdfTools.Metodos
             XGraphics gfx = XGraphics.FromPdfPage(pagina);
 
             // Dibuja la marca de agua
-            DibujarMarcaAgua(datosQR, pagina, gfx);
+            DibujarMarcaAgua(pagina, gfx, contexto);
 
             return documento;
         }
 
         // Inserta la marca de agua pasando la pagina del documento (sobrecarga del metodo anterior)
-        public PdfPage InsertaMarcaAgua(PdfPage pagina, XGraphics gfx, ConfiguracionQR datosQR)
+        public PdfPage InsertaMarcaAgua(PdfPage pagina, XGraphics gfx, ContextoEjecucion contexto)
         {
             // Se pasa por parametro el recuadro donde insertar los graficos porque ya esta creado fuera
 
             // Dibuja la marca de agua
-            DibujarMarcaAgua(datosQR, pagina, gfx);
+            DibujarMarcaAgua(pagina, gfx, contexto);
 
             return pagina;
         }
 
         // Proceso para dibujar la marca de agua en el recuadro grafico pasado por parametro
-        private void DibujarMarcaAgua(ConfiguracionQR datosQR, PdfPage pagina, XGraphics gfx)
+        private void DibujarMarcaAgua(PdfPage pagina, XGraphics gfx, ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+
             // Texto de error por defecto.
             string textoError = "Se ha producido un error al insertar la marca de agua.";
 
-            string colorMarca = datosQR.ColorMarca;
-            string textoMarca = datosQR.MarcaAgua;
+            string colorMarca = parametros.ColorMarca;
+            string textoMarca = parametros.TextoMarcaAgua;
 
             try
             {
@@ -192,7 +193,7 @@ namespace PdfTools.Metodos
             PdfDocument documento = null;
 
             // Comprueba si hay texto para añadir y no provocar una excepcion
-            if(!string.IsNullOrEmpty(datosQR.MarcaAgua))
+            if(!string.IsNullOrEmpty(parametros.TextoMarcaAgua))
             {
                 GestionContenido gestorProceso = new GestionContenido();
 

@@ -44,7 +44,7 @@ namespace PdfTools.Metodos
                             EjecutarFusion(contexto);
                             break;
 
-                        case Enums.AccionesProceso.MarcaAgua:
+                        case Enums.AccionesProceso.InsertarMarca:
                             EjecutarInsercionMarcaAgua(contexto);
                             break;
 
@@ -93,6 +93,10 @@ namespace PdfTools.Metodos
 
                 // Se actualiza el fichero por si hay que ejecutar acciones adicionales
                 contexto.PdfActual = parametros.PdfSalida;
+                if(contexto.Acciones.AccionesProceso.Contains(Enums.AccionesProceso.InsertarMarca))
+                {
+                    contexto.Acciones.AccionesProceso.Remove(Enums.AccionesProceso.InsertarQR);
+                }
             }
         }
 
@@ -111,7 +115,7 @@ namespace PdfTools.Metodos
             var datosQR = contexto.DatosQR;
 
             // Insertar unicamente la marca de agua a un PDF individual 
-            string textoMarcaAgua = datosQR.MarcaAgua;
+            string textoMarcaAgua = parametros.TextoMarcaAgua;
             if(textoMarcaAgua.Length > 0)
             {
                 PdfDocument documento = gestorContenido.AgregarMarcaAgua(contexto);

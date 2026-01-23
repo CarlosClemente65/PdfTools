@@ -47,6 +47,8 @@ namespace PdfTools.Metodos
                 Logger.Limpiar();
             }
 
+            contexto.Acciones.AccionesProceso.Remove(Enums.AccionesProceso.InsertarMarca); // Desactiva la marca de agua global para que no se aplique al final del lote
+
             // Una vez procesados los ficheros se añaden los mensajes del procesado al logger
             Logger.Agregar(resultadoLote);
 

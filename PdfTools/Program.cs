@@ -75,7 +75,7 @@ namespace PdfTools
                 // Lista de acciones globales que pueden realizarse
                 HashSet<Enums.AccionesProceso> accionesGlobales = new HashSet<Enums.AccionesProceso>
                 {
-                    Enums.AccionesProceso.MarcaAgua,
+                    Enums.AccionesProceso.InsertarMarca,
                     Enums.AccionesProceso.Imprimir,
                     Enums.AccionesProceso.Abrir,
                     Enums.AccionesProceso.Visualizar

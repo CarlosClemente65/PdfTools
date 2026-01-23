@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using PdfTools.Datos;
@@ -107,7 +108,36 @@ namespace PdfTools.Logica
 
                 case "totalfactura":
                     // Asigna el total de la factura
-                    if(!decimal.TryParse(valor, out decimal total)) // Evita una excepcion si no se pasa el total correcto
+
+                    // Detecta el separador decimal
+                    int ultimoPunto = valor.LastIndexOf('.');
+                    int ultimaComa = valor.LastIndexOf(',');
+
+                    // Asigna el separador usado
+                    char separadorDecimal;
+                    if (ultimoPunto > ultimaComa)
+                    {
+                        separadorDecimal = '.';
+                    }
+                    else if(ultimaComa > ultimoPunto)
+                    {
+                        separadorDecimal = ',';
+                    }
+                    else
+                    {
+                        separadorDecimal = '\0'; // No hay separador decimal
+                    }
+
+                    if (separadorDecimal != '\0')
+                    {
+                        char separadorMiles = separadorDecimal == '.' ? ',' : '.'; // Si el separador decimal es un punto, el de millares sera una coma
+
+                        valor = valor.Replace(separadorMiles.ToString(), ""); // Quita el separador de millares
+                        valor = valor.Replace(separadorDecimal, ','); // Fija el separador decimal a una coma
+                    }
+
+                    // Intenta convertir el valor a decimal
+                    if(!decimal.TryParse(valor, out decimal total))
                     {
                         total = 0m;
                     }
@@ -138,20 +168,6 @@ namespace PdfTools.Logica
                     }
                     break;
 
-                case "textomarcaagua":
-                    // Asigna la marca de agua, reemplazando \n por saltos de línea
-                    datosQR.MarcaAgua = valor.Replace("\\n", "\n");
-                    acciones.AccionesProceso.Add(Enums.AccionesProceso.MarcaAgua);
-                    break;
-
-                case "colormarca":
-                    // Asigna el color de la marca de agua
-                    if(Utilidades.ValidaColor(valor))
-                    {
-                        datosQR .ColorMarca = valor;
-                    }
-                    break;
-
                 case "idioma":
                     // Codigo de idioma en la respuesta de la AEAT al cotejo del QR
                     Enums.IdiomasQR idiomaQR;
@@ -173,6 +189,7 @@ namespace PdfTools.Logica
         public void AsignaParametrosGenerales(string clave, string valor, ContextoEjecucion contexto)
         {
             var parametros = contexto.Parametros;
+            var acciones = contexto.Acciones;
             switch(clave)
             {
                 case "pdfentrada":
@@ -228,6 +245,23 @@ namespace PdfTools.Logica
                     parametros.ListaArchivos.AddRange(listaPdfs);
 
                     break;
+
+                case "textomarca":
+                    // Asigna la marca de agua, reemplazando \n por saltos de línea
+                    parametros.TextoMarcaAgua = valor.Replace("\\n", "\n");
+                    if(parametros.TextoMarcaAgua.Length > 0)
+                    {
+                        acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarMarca);
+                    }
+                    break;
+
+                case "colormarca":
+                    // Asigna el color de la marca de agua
+                    if(Utilidades.ValidaColor(valor))
+                    {
+                        parametros.ColorMarca = valor;
+                    }
+                    break;
             }
         }
 
@@ -253,8 +287,8 @@ namespace PdfTools.Logica
                         contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarLoteQR);
                         break;
 
-                    case "marcaagua":
-                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.MarcaAgua);
+                    case "insertarmarca":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarMarca);
                         break;
 
                     case "imprimir":
@@ -334,9 +368,9 @@ namespace PdfTools.Logica
                 }
 
                 // Validaciones de los datos de la factura para generar el QR
+                ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor), "nifEmisor");
                 ValidarPropiedad(datosQR.DatosFactura.NumeroFactura, "numeroFactura");
                 ValidarPropiedad(datosQR.DatosFactura.FechaFactura != DateTime.MinValue, "fechaFactura");
-                ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor), "nifEmisor");
                 ValidarPropiedad(datosQR.DatosFactura.TotalFactura != 0, "totalFactura");
 
                 // Valida si el color pasado es valido
@@ -387,8 +421,6 @@ namespace PdfTools.Logica
             "posiciony",
             "ancho",
             "color",
-            "textomarcaagua",
-            "colormarca",
             "idioma"
 
         };
@@ -398,10 +430,12 @@ namespace PdfTools.Logica
         {
             "pdfentrada",
             "pdfsalida",
+            "ficherosalida",
             "carpetaentrada",
             "carpetasalida",
-            "ficherosalida",
-            "listaficheros"
+            "listaficheros",
+            "textomarca",
+            "colormarca",
         };
 
         // Campo con los valores que pueden tener los parametros de acciones

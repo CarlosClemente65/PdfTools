@@ -17,6 +17,9 @@ namespace PdfTools.Datos
         public bool ProcesarCarpeta { get; set; } // Indica si se procesa una carpeta completa
         public bool AccionGlobal { get; set; } // Indica si las acciones se aplican a todos los ficheros
         public List<string> ListaArchivos { get; set; } // Lista de archivos para procesar si se pasa una carpeta
+        public string TextoMarcaAgua { get; set; } = string.Empty; // Texto de la marca de agua en caso de que se use
+        public string ColorMarca { get; set; } = "#E1E1E1"; // Color de la marca de agua (gris claro)
+
 
         public ConfiguracionGeneral()
         {
