@@ -53,7 +53,8 @@ namespace PdfTools.Logica
 
                 case "verifactu":
                     // Define si se usa el sistema VeriFactu
-                    if(string.Equals(valor, "si", StringComparison.OrdinalIgnoreCase))
+                    var valoresValidos = new[] { "si", "no", "s", "n", "true", "false" };
+                    if(valoresValidos.Contains(valor.ToLower()))
                     {
                         datosQR.DatosUrl.VeriFactu = true;
                         datosQR.DatosAdicionales.TextoAbajo = "VERI*FACTU"; // Si es VeriFactu, se pone el texto abajo
@@ -115,7 +116,7 @@ namespace PdfTools.Logica
 
                     // Asigna el separador usado
                     char separadorDecimal;
-                    if (ultimoPunto > ultimaComa)
+                    if(ultimoPunto > ultimaComa)
                     {
                         separadorDecimal = '.';
                     }
@@ -128,7 +129,7 @@ namespace PdfTools.Logica
                         separadorDecimal = '\0'; // No hay separador decimal
                     }
 
-                    if (separadorDecimal != '\0')
+                    if(separadorDecimal != '\0')
                     {
                         char separadorMiles = separadorDecimal == '.' ? ',' : '.'; // Si el separador decimal es un punto, el de millares sera una coma
 
@@ -164,7 +165,7 @@ namespace PdfTools.Logica
                     // Asigna el color del QR
                     if(Utilidades.ValidaColor(valor))
                     {
-                        datosQR.Posicion.ColorQR = valor;
+                        datosQR.DatosAdicionales.ColorQR = valor;
                     }
                     break;
 
@@ -199,6 +200,7 @@ namespace PdfTools.Logica
                     if(File.Exists(parametros.PdfEntrada))
                     {
                         parametros.RutaFicheros = Path.GetDirectoryName(parametros.PdfEntrada);
+                        contexto.PdfActual = parametros.PdfEntrada;
                     }
                     break;
 
@@ -248,18 +250,18 @@ namespace PdfTools.Logica
 
                 case "textomarca":
                     // Asigna la marca de agua, reemplazando \n por saltos de línea
-                    parametros.TextoMarcaAgua = valor.Replace("\\n", "\n");
-                    if(parametros.TextoMarcaAgua.Length > 0)
-                    {
-                        acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarMarca);
-                    }
+                    // Nota: si se esta procesando una carpeta y se ha pasado en el guion principal un texto, se usa este
+                    parametros.TextoMarcaAgua = (parametros.ProcesarCarpeta && !string.IsNullOrEmpty(parametros.TextoMarcaAgua)) ? parametros.TextoMarcaAgua : valor.Replace("\\n", "\n");
+
+
+                    //parametros.TextoMarcaAgua = valor.Replace("\\n", "\n");
                     break;
 
                 case "colormarca":
                     // Asigna el color de la marca de agua
                     if(Utilidades.ValidaColor(valor))
                     {
-                        parametros.ColorMarca = valor;
+                        parametros.ColorMarca = (parametros.ProcesarCarpeta && parametros.ColorMarca == "#E1E1E1") ? valor : parametros.ColorMarca;
                     }
                     break;
             }
@@ -324,30 +326,17 @@ namespace PdfTools.Logica
             var datosQR = contexto.DatosQR;
             var acciones = contexto.Acciones;
 
-            // Valida si existe la carpeta de entrada en caso de procesar una carpeta
-            if(parametros.ProcesarCarpeta)
+            // Validaciones para el PDF de entrada
+            if(string.IsNullOrEmpty(parametros.PdfEntrada))
             {
-                // Valida si la carpeta de ficheros existe
-                if(!Directory.Exists(parametros.CarpetaEntrada))
-                {
-                    Logger.Agregar("La carpeta de entrada con los ficheros no existe.");
-                    return;
-                }
+                Logger.Agregar("El parámetro 'pdfEntrada' es obligatorio.");
+                return;
             }
-            else
-            {
-                // Validaciones para el PDF de entrada
-                if(string.IsNullOrEmpty(parametros.PdfEntrada))
-                {
-                    Logger.Agregar("El parámetro 'pdfEntrada' es obligatorio.");
-                    return;
-                }
 
-                if(!File.Exists(parametros.PdfEntrada))
-                {
-                    Logger.Agregar("El PDF de entrada no existe.");
-                    return;
-                }
+            if(!File.Exists(parametros.PdfEntrada))
+            {
+                Logger.Agregar("El PDF de entrada no existe.");
+                return;
             }
 
             // ---------- Validaciones para el QR ------------
@@ -369,12 +358,12 @@ namespace PdfTools.Logica
 
                 // Validaciones de los datos de la factura para generar el QR
                 ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor), "nifEmisor");
-                ValidarPropiedad(datosQR.DatosFactura.NumeroFactura, "numeroFactura");
+                ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NumeroFactura), "numeroFactura");
                 ValidarPropiedad(datosQR.DatosFactura.FechaFactura != DateTime.MinValue, "fechaFactura");
                 ValidarPropiedad(datosQR.DatosFactura.TotalFactura != 0, "totalFactura");
 
                 // Valida si el color pasado es valido
-                if(!Utilidades.ColorValido(datosQR.Posicion.ColorQR))
+                if(!Utilidades.ColorValido(datosQR.DatosAdicionales.ColorQR))
                 {
                     Logger.Agregar("El codigo de color del QR no es valido");
                 }
@@ -395,16 +384,6 @@ namespace PdfTools.Logica
                 Logger.Agregar($"El parámetro '{nombrePropiedad}' es obligatorio.");
             }
         }
-
-        // Metodo auxiliar para validar propiedades obligatorias y registrar error (sobrecarga del anterior)
-        private void ValidarPropiedad(string valor, string nombrePropiedad)
-        {
-            if(string.IsNullOrEmpty(valor))
-            {
-                Logger.Agregar($"El parámetro '{nombrePropiedad}' es obligatorio.");
-            }
-        }
-
 
         // Campo con los valores que pueden tener los parametros del QR
         private readonly HashSet<string> ParametrosQR = new HashSet<string>
@@ -463,7 +442,5 @@ namespace PdfTools.Logica
 
             return tipoParametro;
         }
-
-
     }
 }

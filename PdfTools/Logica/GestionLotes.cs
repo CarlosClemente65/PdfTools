@@ -68,7 +68,7 @@ namespace PdfTools.Metodos
 
             catch(Exception ex)
             {
-                Logger.Agregar("No hay ningun fichero PDF en la carpeta seleccionada\r\n" + ex);
+                Logger.Agregar($"No hay ningun fichero PDF en la carpeta seleccionada: {ex}");
                 return null;
             }
 
@@ -123,14 +123,21 @@ namespace PdfTools.Metodos
         public void ProcesarFicheroLote(DocumentoLoteQR fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
         {
             var parametros = contexto.Parametros;
-
+            var acciones = contexto.Acciones;
             var guionFichero = fichero.RutaGuion;
 
-            // Instancias de los objetos necesarias para cada PDF a procesar
-            var parametrosFichero = new ConfiguracionGeneral();
-            var datosQRFichero = new ConfiguracionQR();
-            var accionesFichero = new ConfiguracionAcciones();
+            // Se asignan las acciones del fichero
+            var accionesFichero = new ConfiguracionAcciones
+            {
+                AbrirVisor = acciones.AbrirVisor,
+                CerrarVisor = acciones.CerrarVisor,
+                AccionesProceso = new HashSet<Enums.AccionesProceso>(acciones.AccionesProceso),
+                AccionesEjecutadas = new HashSet<Enums.AccionesProceso>(acciones.AccionesEjecutadas)
+            };
 
+            // Instancias de los objetos necesarias para cada PDF a procesar
+            var parametrosFichero = new ConfiguracionGeneral(parametros);
+            var datosQRFichero = new ConfiguracionQR();
             // Instancia del contexto de ejecucion para el fichero
             ContextoEjecucion contextoFichero = new ContextoEjecucion
             {
@@ -149,7 +156,7 @@ namespace PdfTools.Metodos
 
             // Cargar configuración del guion
             Utilidades.CargarParametros(contextoFichero, guionFichero);
-            
+
             // Asigna los valores segun los datos leidos del guion
             parametrosFichero.PdfEntrada = fichero.RutaPdf; // El fichero de entrada siempre sera el PDF leido de la carpeta
 
@@ -183,6 +190,7 @@ namespace PdfTools.Metodos
 
                 documento.Save(pdfSalida);
                 contextoFichero.PdfActual = pdfSalida;
+                contextoFichero.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarLoteQR);
             }
 
             // Gestion del mensaje para controlar el resultado en caso de error
@@ -192,9 +200,12 @@ namespace PdfTools.Metodos
             }
 
             // Ejecuta las acciones adicionales que se pasen en el guion del fichero
-            if (accionesFichero.AccionesProceso.Count > 0 && parametros.AccionGlobal == false)
+            foreach(var accion in accionesFichero.AccionesProceso)
             {
-                gestorAcciones.EjecutarAcciones(contextoFichero);
+                if(!accionesFichero.AccionesEjecutadas.Contains(accion))
+                {
+                    gestorAcciones.EjecutarAcciones(contextoFichero);
+                }
             }
         }
     }

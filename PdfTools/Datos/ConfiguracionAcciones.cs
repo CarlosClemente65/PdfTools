@@ -7,7 +7,9 @@ namespace PdfTools.Datos
     public class ConfiguracionAcciones
     {
         // Lista de acciones a realizar
-        public List<Enums.AccionesProceso> AccionesProceso { get; set; }
+        public HashSet<Enums.AccionesProceso> AccionesProceso { get; set; }
+
+        public HashSet<Enums.AccionesProceso> AccionesEjecutadas { get; set; }
 
         // Control para si es necesario abrir el visor
         public bool AbrirVisor {  get; set; }
@@ -19,7 +21,8 @@ namespace PdfTools.Datos
         {
             AbrirVisor = false;
             CerrarVisor = false;
-            AccionesProceso = new List<Enums.AccionesProceso>();
+            AccionesProceso = new HashSet<Enums.AccionesProceso>();
+            AccionesEjecutadas = new HashSet<Enums.AccionesProceso>();
         }
     }
 }

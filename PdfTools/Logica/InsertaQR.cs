@@ -38,7 +38,7 @@ namespace PdfTools
             double alto = XUnit.FromMillimeter(datosQR.Posicion.Alto).Point;
 
             // Convierte el color hexadecimal para usarlo en el QR
-            Color colorQR = ColorTranslator.FromHtml(datosQR.Posicion.ColorQR);
+            Color colorQR = ColorTranslator.FromHtml(datosQR.DatosAdicionales.ColorQR);
 
             try
             {
@@ -65,6 +65,7 @@ namespace PdfTools
                     if(!string.IsNullOrEmpty(textoMarcaAgua))
                     {
                         pagina = gestorContenido.InsertaMarcaAgua(pagina, gfx, contexto);
+                        acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarMarca);
                     }
                 }
 
@@ -120,19 +121,18 @@ namespace PdfTools
             else
             {
                 // En otro caso se genera el código QR a partir del texto proporcionado
+                var colorFondo = "#FFFFFF"; // Fondo blanco por defecto
                 using(QRCodeGenerator qrGenerator = new QRCodeGenerator())
                 using(QRCodeData qrCodeData = qrGenerator.CreateQrCode(textoQr, QRCodeGenerator.ECCLevel.Q))
                 using(QRCode qrCode = new QRCode(qrCodeData))
-                using(Bitmap qrBitmap = qrCode.GetGraphic(20))
+                using(Bitmap qrBitmap = qrCode.GetGraphic(20, _datosQR.DatosAdicionales.ColorQR, colorFondo))
                 using(var ms = new System.IO.MemoryStream())
                 {
                     qrBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     ms.Position = 0;
                     qrGenerado = XImage.FromStream(ms);
                 }
-
             }
-
             return qrGenerado;
         }
     }

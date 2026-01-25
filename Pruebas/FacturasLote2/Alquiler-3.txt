@@ -10,4 +10,4 @@ posiciony=5
 ancho=25
 color=#000000
 idioma=gl
-accionpdf=abrir
+textomarca=ESTO ES UNA PRUEBA

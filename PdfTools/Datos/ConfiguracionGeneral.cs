@@ -30,5 +30,21 @@ namespace PdfTools.Datos
             ListaArchivos = new List<string>();
         }
 
+        public ConfiguracionGeneral(ConfiguracionGeneral origen)
+        {
+            // Copia los valores del objeto origen al nuevo objeto
+            PdfEntrada = origen.PdfEntrada;
+            PdfSalida = origen.PdfSalida;
+            RutaFicheros = origen.RutaFicheros;
+            FicheroSalida = origen.FicheroSalida;
+            CarpetaEntrada = origen.CarpetaEntrada;
+            CarpetaSalida = origen.CarpetaSalida;
+            ProcesarCarpeta = origen.ProcesarCarpeta;
+            AccionGlobal = origen.AccionGlobal;
+            ListaArchivos = new List<string>(origen.ListaArchivos);
+            TextoMarcaAgua = origen.TextoMarcaAgua;
+            ColorMarca = origen.ColorMarca;
+        }
+
     }
 }

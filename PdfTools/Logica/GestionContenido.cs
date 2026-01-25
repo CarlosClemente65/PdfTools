@@ -132,21 +132,21 @@ namespace PdfTools.Metodos
 
             catch(InvalidOperationException ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
 
             catch(ArgumentNullException ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
 
             catch(ArgumentOutOfRangeException ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
             catch(Exception ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
         }
 

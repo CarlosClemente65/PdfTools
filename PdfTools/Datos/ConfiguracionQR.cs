@@ -102,7 +102,6 @@ namespace PdfTools.Datos
         public double PosY { get; set; } = 10; // Posición desde la parte superior
         public double Ancho { get; set; } = 30; // Ancho en mm
         public double Alto { get; set; } = 30; // Alto en mm
-        public string ColorQR { get; set; } = "#000000"; // Color del QR en formato hexadecimal (defeto negro)
     }
 
     public class DatosAdicionales
@@ -111,5 +110,6 @@ namespace PdfTools.Datos
         public string TextoAbajo { get; set; } = "";
 
         public string TextoArriba { get; set; } = "QR Tributario";
+        public string ColorQR { get; set; } = "#000000"; // Color del QR en formato hexadecimal (defeto negro)
     }
 }

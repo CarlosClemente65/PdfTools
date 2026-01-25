@@ -1,0 +1,2 @@
+- Fichero Factura.pdf: No se han pasado parametros del fichero 
+Error: Se ha producido un error en el proceso. Mensaje: No hay un PDF válido para abrir.

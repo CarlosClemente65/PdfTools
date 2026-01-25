@@ -69,7 +69,8 @@ namespace PdfTools
                 // Si se ha solicitado cerrar el visor, se cierra antes de iniciar el proceso
                 if(acciones.AccionesProceso.Contains(Enums.AccionesProceso.CerrarVisor))
                 {
-                    Utilidades.CerrarVisor();
+                   Utilidades.CerrarVisor();
+                   acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.CerrarVisor);
                 }
 
                 // Lista de acciones globales que pueden realizarse
@@ -81,6 +82,8 @@ namespace PdfTools
                     Enums.AccionesProceso.Visualizar
                 };
 
+
+                // TODO ver si es necesaria esta propiedad
                 if(acciones.AccionesProceso.Any(a => accionesGlobales.Contains(a)))
                 {
                     parametros.AccionGlobal = true;

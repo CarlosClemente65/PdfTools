@@ -10,3 +10,4 @@ posiciony=5
 ancho=25
 color=#000000
 idioma=gl
+acciones= abrir
