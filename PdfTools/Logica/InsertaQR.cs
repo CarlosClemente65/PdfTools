@@ -15,8 +15,11 @@ namespace PdfTools
         private ConfiguracionQR _datosQR = null;
 
         // Proceso para insertar el codigo QR en el documento PDF
-        public PdfDocument InsertarQR(PdfDocument documento, ConfiguracionQR datosQR)
+        public PdfDocument InsertarQR(PdfDocument documento, ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+            var acciones = contexto.Acciones;
             _datosQR = datosQR; // Se asigna al objeto de clase porque se utiliza en otro metodo de la clase
 
             // Establece la pagina 1 para insertar el QR y las imagenes
@@ -35,7 +38,7 @@ namespace PdfTools
             double alto = XUnit.FromMillimeter(datosQR.Posicion.Alto).Point;
 
             // Convierte el color hexadecimal para usarlo en el QR
-            Color colorQR = ColorTranslator.FromHtml(datosQR.Posicion.ColorQR);
+            Color colorQR = ColorTranslator.FromHtml(datosQR.DatosAdicionales.ColorQR);
 
             try
             {
@@ -50,13 +53,22 @@ namespace PdfTools
                 }
 
                 // Primero se inserta la marca de agua (si tiene contenido) para que quede debajo del todo
-                string textoMarcaAgua = datosQR.MarcaAgua;
-
-                GestionContenido gestorProceso = new GestionContenido();
-                if(!string.IsNullOrEmpty(textoMarcaAgua))
+                if(acciones.AccionesProceso.Contains(Enums.AccionesProceso.InsertarMarca))
                 {
-                    pagina = gestorProceso.InsertaMarcaAgua(pagina, gfx, datosQR);
+                    // Carga el texto de la marca de agua
+                    string textoMarcaAgua = parametros.TextoMarcaAgua;
+
+                    // Instancia el gestor de contenido para insertar la marca de agua
+                    GestionContenido gestorContenido = new GestionContenido();
+
+                    // Inserta la marca de agua en la pagina
+                    if(!string.IsNullOrEmpty(textoMarcaAgua))
+                    {
+                        pagina = gestorContenido.InsertaMarcaAgua(pagina, gfx, contexto);
+                        acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarMarca);
+                    }
                 }
+
 
                 double altoFuente = 8; // Altura aproximada del texto en puntos
 
@@ -109,19 +121,18 @@ namespace PdfTools
             else
             {
                 // En otro caso se genera el código QR a partir del texto proporcionado
+                var colorFondo = "#FFFFFF"; // Fondo blanco por defecto
                 using(QRCodeGenerator qrGenerator = new QRCodeGenerator())
                 using(QRCodeData qrCodeData = qrGenerator.CreateQrCode(textoQr, QRCodeGenerator.ECCLevel.Q))
                 using(QRCode qrCode = new QRCode(qrCodeData))
-                using(Bitmap qrBitmap = qrCode.GetGraphic(20))
+                using(Bitmap qrBitmap = qrCode.GetGraphic(20, _datosQR.DatosAdicionales.ColorQR, colorFondo))
                 using(var ms = new System.IO.MemoryStream())
                 {
                     qrBitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
                     ms.Position = 0;
                     qrGenerado = XImage.FromStream(ms);
                 }
-
             }
-
             return qrGenerado;
         }
     }

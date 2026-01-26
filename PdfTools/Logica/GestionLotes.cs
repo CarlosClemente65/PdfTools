@@ -14,8 +14,11 @@ namespace PdfTools.Metodos
     {
         GestionAcciones gestorAcciones = new GestionAcciones();
         // Metodo de entrada para procesar el lote de ficheros a añadir el QR
-        public void ProcesarLoteQR(ConfiguracionGeneral parametros, ConfiguracionAcciones acciones, ContextoEjecucion contexto)
+        public void ProcesarLoteQR(ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var acciones = contexto.Acciones;
+
             StringBuilder resultadoLote = new StringBuilder();
 
             // Asigna la carpeta de salida a la misma de entrada si no se ha pasado
@@ -29,26 +32,19 @@ namespace PdfTools.Metodos
             // Procesar cada fichero
             foreach(var fichero in ficherosLote)
             {
-                // Controla si se estan grabados el nombre del fichero PDF y del guion
-                if(fichero.EsValido)
-                {
-                    ProcesarFicheroLote(parametros, fichero, resultadoLote, contexto);
-                }
-                else
-                {
-                    // Graba el logger cuando no se ha pasado el guion del fichero
-                    resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: No se han pasado parametros del fichero ");
-                }
+                ProcesarFicheroLote(fichero, resultadoLote, contexto);
 
                 // Una vez procesado el fichero se limpia el logger para procesar el siguiente fichero
                 Logger.Limpiar();
+            }
 
-                // Se revisa si hay que abrir el PDF
-                if(acciones.AccionesPDF.Contains(Enums.AccionesPDF.Visualizar) || acciones.AccionesPDF.Contains(Enums.AccionesPDF.Abrir))
-                {
-                    //contexto.PdfActual = fichero.RutaPdf;
-                    gestorAcciones.EjecutarAcciones(parametros, acciones, contexto);
-                }
+            // Si se han pasado acciones de forma global, como se ejecutan con cada fichero, se marcan como completadas
+            if(parametros.AccionGlobal)
+            {
+                contexto.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarMarca); // La marca de agua se inserta a la vez que el QR.
+                contexto.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.Abrir);
+                contexto.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.Imprimir);
+                contexto.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.Visualizar);
             }
 
             // Una vez procesados los ficheros se añaden los mensajes del procesado al logger
@@ -70,7 +66,7 @@ namespace PdfTools.Metodos
 
             catch(Exception ex)
             {
-                Logger.Agregar("No hay ningun fichero PDF en la carpeta seleccionada\r\n" + ex);
+                Logger.Agregar($"No hay ningun fichero PDF en la carpeta seleccionada: {ex}");
                 return null;
             }
 
@@ -121,67 +117,147 @@ namespace PdfTools.Metodos
         }
 
 
-        // Procesasdo de cada fichero del lote para añadir el QR y la marca de agua
-        public void ProcesarFicheroLote(ConfiguracionGeneral parametros, DocumentoLoteQR fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
+        // Procesado de cada fichero del lote para añadir el QR y la marca de agua
+        public void ProcesarFicheroLote(DocumentoLoteQR fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
         {
-            // Instancias de los objetos necesarias para cada PDF a procesar
-            var datosQRFichero = new ConfiguracionQR();
-            var parametrosFichero = new ConfiguracionGeneral();
+            var parametros = contexto.Parametros;
+            var acciones = contexto.Acciones;
             var guionFichero = fichero.RutaGuion;
-            var accionesFichero = new ConfiguracionAcciones();
+
+            // Se asignan las acciones del fichero
+            var accionesFichero = new ConfiguracionAcciones
+            {
+                AbrirVisor = acciones.AbrirVisor,
+                CerrarVisor = acciones.CerrarVisor,
+                AccionesProceso = new HashSet<Enums.AccionesProceso>(),
+                AccionesEjecutadas = new HashSet<Enums.AccionesProceso>()
+            };
+
+            if(parametros.AccionGlobal)
+            {
+                // Si se han pasado acciones globlales, se asignan al fichero
+                accionesFichero.AccionesProceso = new HashSet<Enums.AccionesProceso>(acciones.AccionesProceso);
+                accionesFichero.AccionesEjecutadas = new HashSet<Enums.AccionesProceso>(acciones.AccionesEjecutadas);
+            }
+
+            // Detecta si no se ha grabado la accion de InsertarLoteQR para añadirla
+            if(!accionesFichero.AccionesProceso.Contains(Enums.AccionesProceso.InsertarLoteQR))
+            {
+                accionesFichero.AccionesProceso.Add(Enums.AccionesProceso.InsertarLoteQR);
+            }
+
+            // Instancias de los objetos necesarias para cada PDF a procesar
+            var parametrosFichero = new ConfiguracionGeneral(parametros);
+            var datosQRFichero = new ConfiguracionQR();
+            // Instancia del contexto de ejecucion para el fichero
+            ContextoEjecucion contextoFichero = new ContextoEjecucion
+            {
+                Parametros = parametrosFichero,
+                DatosQR = datosQRFichero,
+                Acciones = accionesFichero,
+                PdfActual = null,
+                RutaSumatra = contexto.RutaSumatra,
+                CacheSumatra = contexto.CacheSumatra,
+                EsperarCierreVisor = contexto.EsperarCierreVisor
+            };
 
             // Instancias para los gestores de datos
             var gestorParametros = new GestionParametros();
             var gestorContenido = new GestionContenido();
 
-            // Cargar configuración del guion
-            datosQRFichero = Utilidades.CargarParametros(parametrosFichero, datosQRFichero, accionesFichero, guionFichero);
-            
-
-            // Asigna los valores segun los datos leidos del guion
-            parametrosFichero.PdfEntrada = fichero.RutaPdf; // El fichero de entrada siempre sera el PDF leido de la carpeta
-
-            // Se fija la ruta de salida de los ficheros
-            parametrosFichero.RutaFicheros = parametros.CarpetaSalida;
-
-            // Si la carpeta de salida es igual a la de entrada, se añade un sufijo a los ficheros
-            string sufijoNombreSalida = parametros.CarpetaEntrada == parametros.CarpetaSalida
-                ? "_salida.pdf"
-                : ".pdf";
-
-            // Controla si se ha pasado un fichero con la imagen
-            if(!string.IsNullOrEmpty(fichero.RutaImagenQR))
+            // Si se ha pasado el fichero pdf y el guion se procesa el fichero
+            if(fichero.EsValido)
             {
-                datosQRFichero.UsarQrExterno = true;
-                datosQRFichero.NombreFicheroQR = fichero.RutaImagenQR;
+                // Cargar configuración del guion
+                Utilidades.CargarParametros(contextoFichero, guionFichero);
+
+                // Si se ha pasado en los parametros el 'Textomarca' se asigna la accion
+                if(contextoFichero.Parametros.TextoMarcaAgua.Trim() != string.Empty &&
+                   !accionesFichero.AccionesProceso.Contains(Enums.AccionesProceso.InsertarMarca))
+                {
+                    accionesFichero.AccionesProceso.Add(Enums.AccionesProceso.InsertarMarca);
+                }
+
+
+                // Asigna los valores segun los datos leidos del guion
+                parametrosFichero.PdfEntrada = fichero.RutaPdf; // El fichero de entrada siempre sera el PDF leido de la carpeta
+
+                // Se fija la ruta de salida de los ficheros
+                parametrosFichero.RutaFicheros = parametros.CarpetaSalida;
+
+                // Si la carpeta de salida es igual a la de entrada, se añade un sufijo a los ficheros
+                string sufijoNombreSalida = parametros.CarpetaEntrada == parametros.CarpetaSalida
+                    ? "_salida.pdf"
+                    : ".pdf";
+
+                // Controla si se ha pasado un fichero con la imagen
+                if(!string.IsNullOrEmpty(fichero.RutaImagenQR))
+                {
+                    datosQRFichero.UsarQrExterno = true;
+                    datosQRFichero.NombreFicheroQR = fichero.RutaImagenQR;
+                }
+
+                // Valida los parametros
+                gestorParametros.ValidarParametros(contextoFichero);
+
+                // Añadir el QR al PDF
+                PdfDocument documento = gestorContenido.AgregarQR(contextoFichero);
+
+                // Graba el documento si tiene paginas
+                if(documento.PageCount > 0)
+                {
+                    string pdfSalida = string.IsNullOrWhiteSpace(parametrosFichero.PdfSalida)
+                        ? Path.Combine(parametrosFichero.RutaFicheros, Path.GetFileNameWithoutExtension(parametrosFichero.PdfEntrada) + sufijoNombreSalida)
+                        : parametrosFichero.PdfSalida;
+
+                    documento.Save(pdfSalida);
+                    contextoFichero.PdfActual = pdfSalida;
+                    contextoFichero.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarLoteQR);
+                }
+
+                // Gestion del mensaje para controlar el resultado en caso de error
+                if(Logger.TieneContenido())
+                {
+                    resultadoLote.AppendLine($"- Fichero: {fichero.NombreBase}.pdf: {Logger.Contenido()}");
+                }
             }
-
-            // Valida los parametros
-            gestorParametros.ValidarParametros(parametrosFichero, datosQRFichero);
-
-            // Añadir el QR al PDF
-            PdfDocument documento = gestorContenido.AgregarQR(parametrosFichero, datosQRFichero);
-
-            // Si el documento tiene paginas, se graba
-            if(documento.PageCount > 0)
+            else
             {
+                // Si no se pasa el guion del fichero, se copia el fichero de entrada en la ruta de salida sin modificar
+                string pdfEntrada = fichero.RutaPdf;
+
+                // Calcula el sufijo a añadir dependiendo si la carpeta de salida es la misma que la de entrada
+                string sufijoPdfSalida = parametrosFichero.CarpetaEntrada == parametrosFichero.CarpetaSalida
+                    ? "_salida.pdf"
+                    : ".pdf";
+
+                // Si no hay carpeta de salida se coge la de entrada
+                string carpetaSalida = !string.IsNullOrWhiteSpace(parametrosFichero.CarpetaSalida) ? parametrosFichero.CarpetaSalida : parametrosFichero.CarpetaEntrada;
+
+                // Asigna el nombre del fichero a graba, teniendo en cuenta la carpeta de salida
                 string pdfSalida = string.IsNullOrWhiteSpace(parametrosFichero.PdfSalida)
-                    ? Path.Combine(parametrosFichero.RutaFicheros, Path.GetFileNameWithoutExtension(parametrosFichero.PdfEntrada) + sufijoNombreSalida)
+                    ? Path.Combine(carpetaSalida, Path.GetFileNameWithoutExtension(pdfEntrada) + sufijoPdfSalida)
                     : parametrosFichero.PdfSalida;
 
-                documento.Save(pdfSalida);
-                contexto.PdfActual = pdfSalida;
+                File.Copy(pdfEntrada, pdfSalida, overwrite: true);
+
+                // Se asigna el pdfActual por si hay que hacer acciones adicionales
+                contextoFichero.PdfActual = pdfSalida;
+
+                // Se marcan como ejecutadas las acciones de InsertarQR e InsertarLoteQR para evitar que den error (no hay guion)
+                contextoFichero.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarQR);
+                contextoFichero.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarLoteQR);
+                contextoFichero.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.InsertarMarca);
             }
 
-            // Gestion del mensaje para controlar el resultado
-            if(Logger.TieneContenido())
+            // Ejecuta las acciones adicionales que se pasen en el guion del fichero
+            foreach(var accion in accionesFichero.AccionesProceso)
             {
-                resultadoLote.AppendLine($"- Fichero: {fichero.NombreBase}.pdf: {Logger.Contenido()}");
+                if(!accionesFichero.AccionesEjecutadas.Contains(accion))
+                {
+                    gestorAcciones.EjecutarAcciones(contextoFichero);
+                }
             }
-            //else
-            //{
-            //    resultadoLote.AppendLine($"- Fichero {fichero.NombreBase}.pdf: QR añadido correctamente");
-            //}
         }
     }
 

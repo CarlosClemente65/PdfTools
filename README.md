@@ -28,6 +28,7 @@ Tambien puede usarse como visualizador de ficheros PDF, y para fusionar varios P
 * v3.2.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
 * v3.3.0.0 Añadido parametros para unir en un solo PDF los ficheros de una carpeta
 * v3.4.0.0 Añadida posibilidad de ejecutar varias acciones adicionales
+* v3.5.0.0 Modificado ejecucion acciones en lotes para permitir acciones globales o por fichero
 
 <br><br>
 
@@ -40,77 +41,82 @@ PdfTools.exe ds123456 guion.txt
 
 #### Parametros guion
 - Parametros generales:
-	* pdfentrada=Nombre del pdf con la fatura (obligatorio)
-	* pdfsalida=Nombre del pdf con el QR (opcional)
-	* ficherosalida=nombre del fichero para controlar la finalizacion del proceso (opcional)
-	* carpetaentrada=Nombre de la carpeta para procesar por lotes los PDFs que haya dentro
-	* carpetasalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes
-	* accionpdf=[imprimir | abrir | visualizar | unir]; Acciones adicionales a realizar con el PDF (opcional)
-	* listaficheros=Nombre de los ficheros de la carpetaentrada separados por comas a unir 
-	* cerrarvisor ;Permite dar la orden de cerrar el visor (opcional)
+	* PdfEntrada=Nombre del pdf con la fatura (obligatorio)
+	* PdfSalida=Nombre del pdf con el QR (opcional)
+	* FicheroSalida=Nombre del fichero para controlar la finalizacion del proceso (opcional)
+	* CarpetaEntrada=Nombre de la carpeta para procesar un lote de los PDFs que haya dentro
+	* CarpetaSalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes (opcional)
+	* ListaFicheros=Nombre de los ficheros de CarpetaEntrada separados por comas a procesar(opcional)
+	* TextoMarca=Texto para insertar una marca de agua en el documento (opcional)
+	* ColorMarca=Color de la marca de agua en formato hexadecimal; defecto #E1E1E1 (gris claro)
+	* Acciones=Acciones a realizar en el proceso separadas por comas y por orden de ejecucion:
+		- InsertarQR: Añade el QR a un solo fichero
+		- InsertarLoteQR: Añade el QR a un lote de ficheros de una carpeta
+		- Unir: fusiona en un solo PDF todos los ficheros de la carpeta de entrada
+		- InsertarMarca: Añade una marca de agua; es necesario pasar el parametro 'TextoMarca'
+		- Imprimir: Imprime el documento de salida
+		- Abrir: Abre el documento de salida con el visor y espera al cierre para continuar
+		- Visualizar: Igual que 'Abrir' pero no espera al cierre.
+		- CerrarVisor: Cierra el visor SumatraPDF en el caso de que este abierto.
 
 - Parametros QR:
-	* entorno='pruebas' para forzar el envio a la web de pruebas (opcional)
-	* verifactu=SI/NO para indicar si son facturas verificables (opcional)
-	* ficheroqr=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
+	* Entorno='pruebas' para forzar el envio a la web de pruebas (opcional)
+	* Verifactu=[SI/NO | S/N | true/false] para indicar si son facturas verificables (opcional)
+	* FicheroQR=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
 	* url=direccion url para la validacion (opcional)
-	* nifemisor=NIF del emisor de la factura para incluir en el QR (opcional)
-	* numerofactura=Numero de de factura para incluir en el QR (obligatorio si nifemisor <> "")
-	* fechafactura=Fecha de la factura para incluir en el QR (obligatorio si nifemisor <> "")
-	* totalfactura=Importe total de la factura para incluir en el QR (obligatorio si nifemisor <> "")
-	* posicionx=posicion en milimetros desde el margen izquierdo (opcional)
-	* posiciony=posicion en milimetros desde el margen superior (opcional)
-	* ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
-	* color=Color del QR en formato hexadecimal (opcional); defecto #000000 (negro)
-	* marcaagua=Texto para insertar una marca de agua en el documento (opcional)
-	* colormarca=Color de la marca de agua en formato hexadecimal; defecto #E1E1E1 (gris claro)
-	* idioma=[gl |ca | eu | es | va | en ]; idioma de respuesta de la AEAT en el QR (opcional)
+	* NifEmisor=NIF del emisor de la factura para incluir en el QR (obligatorio si no se pasa un ficheroQR)
+	* NumeroFactura=Numero de de factura para incluir en el QR (obligatorio si no se pasa un ficheroQR)
+	* FechaFactura=Fecha de la factura para incluir en el QR (obligatorio si no se pasa un ficheroQR)
+	* TotalFactura=Importe total de la factura para incluir en el QR (obligatorio si no se pasa un ficheroQR)
+	* Posicionx=posicion en milimetros desde el margen izquierdo (opcional)
+	* Posiciony=posicion en milimetros desde el margen superior (opcional)
+	* Ancho=ancho del QR en milimetros (el alto sera el mismo) (opcional)
+	* Color=Color del QR en formato hexadecimal (opcional); defecto #000000 (negro)
+	* Idioma=Idioma de respuesta de la AEAT en el QR (opcional) entre uno de los siguientes:
+		- gl: gallego
+		- ca: catalán
+		- eu: euskera
+		- es: castellano (defecto)
+		- va: valenciano
+		- en: inglés
 
 <br>
 
 ### Notas:
-* No es necesario pasar los parametros con comillas si hay espacios; se toma el valor que hay a continuacion del '='
-* Los nombres de los parametros pueden ir en mayusculas o minusculas (se convierten a minusculas)
+* No es necesario pasar los parametros con comillas aunque tengan espacios; se toma el valor que hay a continuacion del '='
+* Los nombres de los parametros pueden ir en mayusculas o minusculas
 * Si no se pasa el nombre del pdf de salida, se utiliza el mismo que el de entrada con un sufijo (_salida)
-* La url se puede pasar (debe estar bien formada), y si no se pasa, se genera en base a los datos de la factura, entorno y verifactu
+* La url es opcional (debe estar bien formada), y si no se pasa, se genera en base a los datos de la factura, entorno y verifactu
 * El entorno por defecto es la web de produccion (real), por lo que en pruebas debe pasarse el parametro entorno=pruebas
-* Por defecto se funciona en modo NO VeriFactu, por lo que para trabajar de ese modo se debe pasar el parametro verifactu=si
-* Si no se pasa el fichero con la imagen QR, es obligatorio pasar los campos nifemisor y datos factura (fecha,numero e importe)
-* Si no se pasa el NIF del emisor no se añadira el QR; si se pasa es obligatorio pasar los demas parametros de la factura.
+* Por defecto se funciona en modo NO VeriFactu, por lo que para trabajar de ese modo se debe pasar el parametro verifactu
+* Si no se pasa el fichero con la imagen QR, es obligatorio pasar los campos nifemisor y datos factura (fecha, numero e importe)
+* Si no se pasan los datos del emisor y factura o el fichero con la imagen, no se añadira el QR.
 * Las posiciones X e Y del QR estan puestas por defecto a 10 mm de los margenes
 * El ancho del QR tiene un defecto de 30 mm; no tiene limitacion pero deberia estar entre 25 y 40 mm (alto y ancho)
 * El texto de la marca de agua admite saltos de linea añadiendo '\n' en la posicion donde insertarlo
 * Si se produce algun error por algun parametro que falte o no sea correcto, se genera el fichero "errores.txt" con el detalle
-* El parametro 'accionpdf= permite realizar acciones adicionales con el PDF utilizando el programa SumatraPDF
-	- 'imprimir' = Lanza el PDF generado por la impresora predeterminada
-	- 'abrir' = Abre el PDF generado con el visor; la aplicacion espera a que se cierre el visor para continuar
-	- 'visualizar' = Abre el PDF pasado por parametro con el visor; la aplicacion continua sin esperar al cierre del visor
-	- 'unir' = Fusiona en un solo PDF los ficheros de la carpetaentrada.
-* El parametro cerrarvisor' permite cerrar todos los procesos abiertos del visor SumatraPDF; se puede pasar como un parametro adicional ademas del resto
-* Si se incluye el parametro 'ficherosalida' la aplicacion genera un fichero que puede usarse para controlar si la aplicacion ha terminado o no. 
-  Con el parametro 'visualizar' la aplicacion no se detiene aunque no se cierre el visor, por lo que se generara (si se ha indicado) el fichero de salida
-* El parametro 'idioma' permite que la respuesta de Hacienda al chequear el QR sea en uno de los idiomas siguientes:
-	- gl: gallego
-	- ca: catalán
-	- eu: euskera
-	- es: castellano
-	- va: valenciano
-	- en: inglés
-* En el caso de procesado de una carpeta se debe tener en cuenta lo siguiente:
-	- El parametro 'carpetaentrada' es obligatorio
-	- En la carpeta de entrada, ademas del PDF debe haber un fichero.txt con los parametros para generar el QR
-	- Si se quiere usar una imagen para insertar, debe ponerse tambien en la carpeta de entrada con el mismo nombre que el PDF (factura.pdf - factura.bmp)
+* Si se incluye el parametro 'FicheroSalida' la aplicacion genera un fichero que puede usarse para controlar si la aplicacion ha terminado o no. 
+* Con el parametro 'ListaFicheros' debe tenerse en cuenta lo siguiente:
+	- Solo se trataran los ficheros incluidos en la lista
+	- Se procesaran por el orden en el estan incluidos
+	- No es necesaria la ruta completa ni la extension de los ficheros (valido factura o factura.pdf)
+* Si no se incluye el parametro 'ListaFicheros' y se procesa una carpeta, se procesaran todos los ficheros de la carpeta por el orden del sistema.
+* En el caso de procesado de una carpeta para insertar un QR se debe tener en cuenta lo siguiente:
+	- El parametro 'CarpetaEntrada' es obligatorio
+	- Ademas del PDF debe haber un guion.txt con los parametros para generar el QR y mismo nombre que el PDF
+	- Si no se incluye el guion.txt, el PDF de entrada se dejara sin procesar en la carpeta de salida (no genera error)
+	- Si se quiere usar una imagen ya generada para el QR, debe copiarse a la carpeta de entrada con el mismo nombre que el PDF (factura.pdf - factura.bmp)
 	- En caso de usar una imagen, en el guion solo son necesarios los parametros de posicion y marca de agua
-	- Si se pasa el parametro 'carpetasalida' grabara en esa carpeta (si no existe se crea), los ficheros con el mismo nombre que en la entrada
-	- Si no se pasa el parametro 'carpetasalida' los ficheros se pondran en la misma carpeta de entrada, teniendo en cuenta lo siguiente:
-		- Si el guion del fichero tiene el parametro 'pdfsalida' se utilizara ese nombre
-		- Si el guion del fichero no tiene el parametro 'pdfsalida', se pondra el mismo que el de entrada con el sufijo '_salida'
-* En el caso del proceso de union de PDFs se debe tener en cueta lo siguiente:
-	- En 'listaficheros' estaran los nombres de los ficheros a añadir por orden de insercion y separados por comas
-	- No es necesaria la ruta completa ni la extension de la lista de ficheros (valido factura o factura.pdf)
-	- Si no se incluye el parametro 'listaficheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
-	- Si no se incluye el parametro 'carpetasalida' el pdf generado se dejara en la carpeta de entrada
-	- Si no se incluye el parametro 'pdfsalida' se genera uno por defecto "fichero_salida.pdf"
+	- Si la 'CarpetaSalida' no existe se crea, y grabara los ficheros con el mismo nombre que en la entrada
+	- Si no se pasa el parametro 'CarpetaSalida' los ficheros se pondran en la 'CarpetaEntrada' teniendo en cuenta lo siguiente:
+		- Si el guion.txt tiene el parametro 'PdfSalida' se utilizara ese nombre
+		- En caso contrario, se pondra el mismo que el de entrada con el sufijo '_salida'
+	- Se pueden pasar acciones individuales por cada fichero en el guion.txt
+	- Si se pasan acciones globales en el guion principal, se aplicaran a todos los ficheros (no se tienen en cuenta las acciones individuales)
+* En el caso del proceso de union de PDFs se debe tener en cuenta lo siguiente:
+	- Si no se incluye la 'ListaFicheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
+	- Si no se incluye la 'CarpetaSalida' el pdf generado se dejara en la carpeta de entrada
+	- Si no se incluye el 'PdfSalida' se genera uno por defecto "fichero_salida.pdf"
 * En la ruta de ejecucion deben estar los siguientes ficheros:
 	- PdfSharp.dll
 	- QRCoder.dll
@@ -118,4 +124,4 @@ PdfTools.exe ds123456 guion.txt
 * El fichero 'Configuracion_visor.txt' es una copia modificada con los parametros del visor, 
   Para usarla debe renombrarse como "SumatraPDF-settings.txt" y ubicarla en la misma ruta que el visor SumatraPDF.
   
-  
+ 

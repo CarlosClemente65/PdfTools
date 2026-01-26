@@ -12,7 +12,7 @@ namespace PdfTools.Metodos
     public class GestionContenido
     {
         // Inserta la marca de agua pasando el documento PDF
-        public PdfDocument InsertaMarcaAgua(PdfDocument documento, ConfiguracionQR datosQR)
+        public PdfDocument InsertaMarcaAgua(PdfDocument documento, ContextoEjecucion contexto)
         {
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
@@ -21,30 +21,33 @@ namespace PdfTools.Metodos
             XGraphics gfx = XGraphics.FromPdfPage(pagina);
 
             // Dibuja la marca de agua
-            DibujarMarcaAgua(datosQR, pagina, gfx);
+            DibujarMarcaAgua(pagina, gfx, contexto);
 
             return documento;
         }
 
         // Inserta la marca de agua pasando la pagina del documento (sobrecarga del metodo anterior)
-        public PdfPage InsertaMarcaAgua(PdfPage pagina, XGraphics gfx, ConfiguracionQR datosQR)
+        public PdfPage InsertaMarcaAgua(PdfPage pagina, XGraphics gfx, ContextoEjecucion contexto)
         {
             // Se pasa por parametro el recuadro donde insertar los graficos porque ya esta creado fuera
 
             // Dibuja la marca de agua
-            DibujarMarcaAgua(datosQR, pagina, gfx);
+            DibujarMarcaAgua(pagina, gfx, contexto);
 
             return pagina;
         }
 
         // Proceso para dibujar la marca de agua en el recuadro grafico pasado por parametro
-        private void DibujarMarcaAgua(ConfiguracionQR datosQR, PdfPage pagina, XGraphics gfx)
+        private void DibujarMarcaAgua(PdfPage pagina, XGraphics gfx, ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+
             // Texto de error por defecto.
             string textoError = "Se ha producido un error al insertar la marca de agua.";
 
-            string colorMarca = datosQR.ColorMarca;
-            string textoMarca = datosQR.MarcaAgua;
+            string colorMarca = parametros.ColorMarca;
+            string textoMarca = parametros.TextoMarcaAgua;
 
             try
             {
@@ -129,28 +132,32 @@ namespace PdfTools.Metodos
 
             catch(InvalidOperationException ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
 
             catch(ArgumentNullException ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
 
             catch(ArgumentOutOfRangeException ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
             catch(Exception ex)
             {
-                Logger.Agregar($"{textoError} \n{ex.Message}");
+                Logger.Agregar($"{textoError}: {ex.Message}");
             }
         }
 
 
         // Proceso para añadir el QR al documento PDF
-        public PdfDocument AgregarQR(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        public PdfDocument AgregarQR(ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+            var acciones = contexto.Acciones;
+
             // Instancia para insertar el QR en el documento
             var procesoPDF = new InsertaQR();
 
@@ -163,7 +170,7 @@ namespace PdfTools.Metodos
                 documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
 
                 // Se utiliza el mismo documento para añadir el QR
-                documento = procesoPDF.InsertarQR(documento, datosQR);
+                documento = procesoPDF.InsertarQR(documento, contexto);
 
                 return documento;
             }
@@ -177,21 +184,24 @@ namespace PdfTools.Metodos
 
 
         // Proceso para añadir la marca de agua al documento PDF
-        public PdfDocument AgregarMarcaAgua(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        public PdfDocument AgregarMarcaAgua(ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+
             // Creacion del documento para añadir la marcar de agua
             PdfDocument documento = null;
 
             // Comprueba si hay texto para añadir y no provocar una excepcion
-            if(!string.IsNullOrEmpty(datosQR.MarcaAgua))
+            if(!string.IsNullOrEmpty(parametros.TextoMarcaAgua))
             {
                 GestionContenido gestorProceso = new GestionContenido();
 
-                // Carga en el documento el PDF de entrada
-                documento = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify);
+                // Carga en el documento el PDF de entrada (necesita el PdfActual) revisar contexto al inicio
+                documento = PdfReader.Open(contexto.PdfActual, PdfDocumentOpenMode.Modify);
 
                 // Utiliza el mismo documento abierto para añadirle la marca de agua
-                documento = gestorProceso.InsertaMarcaAgua(documento, datosQR);
+                documento = gestorProceso.InsertaMarcaAgua(documento, contexto);
 
             }
 

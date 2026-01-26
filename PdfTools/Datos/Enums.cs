@@ -25,18 +25,21 @@
         {
             QR,
             General,
-            Accion,
+            Acciones,
             Desconocido
         }
 
-        // Lista de acciones adicionales a realizar con el PDF
-        public enum AccionesPDF
+        // Acciones de proceso que se pueden realizar 
+        public enum AccionesProceso
         {
-            Ninguna,
+            InsertarQR,
+            InsertarLoteQR,
+            Unir,
+            InsertarMarca,
             Imprimir,
             Abrir,
             Visualizar,
-            Unir
+            CerrarVisor
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using PdfTools.Datos;
+using PdfTools.Metodos;
 
 namespace PdfTools.Logica
 {
@@ -10,21 +12,21 @@ namespace PdfTools.Logica
     public class GestionParametros
     {
         // Los parametros se asignan segun el tipo que sean (QR, general o acciones)
-        public void AsignaParametros(string clave, string valor, ConfiguracionGeneral parametros, ConfiguracionQR configQR, ConfiguracionAcciones acciones)
+        public void AsignaParametros(string clave, string valor, ContextoEjecucion contexto)
         {
             Enums.tiposParametros tipoParametro = DetectaTipoParametro(clave);
             switch(tipoParametro)
             {
                 case Enums.tiposParametros.QR:
-                    AsignaParametrosQR(clave, valor, configQR);
+                    AsignaParametrosQR(clave, valor, contexto);
                     break;
 
                 case Enums.tiposParametros.General:
-                    AsignaParametrosGenerales(clave, valor, parametros);
+                    AsignaParametrosGenerales(clave, valor, contexto);
                     break;
 
-                case Enums.tiposParametros.Accion:
-                    AsignaParametrosAcciones(clave, valor, acciones);
+                case Enums.tiposParametros.Acciones:
+                    AsignaParametrosAcciones(clave, valor, contexto);
                     break;
 
                 case Enums.tiposParametros.Desconocido:
@@ -35,8 +37,10 @@ namespace PdfTools.Logica
         }
 
         // Asignacion de parametros del QR
-        public ConfiguracionQR AsignaParametrosQR(string clave, string valor, ConfiguracionQR datosQR)
+        public void AsignaParametrosQR(string clave, string valor, ContextoEjecucion contexto)
         {
+            var datosQR = contexto.DatosQR;
+            var acciones = contexto.Acciones;
             switch(clave)
             {
                 case "entorno":
@@ -49,7 +53,8 @@ namespace PdfTools.Logica
 
                 case "verifactu":
                     // Define si se usa el sistema VeriFactu
-                    if(string.Equals(valor, "si", StringComparison.OrdinalIgnoreCase))
+                    var valoresValidos = new[] { "si", "no", "s", "n", "true", "false" };
+                    if(valoresValidos.Contains(valor.ToLower()))
                     {
                         datosQR.DatosUrl.VeriFactu = true;
                         datosQR.DatosAdicionales.TextoAbajo = "VERI*FACTU"; // Si es VeriFactu, se pone el texto abajo
@@ -104,7 +109,36 @@ namespace PdfTools.Logica
 
                 case "totalfactura":
                     // Asigna el total de la factura
-                    if(!decimal.TryParse(valor, out decimal total)) // Evita una excepcion si no se pasa el total correcto
+
+                    // Detecta el separador decimal
+                    int ultimoPunto = valor.LastIndexOf('.');
+                    int ultimaComa = valor.LastIndexOf(',');
+
+                    // Asigna el separador usado
+                    char separadorDecimal;
+                    if(ultimoPunto > ultimaComa)
+                    {
+                        separadorDecimal = '.';
+                    }
+                    else if(ultimaComa > ultimoPunto)
+                    {
+                        separadorDecimal = ',';
+                    }
+                    else
+                    {
+                        separadorDecimal = '\0'; // No hay separador decimal
+                    }
+
+                    if(separadorDecimal != '\0')
+                    {
+                        char separadorMiles = separadorDecimal == '.' ? ',' : '.'; // Si el separador decimal es un punto, el de millares sera una coma
+
+                        valor = valor.Replace(separadorMiles.ToString(), ""); // Quita el separador de millares
+                        valor = valor.Replace(separadorDecimal, ','); // Fija el separador decimal a una coma
+                    }
+
+                    // Intenta convertir el valor a decimal
+                    if(!decimal.TryParse(valor, out decimal total))
                     {
                         total = 0m;
                     }
@@ -131,20 +165,7 @@ namespace PdfTools.Logica
                     // Asigna el color del QR
                     if(Utilidades.ValidaColor(valor))
                     {
-                        datosQR.Posicion.ColorQR = valor;
-                    }
-                    break;
-
-                case "marcaagua":
-                    // Asigna la marca de agua, reemplazando \n por saltos de línea
-                    datosQR.MarcaAgua = valor.Replace("\\n", "\n");
-                    break;
-
-                case "colormarca":
-                    // Asigna el color de la marca de agua
-                    if(Utilidades.ValidaColor(valor))
-                    {
-                        datosQR.ColorMarca = valor;
+                        datosQR.DatosAdicionales.ColorQR = valor;
                     }
                     break;
 
@@ -163,13 +184,13 @@ namespace PdfTools.Logica
                     }
                     break;
             }
-
-            return datosQR;
         }
 
         // Asignacion de parametros generales
-        public void AsignaParametrosGenerales(string clave, string valor, ConfiguracionGeneral parametros)
+        public void AsignaParametrosGenerales(string clave, string valor, ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+            var acciones = contexto.Acciones;
             switch(clave)
             {
                 case "pdfentrada":
@@ -179,6 +200,7 @@ namespace PdfTools.Logica
                     if(File.Exists(parametros.PdfEntrada))
                     {
                         parametros.RutaFicheros = Path.GetDirectoryName(parametros.PdfEntrada);
+                        contexto.PdfActual = parametros.PdfEntrada;
                     }
                     break;
 
@@ -203,8 +225,7 @@ namespace PdfTools.Logica
 
                 case "carpetaentrada":
                     parametros.CarpetaEntrada = Path.GetFullPath(valor.Trim('"'));
-                    parametros.ProcesarCarpeta = true;
-
+                    parametros.ProcesarCarpeta = true; // Indica que se procesará una carpeta completa
                     break;
 
                 case "carpetasalida":
@@ -226,73 +247,99 @@ namespace PdfTools.Logica
                     parametros.ListaArchivos.AddRange(listaPdfs);
 
                     break;
+
+                case "textomarca":
+                    // Asigna la marca de agua, reemplazando \n por saltos de línea
+                    parametros.TextoMarcaAgua = (parametros.ProcesarCarpeta && !string.IsNullOrEmpty(parametros.TextoMarcaAgua)) ? parametros.TextoMarcaAgua : valor.Replace("\\n", "\n");
+
+                    break;
+
+                case "colormarca":
+                    // Asigna el color de la marca de agua
+                    if(Utilidades.ValidaColor(valor))
+                    {
+                        parametros.ColorMarca = (parametros.ProcesarCarpeta && parametros.ColorMarca == "#E1E1E1") ? valor : parametros.ColorMarca;
+                    }
+                    break;
             }
         }
 
         // Asignacion de parametros de acciones
-        public ConfiguracionAcciones AsignaParametrosAcciones(string clave, string valor, ConfiguracionAcciones acciones)
+        public void AsignaParametrosAcciones(string clave, string valor, ContextoEjecucion contexto)
         {
-            // Define distintas acciones a realizar con el visor SumatraPDF que permite imprimir, abrir o visualizar el PDF
-            switch(clave)
+            // Si se han pasado acciones globales, no se asignan las del fichero
+            if(contexto.Parametros.AccionGlobal)
             {
-                case "accionpdf":
-                    switch(valor.ToLower())
-                    {
-                        case "imprimir":
-                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Imprimir);
-                            acciones.EjecutarAcciones = true;
-                            break;
-
-                        case "abrir":
-                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Abrir);
-                            acciones.EjecutarAcciones = true;
-                            break;
-
-                        case "visualizar":
-                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Visualizar);
-                            acciones.EjecutarAcciones = true;
-                            break;
-
-                        case "unir":
-                            acciones.AccionesPDF.Add(Enums.AccionesPDF.Unir);
-                            acciones.EjecutarAcciones = true;
-                            break;
-
-                    }
-                    break;
+                return;
             }
 
-            return acciones;
+            // Separa las acciones a realizar segun el valor recibido
+            string[] listadoAcciones = valor
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(texto => texto.Trim())
+                .ToArray();
+
+            foreach(string accion in listadoAcciones)
+            {
+                // Define distintas acciones a realizar en el proceso
+                switch(accion.ToLower())
+                {
+                    case "insertarqr":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarQR);
+                        break;
+
+                    case "insertarloteqr":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarLoteQR);
+                        break;
+
+                    case "insertarmarca":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarMarca);
+                        break;
+
+                    case "imprimir":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.Imprimir);
+                        break;
+
+                    case "abrir":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.Abrir);
+                        break;
+
+                    case "visualizar":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.Visualizar);
+                        break;
+
+                    case "unir":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.Unir);
+                        break;
+
+                    case "cerrarvisor":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.CerrarVisor);
+                        contexto.Acciones.CerrarVisor = true;
+                        break;
+                }
+            }
         }
 
 
         // Metodo para validacion de parametros obligatorios
-        public void ValidarParametros(ConfiguracionGeneral parametros, ConfiguracionQR datosQR)
+        public void ValidarParametros(ContextoEjecucion contexto)
         {
-            // Valida si existe la carpeta de entrada en caso de procesar una carpeta
-            if(parametros.ProcesarCarpeta)
-            {
-                // Valida si la carpeta de ficheros existe
-                if(!Directory.Exists(parametros.CarpetaEntrada))
-                {
-                    Logger.Agregar("La carpeta de entrada con los ficheros no existe.");
-                    return;
-                }
-            }
-            else
-            {
-                // Validaciones para el PDF de entrada
-                if(string.IsNullOrEmpty(parametros.PdfEntrada))
-                {
-                    Logger.Agregar("El parámetro 'pdfEntrada' es obligatorio.");
-                    return;
-                }
+            // Accede a los distintos elementos del contexto
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+            var acciones = contexto.Acciones;
 
-                if(!File.Exists(parametros.PdfEntrada))
-                {
-                    Logger.Agregar("El PDF de entrada no existe.");
-                    return;
-                }
+            // Validaciones para el PDF de entrada
+            if(string.IsNullOrEmpty(parametros.PdfEntrada))
+            {
+                Logger.Agregar("El parámetro 'pdfEntrada' es obligatorio.");
+                return;
+            }
+
+            if(!File.Exists(parametros.PdfEntrada))
+            {
+                Logger.Agregar("El PDF de entrada no existe.");
+                return;
             }
 
             // ---------- Validaciones para el QR ------------
@@ -309,17 +356,17 @@ namespace PdfTools.Logica
                 // Genera la URL de envío del QR si no se ha pasado segun el resto de parametros 
                 if(string.IsNullOrEmpty(datosQR.DatosUrl.UrlEnvio))
                 {
-                    datosQR.DatosUrl.UrlEnvio = Utilidades.ObtenerUrl(datosQR);
+                    datosQR.DatosUrl.UrlEnvio = Utilidades.ObtenerUrl(contexto);
                 }
 
                 // Validaciones de los datos de la factura para generar el QR
-                ValidarPropiedad(datosQR.DatosFactura.NumeroFactura, "numeroFactura");
-                ValidarPropiedad(datosQR.DatosFactura.FechaFactura != DateTime.MinValue, "fechaFactura");
                 ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor), "nifEmisor");
+                ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NumeroFactura), "numeroFactura");
+                ValidarPropiedad(datosQR.DatosFactura.FechaFactura != DateTime.MinValue, "fechaFactura");
                 ValidarPropiedad(datosQR.DatosFactura.TotalFactura != 0, "totalFactura");
 
                 // Valida si el color pasado es valido
-                if(!Utilidades.ColorValido(datosQR.Posicion.ColorQR))
+                if(!Utilidades.ColorValido(datosQR.DatosAdicionales.ColorQR))
                 {
                     Logger.Agregar("El codigo de color del QR no es valido");
                 }
@@ -327,7 +374,7 @@ namespace PdfTools.Logica
                 // Solo se generan la URL si no hay errores en los datos
                 if(Logger.EstaVacio())
                 {
-                    Utilidades.GenerarURL(datosQR);
+                    Utilidades.GenerarURL(contexto);
                 }
             }
         }
@@ -340,16 +387,6 @@ namespace PdfTools.Logica
                 Logger.Agregar($"El parámetro '{nombrePropiedad}' es obligatorio.");
             }
         }
-
-        // Metodo auxiliar para validar propiedades obligatorias y registrar error (sobrecarga del anterior)
-        private void ValidarPropiedad(string valor, string nombrePropiedad)
-        {
-            if(string.IsNullOrEmpty(valor))
-            {
-                Logger.Agregar($"El parámetro '{nombrePropiedad}' es obligatorio.");
-            }
-        }
-
 
         // Campo con los valores que pueden tener los parametros del QR
         private readonly HashSet<string> ParametrosQR = new HashSet<string>
@@ -366,8 +403,6 @@ namespace PdfTools.Logica
             "posiciony",
             "ancho",
             "color",
-            "marcaagua",
-            "colormarca",
             "idioma"
 
         };
@@ -377,25 +412,27 @@ namespace PdfTools.Logica
         {
             "pdfentrada",
             "pdfsalida",
+            "ficherosalida",
             "carpetaentrada",
             "carpetasalida",
-            "ficherosalida",
-            "listaficheros"
+            "listaficheros",
+            "textomarca",
+            "colormarca",
         };
 
         // Campo con los valores que pueden tener los parametros de acciones
         private readonly HashSet<string> ParametrosAcciones = new HashSet<string>
         {
-            "accionpdf"
+            "acciones"
         };
 
         // Detecta el tipo de parametro que se esta procesando
         private Enums.tiposParametros DetectaTipoParametro(string clave)
         {
             Enums.tiposParametros tipoParametro = Enums.tiposParametros.Desconocido;
-            if(clave == "accionpdf")
+            if(ParametrosAcciones.Contains(clave))
             {
-                tipoParametro = Enums.tiposParametros.Accion;
+                tipoParametro = Enums.tiposParametros.Acciones;
             }
             else if(ParametrosQR.Contains(clave))
             {
@@ -408,7 +445,5 @@ namespace PdfTools.Logica
 
             return tipoParametro;
         }
-
-
     }
 }

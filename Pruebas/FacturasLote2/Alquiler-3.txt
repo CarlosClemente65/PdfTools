@@ -1,0 +1,15 @@
+entorno=pruebas
+pdfsalida=C:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Alquiler-3.pdf
+verifactu=si
+nifemisor=05196375P
+numerofactura=25 / 3
+fechafactura=01.03.2025
+totalfactura=150,22
+posicionx=170
+posiciony=5
+ancho=25
+color=#000000
+idioma=gl
+textomarca=FACTURA BORRADOR\nFACTURA ALQUILER-3
+colormarca=#FF0000
+acciones=abrir

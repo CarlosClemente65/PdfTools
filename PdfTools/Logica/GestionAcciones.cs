@@ -13,56 +13,142 @@ namespace PdfTools.Metodos
 {
     public class GestionAcciones
     {
-        // Metodo de entrada generico para procesar las aciones adicionales a realizar
-        public void EjecutarAcciones(ConfiguracionGeneral parametros, ConfiguracionAcciones acciones, ContextoEjecucion contexto)
-        {
-            // Si no hay acciones adcionales se vuelve al flujo de ejecucion
-            if(acciones.AccionesPDF.Count == 0)
-            {
-                return;
-            }
+        // Instancias de los gestores necesarios
+        GestionParametros gestorParametros = new GestionParametros();
+        GestionContenido gestorContenido = new GestionContenido();
 
-            // Ejecución secuencial de acciones
-            foreach(var accion in acciones.AccionesPDF)
+        // Metodo de entrada generico para procesar las aciones adicionales a realizar
+        public void EjecutarAcciones(ContextoEjecucion contexto)
+        {
+            var acciones = contexto.Acciones;
+
+            // Ejecución secuencial de acciones por el orden en el que se han pasado
+            foreach(var accion in acciones.AccionesProceso)
             {
-                EjecutarAccion(accion, parametros, contexto);
+                // Verifica si ya se ha ejecutado la accion
+                if(!acciones.AccionesEjecutadas.Contains(accion))
+                {
+                    switch(accion)
+                    {
+                        case Enums.AccionesProceso.InsertarQR:
+                            EjecutarInsercionQR(contexto);
+                            break;
+
+                        case Enums.AccionesProceso.InsertarLoteQR:
+                            EjecutarInsercionLoteQR(contexto);
+                            break;
+
+                        case Enums.AccionesProceso.Unir:
+                            EjecutarFusion(contexto);
+                            break;
+
+                        case Enums.AccionesProceso.InsertarMarca:
+                            EjecutarInsercionMarcaAgua(contexto);
+                            break;
+
+                        case Enums.AccionesProceso.Imprimir:
+                            EjecutarImpresion(contexto);
+                            break;
+
+                        case Enums.AccionesProceso.Abrir:
+                            EjecutarApertura(contexto, esperarCierre: true);
+                            break;
+
+                        case Enums.AccionesProceso.Visualizar:
+                            EjecutarApertura(contexto, esperarCierre: false);
+                            break;
+
+                        case Enums.AccionesProceso.CerrarVisor:
+                            Utilidades.CerrarVisor();
+                            break;
+                    }
+
+                    // Marca la accion como ejecutada
+                    acciones.AccionesEjecutadas.Add(accion);
+                }
             }
         }
 
-
-        // Metodo para ejecutar cada accion de forma individual que se haya pasado por parametros
-        private void EjecutarAccion(Enums.AccionesPDF accion, ConfiguracionGeneral parametros, ContextoEjecucion contexto)
+        // Metodo para insertar un QR en el PDF
+        private void EjecutarInsercionQR(ContextoEjecucion contexto)
         {
-            // Ejecucion de cada una de las acciones
-            switch(accion)
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+
+            // Indica que se debe insertar el QR
+            datosQR.InsertarQR = true;
+
+            // Valida parametros obligatorios
+            GestionParametros gestorParametros = new GestionParametros();
+            gestorParametros.ValidarParametros(contexto);
+
+            // Insertar QR si no hay errores de configuración
+            if(Logger.EstaVacio())
             {
-                case Enums.AccionesPDF.Imprimir:
-                    EjecutarImpresion(parametros, contexto);
-                    break;
+                // Proceso para insertar el QR en el documento
+                var procesoPDF = new InsertaQR();
 
-                case Enums.AccionesPDF.Abrir:
-                    EjecutarApertura(contexto, esperarCierre: true);
-                    break;
+                PdfDocument documento = gestorContenido.AgregarQR(contexto);
 
-                case Enums.AccionesPDF.Visualizar:
-                    EjecutarApertura(contexto, esperarCierre: false);
-                    break;
+                documento.Save(parametros.PdfSalida);
 
-                case Enums.AccionesPDF.Unir:
-                    EjecutarFusion(parametros, contexto);
-                    break;
+                // Se actualiza el fichero por si hay que ejecutar acciones adicionales
+                contexto.PdfActual = parametros.PdfSalida;
+            }
+            else
+            {
+                throw new Exception("Error al insertar el QR");
+            }
+        }
 
-                case Enums.AccionesPDF.Ninguna:
-                default:
-                    // No se realiza ninguna acción
-                    break;
+        private void EjecutarInsercionLoteQR(ContextoEjecucion contexto)
+        {
+            var parametros = contexto.Parametros;
+
+            // Se chequea que exista la carpeta de entrada antes de procesar nada
+            if(parametros.ProcesarCarpeta)
+            {
+                // Valida si la carpeta de ficheros existe
+                if(!Directory.Exists(parametros.CarpetaEntrada))
+                {
+                    throw new Exception($"La carpeta de entrada \"{parametros.CarpetaEntrada}\" no existe");
+                }
+            }
+            // Instancia del gestor de lotes
+            GestionLotes gestorLotes = new GestionLotes();
+
+            // Llamada al método que procesa el lote de ficheros
+            gestorLotes.ProcesarLoteQR(contexto);
+        }
+
+        private void EjecutarInsercionMarcaAgua(ContextoEjecucion contexto)
+        {
+            var parametros = contexto.Parametros;
+            var datosQR = contexto.DatosQR;
+
+            // Insertar unicamente la marca de agua a un PDF individual 
+            string textoMarcaAgua = parametros.TextoMarcaAgua;
+            if(textoMarcaAgua.Length > 0)
+            {
+                PdfDocument documento = gestorContenido.AgregarMarcaAgua(contexto);
+
+                // Si no se pasa el fichero de salida se genera uno con el mismo nombre del de entrada y un sufijo para no machacarlo
+                parametros.PdfSalida = string.IsNullOrWhiteSpace(parametros.PdfSalida)
+                        ? Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada) + "_salida.pdf")
+                        : parametros.PdfSalida;
+
+                documento.Save(parametros.PdfSalida);
+
+                // Se actualiza el fichero por si hay que ejecutar acciones adicionales
+                contexto.PdfActual = parametros.PdfSalida;
             }
         }
 
 
         // Metodo especifico para imprimir un documento
-        private void EjecutarImpresion(ConfiguracionGeneral parametros, ContextoEjecucion contexto)
+        private void EjecutarImpresion(ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
             if(string.IsNullOrWhiteSpace(contexto.PdfActual))
             {
                 throw new InvalidOperationException("No hay un PDF válido para imprimir.");
@@ -71,8 +157,8 @@ namespace PdfTools.Metodos
             // Configuración del proceso de impresión con SumatraPDF
             ProcessStartInfo psi = new ProcessStartInfo
             {
-                FileName = contexto.RutaSumatra, 
-                WorkingDirectory = Path.GetDirectoryName(contexto.RutaSumatra), 
+                FileName = contexto.RutaSumatra,
+                WorkingDirectory = Path.GetDirectoryName(contexto.RutaSumatra),
                 Arguments = $"-print-to-default -silent \"{contexto.PdfActual}\"", // Impresora predeterminada y en modo silencioso
                 CreateNoWindow = true, // No crea una ventana con el programa
                 WindowStyle = ProcessWindowStyle.Hidden, // Se ejecuta de forma oculta
@@ -130,39 +216,38 @@ namespace PdfTools.Metodos
 
 
         // Metodo para fusionar los archivos PDF
-        private void EjecutarFusion(ConfiguracionGeneral parametros, ContextoEjecucion contexto)
+        private void EjecutarFusion(ContextoEjecucion contexto)
         {
+            var parametros = contexto.Parametros;
+
             // Creacion del documento de fusion
             PdfDocument fusionPDFs = null;
 
             try
             {
-                // Si se procesa una carpeta, fusiona todos los PDFs en ella
-                if(parametros.ProcesarCarpeta)
+                // Asegurarse de que existe la carpeta de entrada
+                if(!Directory.Exists(parametros.CarpetaEntrada))
                 {
-                    // Asegurarse de que existe la carpeta
-                    if(!Directory.Exists(parametros.CarpetaEntrada))
-                    {
-                        throw new Exception($"La carpeta de entrada \"{parametros.CarpetaEntrada}\" no existe.");
-                    }
-
-                    // Asegurarse que hay al menos 2 ficheros para fusionar
-                    if (Directory.GetFiles(parametros.CarpetaEntrada, "*.pdf").Length < 2)
-                    {
-                        throw new Exception($"No hay suficientes PDFs para unir en la carpeta \"{parametros.CarpetaEntrada}\".");
-                    }
-
-                    // Fusiona los PDFs usando el gestor del contexto
-                    fusionPDFs = contexto.GestorFusion.ProcesarFicheros(parametros);
-
-                    if(fusionPDFs == null || fusionPDFs.PageCount == 0)
-                    {
-                        throw new Exception("No se encontraron PDFs para unir.");
-                    }
-
-                    // Guardar el PDF fusionado
-                    fusionPDFs.Save(parametros.PdfSalida);
+                    throw new Exception($"La carpeta de entrada \"{parametros.CarpetaEntrada}\" no existe.");
                 }
+
+                // Asegurarse que hay al menos 2 ficheros para fusionar
+                if(Directory.GetFiles(parametros.CarpetaEntrada, "*.pdf").Length < 2)
+                {
+                    throw new Exception($"No hay suficientes PDFs para unir en la carpeta \"{parametros.CarpetaEntrada}\".");
+                }
+
+                // Fusiona los PDFs usando el gestor del contexto
+                fusionPDFs = contexto.GestorFusion.ProcesarFicheros(parametros);
+
+                if(fusionPDFs == null || fusionPDFs.PageCount == 0)
+                {
+                    throw new Exception("No se encontraron PDFs para unir.");
+                }
+
+                // Guardar el PDF fusionado
+                fusionPDFs.Save(parametros.PdfSalida);
+
 
                 // Actualiza el contexto con el PDF resultante
                 contexto.PdfActual = parametros.PdfSalida;
@@ -188,8 +273,18 @@ namespace PdfTools.Metodos
         // Indica si hay que esperar al cierre del visor
         public bool EsperarCierreVisor { get; set; }
 
+        // Parametros generales del proceso
+        public ConfiguracionGeneral Parametros { get; set; }
+
+        // Datos de configuración del QR
+        public ConfiguracionQR DatosQR { get; set; }
+
+        // Datos de configuración de las acciones
+        public ConfiguracionAcciones Acciones { get; set; }
+
         // Gestor reutilizable para la unión de PDFs
         public UnirPDFs GestorFusion { get; set; }
+
     }
 
 }

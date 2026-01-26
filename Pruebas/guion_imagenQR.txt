@@ -1,11 +1,11 @@
-pdfentrada=d:\Programacion\c#\PdfTools\Pruebas\25_00001.pdf
-pdfsalida=d:\Programacion\c#\PdfTools\Pruebas\25_00001_SAL.pdf
-ficheroqr=d:\Programacion\c#\PdfTools\Pruebas\25_00001.bmp
+pdfentrada=c:\Programacion\c#\PdfTools\Pruebas\25_00001.pdf
+pdfsalida=c:\Programacion\c#\PdfTools\Pruebas\25_00001_SAL.pdf
+ficheroqr=c:\Programacion\c#\PdfTools\Pruebas\25_00001.bmp
 posicionx=170
 posiciony=5
 ancho=30
-marcaagua=
+textomarca=FACTURA BORRADOR PARA PRUEBAS\nNO VALIDA A EFECTOS LEGALES
+colormarca=#0000FF
 verifactu=si
-accionpdf=abrir
-ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\salida.txt
-cerrarvisor
+acciones=cerrarvisor, insertarqr, abrir, 
+ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\salida.txt

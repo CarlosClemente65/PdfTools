@@ -53,7 +53,7 @@ namespace PdfTools.Logica
         // Devuelve el contenido del log para enlazar procesos
         public static StringBuilder Contenido()
         {
-            return _log; 
+            return _log;
         }
     }
 }
