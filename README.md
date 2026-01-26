@@ -28,6 +28,7 @@ Tambien puede usarse como visualizador de ficheros PDF, y para fusionar varios P
 * v3.2.0.0 Añadidos parametros para procesar un lote de facturas de una carpeta de entrada
 * v3.3.0.0 Añadido parametros para unir en un solo PDF los ficheros de una carpeta
 * v3.4.0.0 Añadida posibilidad de ejecutar varias acciones adicionales
+* v3.4.1.0 Añadida posibilidad de ejecutar acciones individuales por cada fichero																				  
 * v3.5.0.0 Modificado ejecucion acciones en lotes para permitir acciones globales o por fichero
 
 <br><br>
