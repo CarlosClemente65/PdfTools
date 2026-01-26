@@ -250,11 +250,8 @@ namespace PdfTools.Logica
 
                 case "textomarca":
                     // Asigna la marca de agua, reemplazando \n por saltos de línea
-                    // Nota: si se esta procesando una carpeta y se ha pasado en el guion principal un texto, se usa este
                     parametros.TextoMarcaAgua = (parametros.ProcesarCarpeta && !string.IsNullOrEmpty(parametros.TextoMarcaAgua)) ? parametros.TextoMarcaAgua : valor.Replace("\\n", "\n");
 
-
-                    //parametros.TextoMarcaAgua = valor.Replace("\\n", "\n");
                     break;
 
                 case "colormarca":
@@ -270,6 +267,12 @@ namespace PdfTools.Logica
         // Asignacion de parametros de acciones
         public void AsignaParametrosAcciones(string clave, string valor, ContextoEjecucion contexto)
         {
+            // Si se han pasado acciones globales, no se asignan las del fichero
+            if(contexto.Parametros.AccionGlobal)
+            {
+                return;
+            }
+
             // Separa las acciones a realizar segun el valor recibido
             string[] listadoAcciones = valor
                 .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)

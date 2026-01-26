@@ -1,5 +1,5 @@
-carpetaentrada=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote2
-carpetasalida=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote2
-ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\salida_lotes.txt
+carpetaentrada=c:\Programacion\C#\PdfTools\Pruebas\FacturasLote2
+carpetasalida=c:\Programacion\C#\PdfTools\Pruebas\FacturasLote2
+ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\salida_lotes.txt
 acciones=insertarloteqr
 

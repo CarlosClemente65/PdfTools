@@ -66,12 +66,12 @@ namespace PdfTools
                     return;
                 }
 
-                // Si se ha solicitado cerrar el visor, se cierra antes de iniciar el proceso
-                if(acciones.AccionesProceso.Contains(Enums.AccionesProceso.CerrarVisor))
-                {
-                   Utilidades.CerrarVisor();
-                   acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.CerrarVisor);
-                }
+                //// Si se ha solicitado cerrar el visor, se cierra antes de iniciar el proceso
+                //if(acciones.AccionesProceso.Contains(Enums.AccionesProceso.CerrarVisor))
+                //{
+                //   Utilidades.CerrarVisor();
+                //   acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.CerrarVisor);
+                //}
 
                 // Lista de acciones globales que pueden realizarse
                 HashSet<Enums.AccionesProceso> accionesGlobales = new HashSet<Enums.AccionesProceso>
@@ -83,10 +83,17 @@ namespace PdfTools
                 };
 
 
-                // TODO ver si es necesaria esta propiedad
+                // Marcar si se va a realizar alguna acción global
                 if(acciones.AccionesProceso.Any(a => accionesGlobales.Contains(a)))
                 {
                     parametros.AccionGlobal = true;
+                }
+
+                // Si se ha pasado en los parametros el 'Textomarca' se asigna la accion
+                if(contexto.Parametros.TextoMarcaAgua.Trim() != string.Empty &&
+                   !acciones.AccionesProceso.Contains(Enums.AccionesProceso.InsertarMarca))
+                {
+                    acciones.AccionesProceso.Add(Enums.AccionesProceso.InsertarMarca);
                 }
 
                 // Procesado de acciones

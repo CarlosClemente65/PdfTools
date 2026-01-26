@@ -1,1 +1,1 @@
-OK
+Error: El fichero "a1-malo" no es un fichero PDF valido.

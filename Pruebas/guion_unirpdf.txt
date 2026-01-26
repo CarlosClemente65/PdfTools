@@ -1,0 +1,3 @@
+carpetaentrada=c:\Programacion\c#\PdfTools\Pruebas\Unir
+pdfsalidass=c:\Programacion\c#\PdfTools\Pruebas\Unir\fusion.pdf
+acciones=cerrarvisor, unir, visualizar

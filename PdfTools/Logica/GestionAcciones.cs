@@ -22,52 +22,49 @@ namespace PdfTools.Metodos
         {
             var acciones = contexto.Acciones;
 
-            // Ejecución secuencial de acciones por el orden en el que estan las acciones del Enum
-            foreach(var accion in Enum.GetValues(typeof(Enums.AccionesProceso)).Cast<Enums.AccionesProceso>())
+            // Ejecución secuencial de acciones por el orden en el que se han pasado
+            foreach(var accion in acciones.AccionesProceso)
             {
-                if(acciones.AccionesProceso.Contains(accion))
+                // Verifica si ya se ha ejecutado la accion
+                if(!acciones.AccionesEjecutadas.Contains(accion))
                 {
-                    // Verifica si ya se ha ejecutado la accion
-                    if(!acciones.AccionesEjecutadas.Contains(accion))
+                    switch(accion)
                     {
-                        switch(accion)
-                        {
-                            case Enums.AccionesProceso.InsertarQR:
-                                EjecutarInsercionQR(contexto);
-                                break;
+                        case Enums.AccionesProceso.InsertarQR:
+                            EjecutarInsercionQR(contexto);
+                            break;
 
-                            case Enums.AccionesProceso.InsertarLoteQR:
-                                EjecutarInsercionLoteQR(contexto);
-                                break;
+                        case Enums.AccionesProceso.InsertarLoteQR:
+                            EjecutarInsercionLoteQR(contexto);
+                            break;
 
-                            case Enums.AccionesProceso.Unir:
-                                EjecutarFusion(contexto);
-                                break;
+                        case Enums.AccionesProceso.Unir:
+                            EjecutarFusion(contexto);
+                            break;
 
-                            case Enums.AccionesProceso.InsertarMarca:
-                                EjecutarInsercionMarcaAgua(contexto);
-                                break;
+                        case Enums.AccionesProceso.InsertarMarca:
+                            EjecutarInsercionMarcaAgua(contexto);
+                            break;
 
-                            case Enums.AccionesProceso.Imprimir:
-                                EjecutarImpresion(contexto);
-                                break;
+                        case Enums.AccionesProceso.Imprimir:
+                            EjecutarImpresion(contexto);
+                            break;
 
-                            case Enums.AccionesProceso.Abrir:
-                                EjecutarApertura(contexto, esperarCierre: true);
-                                break;
+                        case Enums.AccionesProceso.Abrir:
+                            EjecutarApertura(contexto, esperarCierre: true);
+                            break;
 
-                            case Enums.AccionesProceso.Visualizar:
-                                EjecutarApertura(contexto, esperarCierre: false);
-                                break;
+                        case Enums.AccionesProceso.Visualizar:
+                            EjecutarApertura(contexto, esperarCierre: false);
+                            break;
 
-                            case Enums.AccionesProceso.CerrarVisor:
-                                Utilidades.CerrarVisor();
-                                break;
-                        }
-
-                        // Marca la accion como ejecutada
-                        acciones.AccionesEjecutadas.Add(accion);
+                        case Enums.AccionesProceso.CerrarVisor:
+                            Utilidades.CerrarVisor();
+                            break;
                     }
+
+                    // Marca la accion como ejecutada
+                    acciones.AccionesEjecutadas.Add(accion);
                 }
             }
         }

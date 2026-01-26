@@ -1,6 +1,6 @@
-carpetaentrada=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote
-carpetasalida=d:\Programacion\C#\PdfTools\Pruebas\FacturasLote_salida
-ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\FacturasLote_salida\salida_lotes.txt
-acciones=insertarloteqr, visualizar, cerrarvisor, insertarmarca
+carpetaentrada=c:\Programacion\C#\PdfTools\Pruebas\FacturasLote
+carpetasalida=c:\Programacion\C#\PdfTools\Pruebas\FacturasLote_salida
+ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\FacturasLote_salida\salida_lotes.txt
+acciones=cerrarvisor,insertarloteqr, abrir
 textomarca=FACTURA BORRADOR\nNO VALIDA A EFECTOS FISCALES
 colormarca=#a1a1a1
