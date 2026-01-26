@@ -9,4 +9,5 @@ posiciony=5
 ancho=25
 color=#000000
 idioma=gl
-marcaagua=ESTO ES UNA PRUEBA DE MARCA DE AGUA\nY ESTO VA EN UNA SEGUNDA LINEA
+textomarca=ESTO ES UNA PRUEBA DE MARCA DE AGUA\nY ESTO VA EN UNA SEGUNDA LINEA
+colormarca=#0000ff

@@ -9,3 +9,5 @@ posiciony=5
 ancho=25
 color=#000000
 idioma=gl
+textomarca=FACTURA BORRADOR\nNO VALIDA A EFETOS FISCALES
+colormarca=#FF0000

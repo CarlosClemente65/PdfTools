@@ -1,16 +1,17 @@
 pdfentrada=c:\Programacion\c#\PdfTools\Pruebas\Factura.pdf
 pdfsalida=c:\Programacion\c#\PdfTools\Pruebas\Factura_salida.pdf
 entorno=pruebas
-verifactu=si
+verifactu=S
 nifemisor=05196375P
 numerofactura=25 / 1234
 fechafactura=01.09.2025
-totalfactura=150,22
+totalfactura=1,150.22
 posicionx=170
 posiciony=5
 ancho=25
 color=#000000
-accionpdf=abrir
+textomarca=FACTURA NO VALIDA A EFECTOS FISCALES
+colormarca=#0000FF
+acciones=insertarqr, visualizar, cerrarvisor
 ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\salida.txt
-cerrarvisor
 idioma=gl

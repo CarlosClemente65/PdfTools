@@ -15,14 +15,35 @@ namespace PdfTools.Datos
         public string CarpetaEntrada { get; set; } // Carpeta de entrada si se procesan varios ficheros
         public string CarpetaSalida { get; set; } // Carpeta de salida si se procesan varios ficheros
         public bool ProcesarCarpeta { get; set; } // Indica si se procesa una carpeta completa
+        public bool AccionGlobal { get; set; } // Indica si las acciones se aplican a todos los ficheros
         public List<string> ListaArchivos { get; set; } // Lista de archivos para procesar si se pasa una carpeta
+        public string TextoMarcaAgua { get; set; } = string.Empty; // Texto de la marca de agua en caso de que se use
+        public string ColorMarca { get; set; } = "#E1E1E1"; // Color de la marca de agua (gris claro)
+
 
         public ConfiguracionGeneral()
         {
             RutaFicheros = Directory.GetCurrentDirectory();
             FicheroSalida = Path.Combine(RutaFicheros, "resultado.txt");
             ProcesarCarpeta = false;
+            AccionGlobal = false;
             ListaArchivos = new List<string>();
+        }
+
+        public ConfiguracionGeneral(ConfiguracionGeneral origen)
+        {
+            // Copia los valores del objeto origen al nuevo objeto
+            PdfEntrada = origen.PdfEntrada;
+            PdfSalida = origen.PdfSalida;
+            RutaFicheros = origen.RutaFicheros;
+            FicheroSalida = origen.FicheroSalida;
+            CarpetaEntrada = origen.CarpetaEntrada;
+            CarpetaSalida = origen.CarpetaSalida;
+            ProcesarCarpeta = origen.ProcesarCarpeta;
+            AccionGlobal = origen.AccionGlobal;
+            ListaArchivos = new List<string>(origen.ListaArchivos);
+            TextoMarcaAgua = origen.TextoMarcaAgua;
+            ColorMarca = origen.ColorMarca;
         }
 
     }

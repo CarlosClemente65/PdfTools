@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using PdfSharp.Drawing;
 using PdfTools.Datos;
+using PdfTools.Metodos;
 
 
 namespace PdfTools
@@ -18,10 +19,10 @@ namespace PdfTools
         public static string cacheSumatra = Path.Combine(rutaBase, "sumatrapdfcache");
 
         // Carga los parámetros desde el archivo de guion
-        public static ConfiguracionQR CargarParametros(ConfiguracionGeneral parametros, ConfiguracionQR datosQR, ConfiguracionAcciones acciones, string guion)
+        public static void CargarParametros(ContextoEjecucion contexto, string guion)
         {
             // Instancia para acceso a los metodos de la gestion de parametros
-            Logica.GestionParametros gestor = new Logica.GestionParametros();
+            Logica.GestionParametros gestorParametros = new Logica.GestionParametros();
 
             // Leer el archivo de guion y asignar los parámetros
             foreach(string linea in File.ReadAllLines(guion))
@@ -41,24 +42,18 @@ namespace PdfTools
                 // Chequea que tenga dos partes (clave y valor) antes de asignar los parametros
                 if(partes.Length == 2)
                 {
-                    gestor.AsignaParametros(partes[0].ToLower(), partes[1], parametros, datosQR, acciones); // La clave se pasa a minusculas para unificar textos
+                    gestorParametros.AsignaParametros(clave: partes[0].ToLower(), valor: partes[1], contexto); // La clave se pasa a minusculas para unificar textos
                 }
-                else if(string.Equals(partes[0], "cerrarvisor", StringComparison.OrdinalIgnoreCase))
-                {
-                    // El parametro 'cerrarvisor' no tiene dos partes y se trata de forma independiente
-                    acciones.CerrarVisor = true;
-                }
-
             }
-
-            return datosQR;
         }
 
 
 
         // Establece la ruta para insertar el QR en funcion del entorno y si aplica Verifactu
-        public static string ObtenerUrl(ConfiguracionQR datosQR)
+        public static string ObtenerUrl(ContextoEjecucion contexto)
         {
+            var datosQR = contexto.DatosQR;
+
             string urlBase = datosQR.DatosUrl.EntornoProduccion ? datosQR.DatosUrl.UrlProduccionBase : datosQR.DatosUrl.UrlPruebasBase;
 
             if(datosQR.DatosUrl.VeriFactu)
@@ -72,8 +67,11 @@ namespace PdfTools
         }
 
         // Genera la URL con los parámetros del QR UTF-8
-        public static void GenerarURL(ConfiguracionQR datosQR)
+        public static void GenerarURL(ContextoEjecucion contexto)
         {
+            // Accede a los datos del QR dentro del contexto
+            var datosQR = contexto.DatosQR;
+
             // Genera la URL con los parámetros del QR UTF-8
             StringBuilder urlCompleta = new StringBuilder();
             urlCompleta.Append(datosQR.DatosUrl.UrlEnvio).Append("?");

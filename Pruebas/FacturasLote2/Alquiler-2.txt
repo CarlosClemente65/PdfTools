@@ -1,5 +1,5 @@
 entorno=pruebas
-pdfsalida=d:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Alquiler-2.pdf
+pdfsalida=C:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Alquiler-2.pdf
 verifactu=si
 nifemisor=05196375P
 numerofactura=25 / 2
@@ -10,3 +10,5 @@ posiciony=5
 ancho=25
 color=#000000
 idioma=gl
+textomarca=FACTURA BORRADOR\nFACTURA ALQUILER-2
+colormarca=#00FF00
