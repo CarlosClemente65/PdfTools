@@ -1,0 +1,5 @@
+CarpetaEntrada=C:\Programacion\c#\PdfTools\Pruebas/000000/
+CarpetaSalida=C:\Programacion\c#\PdfTools\Pruebas/000000/
+FicheroSalida=C:\Programacion\c#\PdfTools\Pruebas/000000e.txt
+ListaFicheros=2-000047,2-000048
+acciones=insertarloteqr

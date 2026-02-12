@@ -1,0 +1,13 @@
+Entorno=pruebas
+Verifactu=N
+NifEmisor=B42624338
+NumeroFactura=000048
+FechaFactura=21.01.2026
+TotalFactura=10
+PdfSalida=C:\Programacion\c#\PdfTools\Pruebas/2-000048.pdf
+Posicionx=10
+Posiciony=10
+Ancho=30
+Idioma=es
+Color=#000000
+Acciones=Visualizar
