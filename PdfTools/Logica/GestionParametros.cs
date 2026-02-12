@@ -53,7 +53,7 @@ namespace PdfTools.Logica
 
                 case "verifactu":
                     // Define si se usa el sistema VeriFactu
-                    var valoresValidos = new[] { "si", "no", "s", "n", "true", "false" };
+                    var valoresValidos = new[] { "si", "s", "true" };
                     if(valoresValidos.Contains(valor.ToLower()))
                     {
                         datosQR.DatosUrl.VeriFactu = true;
