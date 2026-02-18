@@ -20,8 +20,8 @@ namespace PdfTools
             var contexto = new ContextoEjecucion
             {
                 PdfActual = null,                               // PDF inicial
-                RutaSumatra = Utilidades.rutaSumatra,           // Ruta del ejecutable SumatraPDF
-                CacheSumatra = Utilidades.cacheSumatra,         // Ruta de la cache de SumatraPDF
+                RutaVisorPdf = Utilidades.rutaSumatra,          // Ruta del ejecutable SumatraPDF
+                CacheVisorPdf = Utilidades.cacheSumatra,        // Ruta de la cache de SumatraPDF
                 EsperarCierreVisor = true,                      // Valor por defecto
                 Parametros = new Datos.ConfiguracionGeneral(),  // Instancia de configuración general
                 DatosQR = new Datos.ConfiguracionQR(),          // Instancia de configuración de QR

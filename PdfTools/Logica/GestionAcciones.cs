@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using PdfSharp.Internal;
 using PdfSharp.Pdf;
@@ -16,6 +17,22 @@ namespace PdfTools.Metodos
         // Instancias de los gestores necesarios
         GestionParametros gestorParametros = new GestionParametros();
         GestionContenido gestorContenido = new GestionContenido();
+
+        // Permite poner en primer plano el visor
+        [DllImport("user32.dll")]
+        static extern bool AllowSetForegroundWindow(int dwProcessId);
+
+        // Establece la ventana del visor en primer plano
+        [DllImport("user32.dll")]
+        static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        // Permite minimizar o restaurar una ventana de windows
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        private const int SW_MINIMIZE = 6;
+        private const int SW_RESTORE = 9;
+
 
         // Metodo de entrada generico para procesar las aciones adicionales a realizar
         public void EjecutarAcciones(ContextoEjecucion contexto)
@@ -157,8 +174,8 @@ namespace PdfTools.Metodos
             // Configuración del proceso de impresión con SumatraPDF
             ProcessStartInfo psi = new ProcessStartInfo
             {
-                FileName = contexto.RutaSumatra,
-                WorkingDirectory = Path.GetDirectoryName(contexto.RutaSumatra),
+                FileName = contexto.RutaVisorPdf,
+                WorkingDirectory = Path.GetDirectoryName(contexto.RutaVisorPdf),
                 Arguments = $"-print-to-default -silent \"{contexto.PdfActual}\"", // Impresora predeterminada y en modo silencioso
                 CreateNoWindow = true, // No crea una ventana con el programa
                 WindowStyle = ProcessWindowStyle.Hidden, // Se ejecuta de forma oculta
@@ -192,11 +209,12 @@ namespace PdfTools.Metodos
                 throw new InvalidOperationException("No hay un PDF válido para abrir.");
             }
 
+            // Parametros para iniciar el proceso del visor
             ProcessStartInfo psi = new ProcessStartInfo
             {
-                FileName = contexto.RutaSumatra,
-                WorkingDirectory = Path.GetDirectoryName(contexto.RutaSumatra),
-                Arguments = $"\"{contexto.PdfActual}\"", // Nombre del fichero a abrir en SumatraPDF
+                FileName = contexto.RutaVisorPdf, // Nombre del ejecutable del visor
+                WorkingDirectory = Path.GetDirectoryName(contexto.RutaVisorPdf), 
+                Arguments = $"-new-window \"{contexto.PdfActual}\"", // Nombre del fichero a abrir en el visor que se abre en una ventana nueva (forzado para que funcione AllowSetForegroundWindow)
                 CreateNoWindow = false, // Crea una ventana
                 WindowStyle = ProcessWindowStyle.Normal, // Ventana con estado normal
                 UseShellExecute = true // Utiliza el shell de windows para ejecutar
@@ -205,11 +223,42 @@ namespace PdfTools.Metodos
             // Actualiza la propiedad del cierre del visor segun el parametro pasado
             contexto.EsperarCierreVisor = esperarCierre;
 
+            // Lanza el proceso para abrir el PDF
             using(var proceso = Process.Start(psi))
             {
-                if(contexto.EsperarCierreVisor)
+                if(proceso != null)
                 {
-                    proceso.WaitForExit();
+                    // Permite que el nuevo proceso tome el foco
+                    AllowSetForegroundWindow(proceso.Id);
+
+                    // Identificador de la ventana que se ha creado en el proceso
+                    IntPtr handle = proceso.MainWindowHandle;
+
+                    // Espera a que la ventana se cree
+                    for(int i = 0; i < 10 && handle != IntPtr.Zero; i++)
+                    {
+                        proceso.Refresh(); // Refresca el estado del proceso para obtener el handle actualizado
+                        handle = proceso.MainWindowHandle;
+                        if(handle == IntPtr.Zero)
+                        {
+                            System.Threading.Thread.Sleep(200);
+                        }
+                    }
+
+                    if(handle != IntPtr.Zero)
+                    {
+                        // Si la ventana está en segundo plano, Windows a veces ignora SetForegroundWindow.
+                        // Al minimizar y restaurar, forzamos a Windows a re-evaluar el orden Z (capas).
+                        ShowWindow(handle, 6); // 6 = SW_MINIMIZE
+                        ShowWindow(handle, 9); // 9 = SW_RESTORE
+
+                        // Forzamos a poner en primer plano la ventana
+                        SetForegroundWindow(handle);
+                    }
+                    if(contexto.EsperarCierreVisor)
+                    {
+                        proceso.WaitForExit();
+                    }
                 }
             }
         }
@@ -265,10 +314,10 @@ namespace PdfTools.Metodos
         public string PdfActual { get; set; }
 
         // Ruta del ejecutable de SumatraPDF
-        public string RutaSumatra { get; set; }
+        public string RutaVisorPdf { get; set; }
 
         // Carpeta de cache de SumatraPDF
-        public string CacheSumatra { get; set; }
+        public string CacheVisorPdf { get; set; }
 
         // Indica si hay que esperar al cierre del visor
         public bool EsperarCierreVisor { get; set; }

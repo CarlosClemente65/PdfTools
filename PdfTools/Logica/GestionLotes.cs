@@ -156,8 +156,8 @@ namespace PdfTools.Metodos
                 DatosQR = datosQRFichero,
                 Acciones = accionesFichero,
                 PdfActual = null,
-                RutaSumatra = contexto.RutaSumatra,
-                CacheSumatra = contexto.CacheSumatra,
+                RutaVisorPdf = contexto.RutaVisorPdf,
+                CacheVisorPdf = contexto.CacheVisorPdf,
                 EsperarCierreVisor = contexto.EsperarCierreVisor
             };
 

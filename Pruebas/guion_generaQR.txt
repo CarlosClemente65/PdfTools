@@ -12,6 +12,6 @@ ancho=25
 color=#000000
 textomarca=FACTURA NO VALIDA A EFECTOS FISCALES
 colormarca=#0000FF
-acciones=insertarqr, visualizar, cerrarvisor
+acciones=insertarqr, abrir
 ficherosalida=c:\Programacion\c#\PdfTools\Pruebas\salida.txt
 idioma=gl
