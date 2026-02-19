@@ -216,6 +216,13 @@ namespace PdfTools.Logica
                     // Fichero para controlar si se ha terminado el proceso
                     parametros.FicheroSalida = valor;
 
+                    // Control de la existencia de la ruta de salida para evitar una excecion en caso de error del proceso y que no pueda grabarse la salida.
+                    string rutaSalida = Path.GetDirectoryName(parametros.FicheroSalida);
+                    if(string.IsNullOrEmpty(rutaSalida) || !Directory.Exists(rutaSalida))
+                    {
+                        parametros.FicheroSalida = Path.Combine(AppContext.BaseDirectory, Path.GetFileName(parametros.FicheroSalida));
+                    }
+
                     // Revisa si existe el fichero para borrarlo antes
                     if(File.Exists(parametros.FicheroSalida))
                     {
