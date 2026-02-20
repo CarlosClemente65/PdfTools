@@ -261,6 +261,15 @@ namespace PdfTools.Logica
                         parametros.ColorMarca = (parametros.ProcesarCarpeta && parametros.ColorMarca == "#E1E1E1") ? valor : parametros.ColorMarca;
                     }
                     break;
+
+                case "passwordapertura":
+                    // Asigna la contraseña de apertura para el PDF
+                    parametros.PasswordApertura = valor;
+                    break;
+
+                case "passwordedicion":
+                    parametros.PasswordEdicion = valor;
+                    break;
             }
         }
 
@@ -315,6 +324,14 @@ namespace PdfTools.Logica
                     case "cerrarvisor":
                         contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.CerrarVisor);
                         contexto.Acciones.CerrarVisor = true;
+                        break;
+
+                    case "proteger":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.Proteger);
+                        break;
+
+                    case "protegerlote":
+                        contexto.Acciones.AccionesProceso.Add(Enums.AccionesProceso.ProtegerLote);
                         break;
                 }
             }
@@ -418,6 +435,8 @@ namespace PdfTools.Logica
             "listaficheros",
             "textomarca",
             "colormarca",
+            "passwordapertura",
+            "passwordedicion"
         };
 
         // Campo con los valores que pueden tener los parametros de acciones

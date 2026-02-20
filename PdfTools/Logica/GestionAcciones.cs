@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using PdfSharp.Internal;
 using PdfSharp.Pdf;
+using PdfSharp.Pdf.Security;
+using PdfSharp.Pdf.IO;
 using PdfTools.Datos;
 using PdfTools.Logica;
 
@@ -77,6 +75,14 @@ namespace PdfTools.Metodos
 
                         case Enums.AccionesProceso.CerrarVisor:
                             Utilidades.CerrarVisor();
+                            break;
+
+                        case Enums.AccionesProceso.Proteger:
+                            EjecutarProteger(contexto);
+                            break;
+
+                        case Enums.AccionesProceso.ProtegerLote:
+
                             break;
                     }
 
@@ -213,7 +219,7 @@ namespace PdfTools.Metodos
             ProcessStartInfo psi = new ProcessStartInfo
             {
                 FileName = contexto.RutaVisorPdf, // Nombre del ejecutable del visor
-                WorkingDirectory = Path.GetDirectoryName(contexto.RutaVisorPdf), 
+                WorkingDirectory = Path.GetDirectoryName(contexto.RutaVisorPdf),
                 Arguments = $"-new-window \"{contexto.PdfActual}\"", // Nombre del fichero a abrir en el visor que se abre en una ventana nueva (forzado para que funcione AllowSetForegroundWindow)
                 CreateNoWindow = false, // Crea una ventana
                 WindowStyle = ProcessWindowStyle.Normal, // Ventana con estado normal
@@ -304,6 +310,60 @@ namespace PdfTools.Metodos
             catch(Exception ex)
             {
                 throw new InvalidOperationException($"Error durante la fusión de PDFs: {ex.Message}");
+            }
+        }
+
+        private void EjecutarProteger(ContextoEjecucion contexto)
+        {
+            var parametros = contexto.Parametros;
+
+            // Si no se ha pasado el fichero de salida, se utiliza el de entrada con el sufijo _protegido
+            if(string.IsNullOrEmpty(parametros.PdfSalida))
+            {
+                parametros.PdfSalida = Path.Combine(parametros.RutaFicheros, Path.GetFileNameWithoutExtension(parametros.PdfEntrada)) + "_protegido.pdf";
+            }
+
+            // ------------- Validaciones de contraseñas a asignar al PDF -----------
+            var passwordApertura = parametros.PasswordApertura;
+            var passwordEdicion = parametros.PasswordEdicion;
+
+            if(!string.IsNullOrEmpty(passwordApertura) && passwordApertura == passwordEdicion)
+            {
+                Logger.Agregar("Las contraseñas de apertura y edicion no pueden ser iguales");
+                return;
+            }
+
+            // Abre el documento (importante usar PdfDocumentOpenMode.Modify)
+            using(PdfDocument document = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify))
+            {
+                // Accede a la configuración de seguridad
+                PdfSecuritySettings securitySettings = document.SecuritySettings;
+
+                // Asigna la contraseña de apertura
+                if(!string.IsNullOrEmpty(parametros.PasswordApertura))
+                {
+                    securitySettings.UserPassword = parametros.PasswordApertura;
+                }
+
+                // Asigna la contraseña de edicion
+                if(!string.IsNullOrEmpty(parametros.PasswordEdicion))
+                {
+                    securitySettings.OwnerPassword = parametros.PasswordEdicion;
+                }
+
+                // Restringir acciones específicas si hay contraseña de edición
+                // Acciones permitidas
+                securitySettings.PermitPrint = true; // Permiso para imprimir
+                securitySettings.PermitFullQualityPrint = true; // Permiso para imprimir en alta resolucion
+                securitySettings.PermitAnnotations = true; // Permiso para crear anotaciones
+                securitySettings.PermitFormsFill = true; // Permiso para rellenar formularios
+
+                // Acciones no permitidas
+                securitySettings.PermitModifyDocument = false; // Bloquea cualquer cambio en el documento (se desactiva)
+                securitySettings.PermitExtractContent = false; // Permiso para extraer texto (seleccionar y copiar)
+
+                // Guarda el PDF con el nombre de salida
+                document.Save(parametros.PdfSalida);
             }
         }
     }

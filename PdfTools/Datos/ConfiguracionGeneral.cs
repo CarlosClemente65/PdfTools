@@ -19,6 +19,8 @@ namespace PdfTools.Datos
         public List<string> ListaArchivos { get; set; } // Lista de archivos para procesar si se pasa una carpeta
         public string TextoMarcaAgua { get; set; } = string.Empty; // Texto de la marca de agua en caso de que se use
         public string ColorMarca { get; set; } = "#E1E1E1"; // Color de la marca de agua (gris claro)
+        public string PasswordApertura {  get; set; } // Constraseña de apertura del PDF
+        public string PasswordEdicion  { get; set; } // Constraseña para edicion del PDF
 
 
         public ConfiguracionGeneral()
@@ -28,6 +30,8 @@ namespace PdfTools.Datos
             ProcesarCarpeta = false;
             AccionGlobal = false;
             ListaArchivos = new List<string>();
+            PasswordApertura = string.Empty;
+            PasswordEdicion = string.Empty;
         }
 
         public ConfiguracionGeneral(ConfiguracionGeneral origen)
@@ -44,6 +48,8 @@ namespace PdfTools.Datos
             ListaArchivos = new List<string>(origen.ListaArchivos);
             TextoMarcaAgua = origen.TextoMarcaAgua;
             ColorMarca = origen.ColorMarca;
+            PasswordApertura = origen.PasswordApertura;
+            PasswordEdicion = origen.PasswordEdicion;
         }
 
     }

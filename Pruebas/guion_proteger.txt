@@ -1,0 +1,4 @@
+pdfentrada=d:\Programacion\c#\PdfTools\Pruebas\25_00001.pdf
+passwordedicion=carlos
+acciones=proteger
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\fin.txt

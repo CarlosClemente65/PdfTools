@@ -39,7 +39,9 @@
             Imprimir,
             Abrir,
             Visualizar,
-            CerrarVisor
+            CerrarVisor,
+            Proteger,
+            ProtegerLote
         }
     }
 }
