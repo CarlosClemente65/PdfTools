@@ -7,6 +7,7 @@ using PdfSharp.Pdf.Security;
 using PdfSharp.Pdf.IO;
 using PdfTools.Datos;
 using PdfTools.Logica;
+using System.Windows;
 
 namespace PdfTools.Metodos
 {
@@ -333,67 +334,79 @@ namespace PdfTools.Metodos
                 return;
             }
 
-            // Abre el documento (importante usar PdfDocumentOpenMode.Modify)
-            using(PdfDocument document = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify))
+            try
             {
-                // Accede a la configuración de seguridad
-                PdfSecuritySettings securitySettings = document.SecuritySettings;
-
-                // Asigna la contraseña de apertura
-                if(!string.IsNullOrEmpty(parametros.PasswordApertura))
+                // Abre el documento (importante usar PdfDocumentOpenMode.Modify)
+                using(PdfDocument document = PdfReader.Open(parametros.PdfEntrada, PdfDocumentOpenMode.Modify))
                 {
-                    securitySettings.UserPassword = parametros.PasswordApertura;
+                    // Accede a la configuración de seguridad
+                    PdfSecuritySettings securitySettings = document.SecuritySettings;
+
+                    // Asigna la contraseña de apertura
+                    if(!string.IsNullOrEmpty(parametros.PasswordApertura))
+                    {
+                        securitySettings.UserPassword = parametros.PasswordApertura;
+                    }
+
+                    // Asigna la contraseña de edicion
+                    if(!string.IsNullOrEmpty(parametros.PasswordEdicion))
+                    {
+                        securitySettings.OwnerPassword = parametros.PasswordEdicion;
+                    }
+
+                    // Restringir acciones específicas si hay contraseña de edición
+                    // Acciones permitidas
+                    securitySettings.PermitPrint = true; // Permiso para imprimir
+                    securitySettings.PermitFullQualityPrint = true; // Permiso para imprimir en alta resolucion
+                    securitySettings.PermitAnnotations = true; // Permiso para crear anotaciones
+                    securitySettings.PermitExtractContent = true; // Permiso para extraer texto (seleccionar y copiar)
+                    securitySettings.PermitFormsFill = true; // Permiso para rellenar formularios
+
+                    // Acciones no permitidas
+                    securitySettings.PermitModifyDocument = false; // Bloquea cualquer cambio en el documento (se desactiva)
+                    securitySettings.PermitAssembleDocument = false; // No permite insertar, rotar o eliminar hojas
+
+                    // Guarda el PDF con el nombre de salida
+                    document.Save(parametros.PdfSalida);
                 }
-
-                // Asigna la contraseña de edicion
-                if(!string.IsNullOrEmpty(parametros.PasswordEdicion))
-                {
-                    securitySettings.OwnerPassword = parametros.PasswordEdicion;
-                }
-
-                // Restringir acciones específicas si hay contraseña de edición
-                // Acciones permitidas
-                securitySettings.PermitPrint = true; // Permiso para imprimir
-                securitySettings.PermitFullQualityPrint = true; // Permiso para imprimir en alta resolucion
-                securitySettings.PermitAnnotations = true; // Permiso para crear anotaciones
-                securitySettings.PermitFormsFill = true; // Permiso para rellenar formularios
-
-                // Acciones no permitidas
-                securitySettings.PermitModifyDocument = false; // Bloquea cualquer cambio en el documento (se desactiva)
-                securitySettings.PermitExtractContent = false; // Permiso para extraer texto (seleccionar y copiar)
-
-                // Guarda el PDF con el nombre de salida
-                document.Save(parametros.PdfSalida);
+            }
+            catch(PdfReaderException)
+            {
+                Logger.Agregar("No se puede abrir el PDF. Puede estar protegido con contraseña");
+            }
+            catch(Exception ex)
+            {
+                Logger.Agregar($"Error al proteger el PDF: {ex.Message}");
             }
         }
     }
+}
 
-    public class ContextoEjecucion
-    {
-        // Ruta del PDF sobre el que se está trabajando actualmente
-        public string PdfActual { get; set; }
+public class ContextoEjecucion
+{
+    // Ruta del PDF sobre el que se está trabajando actualmente
+    public string PdfActual { get; set; }
 
-        // Ruta del ejecutable de SumatraPDF
-        public string RutaVisorPdf { get; set; }
+    // Ruta del ejecutable de SumatraPDF
+    public string RutaVisorPdf { get; set; }
 
-        // Carpeta de cache de SumatraPDF
-        public string CacheVisorPdf { get; set; }
+    // Carpeta de cache de SumatraPDF
+    public string CacheVisorPdf { get; set; }
 
-        // Indica si hay que esperar al cierre del visor
-        public bool EsperarCierreVisor { get; set; }
+    // Indica si hay que esperar al cierre del visor
+    public bool EsperarCierreVisor { get; set; }
 
-        // Parametros generales del proceso
-        public ConfiguracionGeneral Parametros { get; set; }
+    // Parametros generales del proceso
+    public ConfiguracionGeneral Parametros { get; set; }
 
-        // Datos de configuración del QR
-        public ConfiguracionQR DatosQR { get; set; }
+    // Datos de configuración del QR
+    public ConfiguracionQR DatosQR { get; set; }
 
-        // Datos de configuración de las acciones
-        public ConfiguracionAcciones Acciones { get; set; }
+    // Datos de configuración de las acciones
+    public ConfiguracionAcciones Acciones { get; set; }
 
-        // Gestor reutilizable para la unión de PDFs
-        public UnirPDFs GestorFusion { get; set; }
+    // Gestor reutilizable para la unión de PDFs
+    public UnirPDFs GestorFusion { get; set; }
 
-    }
 
 }

@@ -1,4 +1,5 @@
 pdfentrada=d:\Programacion\c#\PdfTools\Pruebas\25_00001.pdf
 passwordedicion=carlos
+passwordapertura=carlos1
 acciones=proteger
 ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\fin.txt
