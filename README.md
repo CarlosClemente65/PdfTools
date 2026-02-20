@@ -50,6 +50,8 @@ PdfTools.exe ds123456 guion.txt
 	* ListaFicheros=Nombre de los ficheros de CarpetaEntrada separados por comas a procesar(opcional)
 	* TextoMarca=Texto para insertar una marca de agua en el documento (opcional)
 	* ColorMarca=Color de la marca de agua en formato hexadecimal; defecto #E1E1E1 (gris claro)
+	* PassApertura=Contraseña a aplicar al PDF para abrirlo
+	* PassCambios=Contraseña a aplicar al PDF para evitar cambios
 	* Acciones=Acciones a realizar en el proceso separadas por comas y por orden de ejecucion:
 		- InsertarQR: Añade el QR a un solo fichero
 		- InsertarLoteQR: Añade el QR a un lote de ficheros de una carpeta
@@ -59,6 +61,8 @@ PdfTools.exe ds123456 guion.txt
 		- Abrir: Abre el documento de salida con el visor y espera al cierre para continuar
 		- Visualizar: Igual que 'Abrir' pero no espera al cierre.
 		- CerrarVisor: Cierra el visor SumatraPDF en el caso de que este abierto.
+		- Proteger: Aplica las contraseñas de apertura o de edicion a un PDF
+		- ProtegerLote: Aplica las contraseñas de apertura o de edicion a los ficheros de la carpeta de entrada
 
 - Parametros QR:
 	* Entorno='pruebas' para forzar el envio a la web de pruebas (opcional)
@@ -118,6 +122,15 @@ PdfTools.exe ds123456 guion.txt
 	- Si no se incluye la 'ListaFicheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
 	- Si no se incluye la 'CarpetaSalida' el pdf generado se dejara en la carpeta de entrada
 	- Si no se incluye el 'PdfSalida' se genera uno por defecto "fichero_salida.pdf"
+* En el caso de procesado de una carpeta para proteger los PDFs con contraseña se debe tener en cuenta lo siguiente:
+	- El parametro 'CarpetaEntrada' es obligatorio
+	- Ademas del PDF debe haber un guion.txt con los parametros de las contraseñas a aplicar y mismo nombre que el PDF
+	- Si no se incluye el guion.txt, el PDF de entrada se dejara sin procesar en la carpeta de salida (no genera error)
+	- Si la 'CarpetaSalida' no existe se crea, y grabara los ficheros con el mismo nombre que en la entrada
+	- Si no se pasa el parametro 'CarpetaSalida' los ficheros se pondran en la 'CarpetaEntrada' teniendo en cuenta lo siguiente:
+		- Si el guion.txt tiene el parametro 'PdfSalida' se utilizara ese nombre
+		- En caso contrario, se pondra el mismo que el de entrada con el sufijo '_protegido'
+	- Si se pasan acciones globales en el guion principal, se aplicaran a todos los ficheros (no se tienen en cuenta las acciones individuales)
 * En la ruta de ejecucion deben estar los siguientes ficheros:
 	- PdfSharp.dll
 	- QRCoder.dll
