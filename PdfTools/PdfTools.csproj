@@ -60,7 +60,11 @@
     <Compile Include="Datos\ConfiguracionAcciones.cs" />
     <Compile Include="Datos\ConfiguracionGeneral.cs" />
     <Compile Include="Datos\ConfiguracionQR.cs" />
+    <Compile Include="Datos\ContextoEjecucion.cs" />
+    <Compile Include="Datos\DocumentoLoteProteger.cs" />
     <Compile Include="Datos\Enums.cs" />
+    <Compile Include="Datos\IDocumentoLote.cs" />
+    <Compile Include="Datos\DocumentoLoteQR.cs" />
     <Compile Include="Logica\InsertaQR.cs" />
     <Compile Include="Logica\GestionParametros.cs" />
     <Compile Include="Logica\Logger.cs" />

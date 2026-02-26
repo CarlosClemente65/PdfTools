@@ -13,27 +13,27 @@ namespace PdfTools.Metodos
     public class GestionLotes
     {
         GestionAcciones gestorAcciones = new GestionAcciones();
-        // Metodo de entrada para procesar el lote de ficheros a añadir el QR
-        public void ProcesarLoteQR(ContextoEjecucion contexto)
+
+        // Procesado generico del lote de ficheros
+        public void ProcesarLote<T>(ContextoEjecucion contexto) where T : IDocumentoLote, new()
         {
+            // Este metodo recibe el tipo de documento a procesar, pero se condiciona a que sea del tipo IDocumentoLote y ademas se incluye el new() para poder crear instancias del tipo T
             var parametros = contexto.Parametros;
             var acciones = contexto.Acciones;
-
             StringBuilder resultadoLote = new StringBuilder();
 
             // Asigna la carpeta de salida a la misma de entrada si no se ha pasado
             parametros.CarpetaSalida = string.IsNullOrWhiteSpace(parametros.CarpetaSalida) ?
                 parametros.CarpetaEntrada : parametros.CarpetaSalida;
 
-            // Lista con los documentos a procesar
-            List<DocumentoLoteQR> ficherosLote = new List<DocumentoLoteQR>();
-            ficherosLote = CargarFicheros(parametros.CarpetaEntrada);
+            // Lista con los documentos a procesar. Se llama al metodo pasandole el tipo T para cargar la lista con el tipo de documento correspondiente
+            List<T> ficherosLote = new List<T>();
+            ficherosLote = CargarFicheros<T>(parametros.CarpetaEntrada);
 
             // Procesar cada fichero
             foreach(var fichero in ficherosLote)
             {
                 ProcesarFicheroLote(fichero, resultadoLote, contexto);
-
                 // Una vez procesado el fichero se limpia el logger para procesar el siguiente fichero
                 Logger.Limpiar();
             }
@@ -46,14 +46,13 @@ namespace PdfTools.Metodos
                 contexto.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.Imprimir);
                 contexto.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.Visualizar);
             }
-
             // Una vez procesados los ficheros se añaden los mensajes del procesado al logger
             Logger.Agregar(resultadoLote);
-
         }
 
-        // Genera una lista con los ficheros PDF a procesar en la carpeta de entrada
-        public List<DocumentoLoteQR> CargarFicheros(string carpetaEntrada)
+
+        // Metodo para la carga generica de ficheros
+        public List<T> CargarFicheros<T>(string carpetaEntrada) where T : IDocumentoLote, new()
         {
             // Lista de los archivos PDF de la carpeta
             List<string> ArchivosPDF = new List<string>();
@@ -63,51 +62,34 @@ namespace PdfTools.Metodos
             {
                 ArchivosPDF.AddRange(Directory.GetFiles(carpetaEntrada, "*.pdf"));
             }
-
             catch(Exception ex)
             {
                 Logger.Agregar($"No hay ningun fichero PDF en la carpeta seleccionada: {ex}");
                 return null;
             }
 
-            // Objeto con los nombres de los ficheros necesarios
-            List<DocumentoLoteQR> lote = new List<DocumentoLoteQR>();
-
+            // Lista del tipo pasado para agregar los nombres de los ficheros necesarios
+            List<T> lote = new List<T>();
 
             // Si hay archivos PDF en la carpeta de entrada se lanza el proceso
             if(ArchivosPDF.Count > 0)
             {
-                // Extensiones validas de arvhicos
-                string[] extensionesImagen = { ".bmp", ".jpg", ".jpeg", ".png", ".gif", ".tiff" };
-
-                // Procesa cada archivo PDF leido en la carpeta
                 foreach(string archivoPDF in ArchivosPDF)
                 {
-                    string nombreBase = Path.GetFileNameWithoutExtension(archivoPDF); // Necesario para localizar el resto de ficheros necesarios (guion y imagen del qr)
-                    string rutaTxt = Path.Combine(carpetaEntrada, nombreBase + ".txt"); // Nombre del guion que debe tener el mismo nombre que el PDF
+                    string nombreBase = Path.GetFileNameWithoutExtension(archivoPDF);
+                    string rutaTxt = Path.Combine(carpetaEntrada, nombreBase + ".txt");
 
-                    string rutaImagen = null;
+                    // Creamos una instancia del tipo T (puede ser DocumentoLoteQR o DocumentoLoteProteger)
+                    T doc = new T();
+                    doc.NombreBase = nombreBase;
+                    doc.RutaPdf = archivoPDF;
+                    doc.RutaGuion = File.Exists(rutaTxt) ? rutaTxt : null;
 
-                    // Localiza si existe el fichero con la imagen a insertar en el PDF
-                    foreach(string fichero in Directory.GetFiles(carpetaEntrada, nombreBase + ".*"))
+                    // Solo si es un lote de QR, buscamos la imagen
+                    if(doc is DocumentoLoteQR qr)
                     {
-                        string extension = Path.GetExtension(fichero).ToLower();
-
-                        if(extensionesImagen.Contains(extension))
-                        {
-                            rutaImagen = fichero;
-                            break;
-                        }
+                        qr.RutaImagenQR = BuscarImagen(carpetaEntrada, nombreBase);
                     }
-
-                    // Crea el objeto con los nombres de los ficheros incluidos en la carpeta.
-                    DocumentoLoteQR doc = new DocumentoLoteQR
-                    {
-                        NombreBase = nombreBase,
-                        RutaPdf = archivoPDF,
-                        RutaGuion = File.Exists(rutaTxt) ? rutaTxt : null,
-                        RutaImagenQR = rutaImagen
-                    };
 
                     lote.Add(doc);
                 }
@@ -116,9 +98,36 @@ namespace PdfTools.Metodos
             return lote;
         }
 
+        // Método auxiliar para buscar los fichero de imagen
+        private string BuscarImagen(string carpeta, string nombreBase)
+        {
+            string[] extensionesImagen = { ".bmp", ".jpg", ".jpeg", ".png", ".gif", ".tiff" };
+            foreach(string fichero in Directory.GetFiles(carpeta, nombreBase + ".*"))
+            {
+                if(extensionesImagen.Contains(Path.GetExtension(fichero).ToLower()))
+                {
+                    return fichero;
+                }
+            }
+            return null;
+        }
 
         // Procesado de cada fichero del lote para añadir el QR y la marca de agua
-        public void ProcesarFicheroLote(DocumentoLoteQR fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
+        public void ProcesarFicheroLote(IDocumentoLote fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
+        {
+            if(fichero is DocumentoLoteQR ficheroQR)
+            {
+                // Ejecutar el proceso de insercion del QR
+                EjecutarInsertarQR(ficheroQR, resultadoLote, contexto);
+            }
+            else if(fichero is DocumentoLoteProteger ficheroProteger)
+            {
+                // Ejecutar el proceso de proteccion del PDF
+                EjecutarInsertarProteccion(ficheroProteger, resultadoLote, contexto);
+            }
+        }
+
+        public void EjecutarInsertarQR(DocumentoLoteQR fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
         {
             var parametros = contexto.Parametros;
             var acciones = contexto.Acciones;
@@ -259,31 +268,12 @@ namespace PdfTools.Metodos
                 }
             }
         }
-    }
 
-
-    // Clase para gestionar los nombres de cada uno de los ficheros en el proceso por lotes
-    public class DocumentoLoteQR
-    {
-        // Nombre base del documento (para relacionar los ficheros)
-        public string NombreBase { get; set; }
-
-        // Ruta del PDF
-        public string RutaPdf { get; set; }
-
-        // Ruta del guion
-        public string RutaGuion { get; set; }
-
-        // Ruta de la imagen del QR
-        public string RutaImagenQR { get; set; }
-
-        // Control de si tiene todos los ficheros minimos
-        public bool EsValido
+        public void EjecutarInsertarProteccion(DocumentoLoteProteger fichero, StringBuilder resultadoLote, ContextoEjecucion contexto)
         {
-            get
-            {
-                return !string.IsNullOrEmpty(RutaPdf) && !string.IsNullOrEmpty(RutaGuion);
-            }
+            // Este metodo se puede implementar de forma similar a 'EjecutarInsertarQR', creando un nuevo metodo en 'GestionAcciones' para ejecutar la proteccion del PDF
+            var parametros = contexto.Parametros;
+            ProtegerPdf.AplicarProteccion(parametros);
         }
     }
 }

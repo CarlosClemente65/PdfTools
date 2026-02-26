@@ -21,7 +21,7 @@ namespace PdfTools.Logica
             PdfDocument documentoSalida = new PdfDocument();
 
             // Carga los nombres de los ficheros para procesar
-            var ficherosPdfs = gestorLotes.CargarFicheros(parametros.CarpetaEntrada);
+            var ficherosPdfs = gestorLotes.CargarFicheros<DocumentoLoteQR>(parametros.CarpetaEntrada);
 
             // Si no hay carpeta de salida, se utiliza la de entrada
             string carpetaSalida = string.IsNullOrWhiteSpace(parametros.CarpetaSalida)

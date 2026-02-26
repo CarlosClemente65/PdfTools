@@ -42,16 +42,16 @@ PdfTools.exe ds123456 guion.txt
 
 #### Parametros guion
 - Parametros generales:
-	* PdfEntrada=Nombre del pdf con la fatura (obligatorio)
-	* PdfSalida=Nombre del pdf con el QR (opcional)
+	* PdfEntrada=Nombre del pdf a procesar (obligatorio)
+	* PdfSalida=Nombre del pdf de salida (opcional)
 	* FicheroSalida=Nombre del fichero para controlar la finalizacion del proceso (opcional)
 	* CarpetaEntrada=Nombre de la carpeta para procesar un lote de los PDFs que haya dentro
 	* CarpetaSalida=Nombre de la carpeta donde dejar los PDFs procesados por lotes (opcional)
 	* ListaFicheros=Nombre de los ficheros de CarpetaEntrada separados por comas a procesar(opcional)
 	* TextoMarca=Texto para insertar una marca de agua en el documento (opcional)
 	* ColorMarca=Color de la marca de agua en formato hexadecimal; defecto #E1E1E1 (gris claro)
-	* PassApertura=Contraseña a aplicar al PDF para abrirlo
-	* PassCambios=Contraseña a aplicar al PDF para evitar cambios
+	* PasswordApertura=Contraseña a aplicar al PDF para abrirlo
+	* PasswordEdicion=Contraseña a aplicar al PDF para restringir cambios
 	* Acciones=Acciones a realizar en el proceso separadas por comas y por orden de ejecucion:
 		- InsertarQR: Añade el QR a un solo fichero
 		- InsertarLoteQR: Añade el QR a un lote de ficheros de una carpeta
@@ -122,6 +122,9 @@ PdfTools.exe ds123456 guion.txt
 	- Si no se incluye la 'ListaFicheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
 	- Si no se incluye la 'CarpetaSalida' el pdf generado se dejara en la carpeta de entrada
 	- Si no se incluye el 'PdfSalida' se genera uno por defecto "fichero_salida.pdf"
+* En el caso de proteger un PDF se debe tener en cuenta lo siguiente:
+	- Las contraseñas de apertura y edicion no pueden ser iguales
+	- Si no se incluye el 'PdfSalida' se pondra el mismo que el de entrada con el sufijo '_protegido'
 * En el caso de procesado de una carpeta para proteger los PDFs con contraseña se debe tener en cuenta lo siguiente:
 	- El parametro 'CarpetaEntrada' es obligatorio
 	- Ademas del PDF debe haber un guion.txt con los parametros de las contraseñas a aplicar y mismo nombre que el PDF
