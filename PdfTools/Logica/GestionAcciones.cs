@@ -334,7 +334,7 @@ namespace PdfTools.Metodos
                 return;
             }
 
-            ProtegerPdf.AplicarProteccion(parametros);
+            ProtegerPdf.AplicarProteccion(parametros, contexto);
         }
 
         private void EjecutarProtegerLote(ContextoEjecucion contexto)
@@ -357,6 +357,11 @@ namespace PdfTools.Metodos
             // Llamada al método que procesa el lote de ficheros
             gestorLotes.ProcesarLote<DocumentoLoteProteger>(contexto);
 
+            // Marcamos la acción como ejecutada si no hubo errores críticos
+            if(!Logger.TieneContenido())
+            {
+                contexto.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.ProtegerLote);
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace PdfTools.Logica
 {
     public class ProtegerPdf
     {
-        public static void AplicarProteccion(ConfiguracionGeneral parametros)
+        public static void AplicarProteccion(ConfiguracionGeneral parametros, ContextoEjecucion contextoFichero)
         {
             try
             {
@@ -48,6 +48,9 @@ namespace PdfTools.Logica
 
                     // Guarda el PDF con el nombre de salida
                     document.Save(parametros.PdfSalida);
+
+                    // Marcamos la acción como ejecutada si no hubo errores críticos
+                    contextoFichero.Acciones.AccionesEjecutadas.Add(Enums.AccionesProceso.Proteger);
                 }
             }
             catch(PdfReaderException)

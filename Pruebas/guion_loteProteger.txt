@@ -1,0 +1,6 @@
+carpetaentrada=d:\Programacion\C#\PdfTools\Pruebas\FacturasLoteProteger
+carpetasalida=d:\Programacion\C#\PdfTools\Pruebas\FacturasLoteProtegido
+ficherosalida=d:\Programacion\c#\PdfTools\Pruebas\FacturasLoteProtegido\salida_lotes.txt
+acciones=protegerlote
+listaficheros=alquiler-1, alquiler-2, alquiler-3
+

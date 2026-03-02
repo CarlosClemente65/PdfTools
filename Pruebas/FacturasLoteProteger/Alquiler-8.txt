@@ -1,0 +1,11 @@
+entorno=pruebas
+verifactu=si
+nifemisor=05196375P
+numerofactura=25 / 8
+fechafactura=01.08.2025
+totalfactura=150,22
+posicionx=170
+posiciony=5
+ancho=25
+color=#000000
+idioma=gl

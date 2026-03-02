@@ -1,0 +1,2 @@
+passwordApertura=Carlos
+passwordedicion=carlos

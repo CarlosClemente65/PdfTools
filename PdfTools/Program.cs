@@ -79,9 +79,7 @@ namespace PdfTools
                     Enums.AccionesProceso.InsertarMarca,
                     Enums.AccionesProceso.Imprimir,
                     Enums.AccionesProceso.Abrir,
-                    Enums.AccionesProceso.Visualizar,
-                    Enums.AccionesProceso.Proteger,
-                    Enums.AccionesProceso.ProtegerLote
+                    Enums.AccionesProceso.Visualizar
                 };
 
 
