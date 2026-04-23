@@ -1,5 +1,5 @@
 entorno=pruebas
-pdfsalida=C:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Alquiler-3.pdf
+pdfsalida=C:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Salida\Alquiler-3.pdf
 verifactu=si
 nifemisor=05196375P
 numerofactura=25 / 3

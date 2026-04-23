@@ -1,6 +1,7 @@
 entorno=pruebas
-pdfsalida=C:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Alquiler-1.pdf
+pdfsalida=C:\Programacion\c#\PdfTools\Pruebas\FacturasLote2\Salida\Alquiler-1.pdf
 verifactu=si
+omitirQR=
 nifemisor=05196375P
 numerofactura=25 / 1
 fechafactura=01.01.2025
