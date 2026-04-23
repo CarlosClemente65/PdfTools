@@ -10,6 +10,7 @@ namespace PdfTools.Datos
         public bool InsertarQR = false; // Control para incluir o no el QR en el PDF
         public string NombreFicheroQR { get; set; } // Fichero de imagen del QR externo
 
+        public bool OmitirQR { get; set; } = false; // Control para omitir la generación del QR (si se establece a true, no se generará el QR aunque los datos estén completos)
 
         // Propiedades privadas para instancias internas
         private DatosUrl _datosUrl;

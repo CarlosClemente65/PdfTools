@@ -22,6 +22,9 @@ namespace PdfTools
             var acciones = contexto.Acciones;
             _datosQR = datosQR; // Se asigna al objeto de clase porque se utiliza en otro metodo de la clase
 
+            // Si no se ha marcado la opcion de insertar el QR, se devuelve el documento sin modificar
+            if(!_datosQR.InsertarQR) return documento;
+
             // Establece la pagina 1 para insertar el QR y las imagenes
             PdfPage pagina = documento.Pages[0];
 

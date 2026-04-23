@@ -65,6 +65,7 @@ PdfTools.exe ds123456 guion.txt
 	* Verifactu=[SI/NO | S/N | true/false] para indicar si son facturas verificables (opcional)
 	* FicheroQR=Nombre del fichero con la imagen del QR; si no se pasa es obligatorio los campos nifemisor y datos factura (opcional)
 	* url=direccion url para la validacion (opcional)
+	* OmitirQR=[SI | S | true] para forzar a que no se añada el QR al fichero al procesar un lote de ficheros (opcional)
 	* NifEmisor=NIF del emisor de la factura para incluir en el QR (obligatorio si no se pasa un ficheroQR)
 	* NumeroFactura=Numero de de factura para incluir en el QR (obligatorio si no se pasa un ficheroQR)
 	* FechaFactura=Fecha de la factura para incluir en el QR (obligatorio si no se pasa un ficheroQR)
@@ -114,6 +115,7 @@ PdfTools.exe ds123456 guion.txt
 		- En caso contrario, se pondra el mismo que el de entrada con el sufijo '_salida'
 	- Se pueden pasar acciones individuales por cada fichero en el guion.txt
 	- Si se pasan acciones globales en el guion principal, se aplicaran a todos los ficheros (no se tienen en cuenta las acciones individuales)
+	- Si no se quiere añadir el QR a algun fichero, en el guion.txt de ese fichero incluir el parametro "OmitirQR=SI"
 * En el caso del proceso de union de PDFs se debe tener en cuenta lo siguiente:
 	- Si no se incluye la 'ListaFicheros' se añadiran los ficheros de la carpeta de entrada (ordenados segun lectura del sistema)
 	- Si no se incluye la 'CarpetaSalida' el pdf generado se dejara en la carpeta de entrada

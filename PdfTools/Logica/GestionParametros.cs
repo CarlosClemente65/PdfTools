@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -75,6 +76,15 @@ namespace PdfTools.Logica
                     // Si se pasa la URL, se usa esa directamente
                     datosQR.DatosUrl.UrlEnvio = valor;
                     datosQR.InsertarQR = true; // Al pasar la url hay que insertar el QR en el PDF
+                    break;
+
+                case "omitirqr":
+                    // En el caso de no querer inserte el QR, se fuerza la no inserción aunque se pasen otros parametros para el QR
+                    var opcionesValidas = new[] { "si", "s", "true" };
+                    if(opcionesValidas.Contains(valor.ToLower()))
+                    {
+                        datosQR.OmitirQR = true;
+                    }
                     break;
 
                 case "nifemisor":
@@ -183,6 +193,11 @@ namespace PdfTools.Logica
                         datosQR.DatosUrl.IdiomaQR = idiomaQR;
                     }
                     break;
+            }
+
+            if(datosQR.OmitirQR)
+            {
+                datosQR.InsertarQR = false; // Si se ha indicado omitir el QR, se fuerza a que no se inserte aunque se pasen otros parametros para el QR
             }
         }
 
@@ -395,6 +410,7 @@ namespace PdfTools.Logica
             "verifactu",
             "ficheroqr",
             "url",
+            "omitirqr",
             "nifemisor",
             "numerofactura",
             "fechafactura",

@@ -135,7 +135,7 @@ namespace PdfTools.Metodos
 
             if(parametros.AccionGlobal)
             {
-                // Si se han pasado acciones globlales, se asignan al fichero
+                // Si se han pasado acciones globales, se asignan al fichero
                 accionesFichero.AccionesProceso = new HashSet<Enums.AccionesProceso>(acciones.AccionesProceso);
                 accionesFichero.AccionesEjecutadas = new HashSet<Enums.AccionesProceso>(acciones.AccionesEjecutadas);
             }

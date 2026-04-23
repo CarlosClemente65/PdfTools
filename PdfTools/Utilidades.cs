@@ -45,6 +45,8 @@ namespace PdfTools
                     gestorParametros.AsignaParametros(clave: partes[0].ToLower(), valor: partes[1], contexto); // La clave se pasa a minusculas para unificar textos
                 }
             }
+
+            if(contexto.DatosQR.OmitirQR) contexto.DatosQR.InsertarQR = false;
         }
 
 
