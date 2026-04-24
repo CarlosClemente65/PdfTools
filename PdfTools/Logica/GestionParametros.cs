@@ -358,27 +358,30 @@ namespace PdfTools.Logica
             }
 
             // ---------- Validaciones para el QR ------------
-            if(datosQR.UsarQrExterno)
+            if(datosQR.InsertarQR) // Solo se validan los datos del QR si se ha indicado que se insertará el QR
             {
-                // En caso de que se pase un fichero con el QR, valida que exista
-                if(!File.Exists(datosQR.NombreFicheroQR))
+                if(datosQR.UsarQrExterno)
                 {
-                    Logger.Agregar("El fichero del código QR no existe.");
+                    // En caso de que se pase un fichero con el QR, valida que exista
+                    if(!File.Exists(datosQR.NombreFicheroQR))
+                    {
+                        Logger.Agregar("El fichero del código QR no existe.");
+                    }
                 }
-            }
-            else
-            {
-                // Genera la URL de envío del QR si no se ha pasado segun el resto de parametros 
-                if(string.IsNullOrEmpty(datosQR.DatosUrl.UrlEnvio))
+                else
                 {
-                    datosQR.DatosUrl.UrlEnvio = Utilidades.ObtenerUrl(contexto);
-                }
+                    // Genera la URL de envío del QR si no se ha pasado segun el resto de parametros 
+                    if(string.IsNullOrEmpty(datosQR.DatosUrl.UrlEnvio))
+                    {
+                        datosQR.DatosUrl.UrlEnvio = Utilidades.ObtenerUrl(contexto);
+                    }
 
-                // Validaciones de los datos de la factura para generar el QR
-                ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor), "nifEmisor");
-                ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NumeroFactura), "numeroFactura");
-                ValidarPropiedad(datosQR.DatosFactura.FechaFactura != DateTime.MinValue, "fechaFactura");
-                ValidarPropiedad(datosQR.DatosFactura.TotalFactura != 0, "totalFactura");
+                    // Validaciones de los datos de la factura para generar el QR
+                    ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor), "nifEmisor");
+                    ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NumeroFactura), "numeroFactura");
+                    ValidarPropiedad(datosQR.DatosFactura.FechaFactura != DateTime.MinValue, "fechaFactura");
+                    ValidarPropiedad(datosQR.DatosFactura.TotalFactura != 0, "totalFactura");
+                }
 
                 // Valida si el color pasado es valido
                 if(!Utilidades.ColorValido(datosQR.DatosAdicionales.ColorQR))
