@@ -380,7 +380,8 @@ namespace PdfTools.Logica
                     ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NifEmisor), "nifEmisor");
                     ValidarPropiedad(!string.IsNullOrEmpty(datosQR.DatosFactura.NumeroFactura), "numeroFactura");
                     ValidarPropiedad(datosQR.DatosFactura.FechaFactura != DateTime.MinValue, "fechaFactura");
-                    ValidarPropiedad(datosQR.DatosFactura.TotalFactura != 0, "totalFactura");
+                    // Se elimina la validacion del total factura segun el tiquet 700099-9 ya que puede haber facturas con total 0 (por ejemplo, facturas de garantias)
+                    //ValidarPropiedad(datosQR.DatosFactura.TotalFactura != 0, "totalFactura");
                 }
 
                 // Valida si el color pasado es valido
